@@ -1,4 +1,4 @@
-package se.gu.featuredashboard.FeatureFolderHnadler;
+package se.gu.featuredashboard.parsing;
 
 import java.io.File;
 import java.io.IOException;
@@ -11,7 +11,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class FeatureFolderHandler {
+public class FeatureFolderParser {
 
 	public static Map<String, ArrayList<String>> readFeatureFile(String featureFileAddress) {
 

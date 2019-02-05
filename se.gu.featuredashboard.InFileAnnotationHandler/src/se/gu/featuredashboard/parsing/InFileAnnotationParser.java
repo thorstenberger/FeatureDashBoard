@@ -1,18 +1,22 @@
-package se.gu.featuredashboard.InFileAnnotationHandler;
+package se.gu.featuredashboard.parsing;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import se.gu.featuredashboard.LocationHandler.Locations.AnnotatedLocations;
-import se.gu.featuredashboard.LocationHandler.Locations.Features_Locations;
+import se.gu.featuredashboard.LocationHandler.Locations.BlockLine;
+import se.gu.featuredashboard.LocationHandler.Locations.FeatureAnnotationsLocation;
+import se.gu.featuredashboard.featuremodel.Feature;
 
 public class InFileAnnotationParser {
 
@@ -64,58 +68,73 @@ public class InFileAnnotationParser {
 		return regex_endAnnotations.remove(strRegex);
 	}
 
-	public Features_Locations readParseAnnotations(String fileName) {
+	public ArrayList<FeatureAnnotationsLocation> readParseAnnotations(String fileName) {
 		if (regex_beginAnnotations.size() != regex_endAnnotations.size())
 			return null; // check input inconsistency
+		int multipleRegexSize = regex_beginAnnotations.size();  // equals regex_endAnnotations.size()
+		ArrayList<FeatureAnnotationsLocation> parsedLocations = new ArrayList<>();
 
+		// single line annotations parsing
 		Map<String, ArrayList<Integer>> singleLineLocations = new HashMap<>();
-		Map<String, ArrayList<Integer>> multipleLineBeginLocations = new HashMap<>();
-		Map<String, ArrayList<Integer>> multipleLineEndLocations = new HashMap<>();
-
 		for (String regexStr : regex_lineAnnotations) {
 			Map<String, ArrayList<Integer>> newSingleLineAnnotations = parseRegex(fileName, regexStr);
-			singleLineLocations = appendLineAnnotations(singleLineLocations, newSingleLineAnnotations);
+			singleLineLocations = appendAnnotations(singleLineLocations, newSingleLineAnnotations);
 		}
 
-		int multipleRegexSize = regex_beginAnnotations.size();
-		// equals regex_endAnnotations.size()
-
+		Map<String, ArrayList<Integer>> multipleLineBeginLocations = new HashMap<>();
+		Map<String, ArrayList<Integer>> multipleLineEndLocations = new HashMap<>();
 		for (int i = 0; i < multipleRegexSize; i++) {
-			Map<String, ArrayList<Integer>> newBeginLineAnnotations = parseRegex(fileName,
-					regex_beginAnnotations.get(i));
+			Map<String, ArrayList<Integer>> newBeginLineAnnotations = parseRegex(fileName, regex_beginAnnotations.get(i));
 			Map<String, ArrayList<Integer>> newEndLineAnnotations = parseRegex(fileName, regex_endAnnotations.get(i));
-			if (newBeginLineAnnotations.size() != newEndLineAnnotations.size())
-				continue; // skipping the regex annotations with not equal
-							// number of begins and ends
-			multipleLineBeginLocations = appendLineAnnotations(multipleLineBeginLocations, newBeginLineAnnotations);
-			multipleLineEndLocations = appendLineAnnotations(multipleLineEndLocations, newEndLineAnnotations);
+
+			// validation of the input
+			boolean isValidAnnotation = false;
+			if (newBeginLineAnnotations.size() == newEndLineAnnotations.size()) {
+				for (Map.Entry<String, ArrayList<Integer>> beginAnnotation : newBeginLineAnnotations.entrySet()) {
+					if (!newEndLineAnnotations.containsKey(beginAnnotation.getKey())) {
+						isValidAnnotation = false;
+						break;
+					}
+				}
+				isValidAnnotation = true;
+			}
+			if (isValidAnnotation) { // just skipping the invalid annotations
+				multipleLineBeginLocations = appendAnnotations(multipleLineBeginLocations, newBeginLineAnnotations);
+				multipleLineEndLocations = appendAnnotations(multipleLineEndLocations, newEndLineAnnotations);
+			}
 		}
 
-		List<String> allFeatures = new ArrayList<>(singleLineLocations.keySet());
-		multipleLineBeginLocations.keySet().forEach(key -> {
-			if (!allFeatures.contains(key))
-				allFeatures.add(key);
-		});
-		multipleLineEndLocations.keySet().forEach(key -> {
-			if (!allFeatures.contains(key))
-				allFeatures.add(key);
-		});
+		Set<String> allFeatureIDs = new HashSet<>(singleLineLocations.keySet());
+		allFeatureIDs.addAll(multipleLineBeginLocations.keySet());
+		allFeatureIDs.addAll(multipleLineEndLocations.keySet());
 
-		Features_Locations locations = new Features_Locations();
-		for (String id : allFeatures) {
+		for (String id : allFeatureIDs) {
+			ArrayList<BlockLine> blocks = new ArrayList<>();
+			Feature feature = new Feature(id);
+			File file = new File(fileName);
 
-			locations.setTrace_toAnnotation(id, fileName, new AnnotatedLocations(singleLineLocations.get(id),
-					multipleLineBeginLocations.get(id), multipleLineEndLocations.get(id)));
+			if (singleLineLocations.get(id) != null)
+				singleLineLocations.get(id).forEach(line -> {
+					blocks.add(new BlockLine(line, line));
+				});
+
+			if(multipleLineBeginLocations.get(id) != null){ // multipleLineEndLocations.get(i) is not null as well
+				for(int i=0; i< multipleLineBeginLocations.get(id).size();i++){ // the same size of multipleLineEndLocations.get(i)
+					blocks.add(new BlockLine(multipleLineBeginLocations.get(id).get(i), multipleLineEndLocations.get(id).get(i)));
+				}
+			}
+
+			parsedLocations.add(new FeatureAnnotationsLocation(feature, file, blocks));
 		}
 
-		return locations;
+		return parsedLocations;
 	}
 
-	public Features_Locations readParseAnnotations(List<String> fileNames) {
-		Features_Locations AllLocations = new Features_Locations();
+	public ArrayList<FeatureAnnotationsLocation> readParseAnnotations(List<String> fileNames) {
+		ArrayList<FeatureAnnotationsLocation> AllLocations = new ArrayList<>();
 		for (String fileName : fileNames) {
-			Features_Locations locations = readParseAnnotations(fileName);
-			AllLocations.addAnnotationTracesInOtherFiles(locations);
+			ArrayList<FeatureAnnotationsLocation> locations = readParseAnnotations(fileName);
+			AllLocations.addAll(locations);
 		}
 
 		return AllLocations;
@@ -147,7 +166,7 @@ public class InFileAnnotationParser {
 		return annotatedFeaturesLines;
 	}
 
-	public static Map<String, ArrayList<Integer>> appendLineAnnotations(Map<String, ArrayList<Integer>> annotation1,
+	public static Map<String, ArrayList<Integer>> appendAnnotations(Map<String, ArrayList<Integer>> annotation1,
 			Map<String, ArrayList<Integer>> annotation2) {
 		// appending annotations for specific features in one file
 
