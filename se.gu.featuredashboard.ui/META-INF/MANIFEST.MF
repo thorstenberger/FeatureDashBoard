@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Basics
-Bundle-SymbolicName: se.gu.featuredashboard.ui;singleton:=true
+Bundle-SymbolicName: se.gu.featuredashboard.uiSina;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Require-Bundle: org.eclipse.ui,
  org.eclipse.capra.core;bundle-version="0.7.0",
