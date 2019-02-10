@@ -51,12 +51,44 @@
                id="se.gu.featuredashboard.ui.toolbars.Example1Toolbar">
             <command
                   commandId="se.gu.featuredashboard.ui.commands.createTraceLinkCommand"
-                  icon="icons/featureDashborad_icon.png"
+                  icon="icons/featureDashboard_icon.png"
                   tooltip="run feature location dashboard for example1"
                   id="se.gu.featuredashboard.ui.toolbars.createTraceLinkCommand">
             </command>
          </toolbar>
       </menuContribution>
    </extension>
+   
+   <extension
+      point = "org.eclipse.ui.preferencePages">
+       <page id="se.gu.featuredashboard.ui.mainPreferences.page"
+	    class="se.gu.featuredashboard.ui.preferences.MainPreferences"
+            name="Feature Dashboard">
+       </page>
+   </extension>
+   <extension
+      point = "org.eclipse.ui.preferencePages">
+       <page id="se.gu.featuredashboard.ui.regexPreference.page"
+	    class="se.gu.featuredashboard.ui.preferences.RegexPreferences"
+	    category = "se.gu.featuredashboard.ui.mainPreferences.page"
+            name="Regex Patterns">
+       </page>
+   </extension>
+   
+    <extension
+         point="org.eclipse.ui.views">
+      <category
+            name="FeatureDashboard"
+            id="se.gu.featuredashboard.ui.views">
+      </category>
+      <view
+            name="Main View"
+            icon="icons/featureDashboard_icon.png"
+            category="se.gu.featuredashboard.ui.views"
+            class="se.gu.featuredashboard.ui.views.MainView"
+            id="se.gu.featuredashboard.ui.views.MainView">
+      </view>
+      </extension>
+
 
 </plugin>
