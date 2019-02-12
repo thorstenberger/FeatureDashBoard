@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Testsuit
+Bundle-SymbolicName: se.gu.featuredashboard.testsuit
+Bundle-Version: 1.0.0.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Require-Bundle: se.gu.featuredashboard.model;bundle-version="1.0.0",
+ se.gu.featuredashboard.parsing;bundle-version="1.0.0",
+ org.junit
+Import-Package: se.gu.featuredashboard.model.location
