@@ -1,0 +1,7 @@
+Athlon 64: AMDmodelbred.c, 
+Processorformat.cpp,
+Socket751.cpp,
+EquivalencControl.cpp 
+Sempron: SempronChipUpdate.c,
+FM2Sempron.c, 
+MemoryManagSemp.c
