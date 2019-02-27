@@ -2,6 +2,9 @@ package se.gu.featuredashboard.parsing.location;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.nio.charset.Charset;
+import java.nio.charset.UnmappableCharacterException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -142,9 +145,11 @@ public class InFileAnnotationParser {
 
 	public static Map<String, ArrayList<Integer>> parseRegex(String fileName, String regexString) {
 		List<String> inputList = new ArrayList<>();
-		try (Stream<String> stream = Files.lines(Paths.get(fileName))) {
+		try (Stream<String> stream = Files.lines(Paths.get(fileName), Charset.defaultCharset())) {
 			inputList = stream.collect(Collectors.toList());
 
+		} catch (UncheckedIOException e) {
+			e.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

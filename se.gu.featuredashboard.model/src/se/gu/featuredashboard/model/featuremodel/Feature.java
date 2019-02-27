@@ -31,8 +31,12 @@ public class Feature {
 	public boolean equals(Object aFeature) {
 		if (!(aFeature instanceof Feature))
 			return false;
-		if (featureID.equals(((Feature) aFeature).getFeatureID()))
+		
+		Feature toCompare = (Feature) aFeature;
+		
+		if (featureID.equals(toCompare.getFeatureID()))
 			return true;
+		
 		return false;
 	}
 

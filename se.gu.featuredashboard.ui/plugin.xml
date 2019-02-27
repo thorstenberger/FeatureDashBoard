@@ -89,6 +89,50 @@
             id="se.gu.featuredashboard.ui.views.MainView">
       </view>
       </extension>
-
-
+      
+      <extension
+         point="org.eclipse.ui.views">
+      <category
+            name="FeatureDashboard"
+            id="se.gu.featuredashboard.ui.views">
+      </category>
+      <view
+            name="Feature List View"
+            icon="icons/featureDashboard_icon.png"
+            category="se.gu.featuredashboard.ui.views"
+            class="se.gu.featuredashboard.ui.views.FeatureListView"
+            id="se.gu.featuredashboard.ui.views.FeatureListView">
+      </view>
+      </extension>
+      
+      <extension
+         point="org.eclipse.ui.views">
+      <category
+            name="FeatureDashboard"
+            id="se.gu.featuredashboard.ui.views">
+      </category>
+      <view
+            name="Feature-to-File View"
+            icon="icons/featureDashboard_icon.png"
+            category="se.gu.featuredashboard.ui.views"
+            class="se.gu.featuredashboard.ui.views.FeatureFileView"
+            id="se.gu.featuredashboard.ui.views.FeatureFileView">
+      </view>
+      </extension>
+      
+      <extension
+         point="org.eclipse.ui.views">
+      <category
+            name="FeatureDashboard"
+            id="se.gu.featuredashboard.ui.views">
+      </category>
+      <view
+            name="Feature-to-Folder View"
+            icon="icons/featureDashboard_icon.png"
+            category="se.gu.featuredashboard.ui.views"
+            class="se.gu.featuredashboard.ui.views.FeatureFolderView"
+            id="se.gu.featuredashboard.ui.views.FeatureFolderView">
+      </view>
+      </extension>
+      
 </plugin>

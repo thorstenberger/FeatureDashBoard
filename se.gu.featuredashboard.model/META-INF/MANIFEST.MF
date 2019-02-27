@@ -6,3 +6,5 @@ Bundle-Version: 1.0.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Export-Package: se.gu.featuredashboard.model.featuremodel,
  se.gu.featuredashboard.model.location
+Import-Package: org.eclipse.core.resources,
+ org.eclipse.jface.viewers
