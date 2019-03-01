@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature
+      id="org.eclipse.capra.feature"
+      label="FeatureDashboard Main Feature"
+      version="0.0.1.qualifier"
+      provider-name="FeatureDashboard Development Team"
+      license-feature="org.eclipse.license"
+      license-feature-version="2.0.0.qualifier">
+
+   <copyright>
+      Copyright (c) 2019 Chalmers | University of Gothenburg.
+   </copyright>
+
+   <plugin
+         id="se.gu.featuredashboard.model"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="se.gu.featuredashboard.parsing"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="se.gu.featuredashboard.uiSina"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+</feature>
