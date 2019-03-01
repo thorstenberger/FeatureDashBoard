@@ -19,7 +19,6 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<maven.build.timestamp.format>yyyyMMdd-HHmmss</maven.build.timestamp.format>
-		<eclipse-neon-repo.url>http://download.eclipse.org/releases/neon</eclipse-neon-repo.url>
 		<eclipse-oxygen-repo.url>http://download.eclipse.org/releases/oxygen</eclipse-oxygen-repo.url>
 	</properties>
 
@@ -47,13 +46,7 @@
 		</pluginRepository>
 	</pluginRepositories>
 
-	<repositories>
-		<repository>
-			<id>eclipse-neon-release</id>
-			<url>${eclipse-neon-repo.url}</url>
-			<layout>p2</layout>
-		</repository>
-		
+	<repositories>		
 		<repository>
 			<id>eclipse-oxygen-release</id>
 			<url>${eclipse-oxygen-repo.url}</url>
