@@ -10,7 +10,7 @@
 			<repository location="https://download.eclipse.org/tools/orbit/downloads/drops/R20180330011457/repository"/>
 		</location>
 		<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
-			<unit id="org.eclipse.capra.feature.feature.group" version="0.7.0.201902101119"/>
+			<unit id="org.eclipse.capra.feature.feature.group"/>
 			<repository location="https://hudson.eclipse.org/capra/job/build-src-develop-nightly/lastSuccessfulBuild/artifact/org.eclipse.capra.releng.p2/target/repository/"/>
 		</location>
 	</locations>
