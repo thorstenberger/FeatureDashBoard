@@ -1,4 +1,4 @@
-package se.gu.featuredashboard.testsuit.model;
+package se.gu.featuredashboard.testsuite.model;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;

@@ -1,11 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
-      id="org.eclipse.capra.feature"
+      id="se.gu.featuredashboard.feature"
       label="FeatureDashboard Main Feature"
-      version="0.0.1.qualifier"
-      provider-name="FeatureDashboard Development Team"
-      license-feature="org.eclipse.license"
-      license-feature-version="2.0.0.qualifier">
+      version="0.1.0.qualifier"
+      provider-name="FeatureDashboard Development Team">
 
    <copyright>
       Copyright (c) 2019 Chalmers | University of Gothenburg.
@@ -26,7 +24,7 @@
          unpack="false"/>
 
    <plugin
-         id="se.gu.featuredashboard.uiSina"
+         id="se.gu.featuredashboard.ui"
          download-size="0"
          install-size="0"
          version="0.0.0"

@@ -2,8 +2,8 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Parsing
 Bundle-SymbolicName: se.gu.featuredashboard.parsing
-Bundle-Version: 1.0.0.qualifier
+Bundle-Version: 0.1.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Require-Bundle: se.gu.featuredashboard.model;bundle-version="1.0.0"
+Require-Bundle: se.gu.featuredashboard.model
 Export-Package: se.gu.featuredashboard.parsing.location
 Import-Package: org.eclipse.core.runtime.jobs

@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>se.gu.featuredashboard</groupId>
+	<artifactId>parent</artifactId>
+	<version>0.1.0-SNAPSHOT</version>
+	<packaging>pom</packaging>
+
+	<url>http://https://github.com/steghoja/feature-dashboard</url>
+	<name>FeatureDashboard</name>
+
+	<properties>
+		<tycho.version>0.25.0</tycho.version>
+		<tycho-extras-version>0.21.0</tycho-extras-version>
+
+		<build-helper.version>1.9.1</build-helper.version>
+		<org.jboss.tools.tycho-plugins.version>0.23.2</org.jboss.tools.tycho-plugins.version>
+
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+		<maven.build.timestamp.format>yyyyMMdd-HHmmss</maven.build.timestamp.format>
+		<eclipse-neon-repo.url>http://download.eclipse.org/releases/neon</eclipse-neon-repo.url>
+		<eclipse-oxygen-repo.url>http://download.eclipse.org/releases/oxygen</eclipse-oxygen-repo.url>
+	</properties>
+
+	<pluginRepositories>
+		<pluginRepository>
+			<id>jboss-public-repository-group</id>
+			<name>JBoss Public Repository Group</name>
+			<url>http://repository.jboss.org/nexus/content/groups/public/</url>
+		</pluginRepository>
+
+		<pluginRepository>
+			<id>jboss-snapshots-repository</id>
+			<name>JBoss Snapshots Repository</name>
+			<url>https://repository.jboss.org/nexus/content/repositories/snapshots/</url>
+		</pluginRepository>
+		<pluginRepository>
+			<id>cbi</id>
+			<url>https://repo.eclipse.org/content/repositories/cbi-releases/</url>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+		</pluginRepository>
+	</pluginRepositories>
+
+	<repositories>
+		<repository>
+			<id>eclipse-neon-release</id>
+			<url>${eclipse-neon-repo.url}</url>
+			<layout>p2</layout>
+		</repository>
+		
+		<repository>
+			<id>eclipse-oxygen-release</id>
+			<url>${eclipse-oxygen-repo.url}</url>
+			<layout>p2</layout>
+		</repository>
+
+	</repositories>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-maven-plugin</artifactId>
+				<version>${tycho.version}</version>
+				<extensions>true</extensions>
+			</plugin>
+			<!--Enable the replacement of the SNAPSHOT version in the final product 
+				configuration -->
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-packaging-plugin</artifactId>
+				<version>${tycho.version}</version>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<id>package-feature</id>
+						<configuration>
+							<finalName>${project.artifactId}_${unqualifiedVersion}.${buildQualifier}</finalName>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>target-platform-configuration</artifactId>
+				<version>${tycho.version}</version>
+				<configuration>
+					<environments>
+						<environment>
+							<os>linux</os>
+							<ws>gtk</ws>
+							<arch>x86</arch>
+						</environment>
+						<environment>
+							<os>linux</os>
+							<ws>gtk</ws>
+							<arch>x86_64</arch>
+						</environment>
+						<environment>
+							<os>win32</os>
+							<ws>win32</ws>
+							<arch>x86</arch>
+						</environment>
+						<environment>
+							<os>win32</os>
+							<ws>win32</ws>
+							<arch>x86_64</arch>
+						</environment>
+						<environment>
+							<os>macosx</os>
+							<ws>cocoa</ws>
+							<arch>x86_64</arch>
+						</environment>
+					</environments>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+	<modules>
+		<module>../../bundles/se.gu.featuredashboard.model</module>
+		<module>../../bundles/se.gu.featuredashboard.parsing</module>
+ 		<module>../../bundles/se.gu.featuredashboard.ui</module>
+		<module>../../bundles/se.gu.featuredashboard.testsuite</module>
+		
+		<module>../../features/se.gu.featuredashboard.feature</module>
+	</modules>
+</project>

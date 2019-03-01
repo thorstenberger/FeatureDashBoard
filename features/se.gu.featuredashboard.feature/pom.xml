@@ -8,7 +8,7 @@
 		<relativePath>../../releng/se.gu.featuredashboard.build/pom.xml</relativePath>
 		<groupId>se.gu.featuredashboard</groupId>
 		<artifactId>parent</artifactId>
-		<version>0.0.1-SNAPSHOT</version>
+		<version>0.1.0-SNAPSHOT</version>
 	</parent>
 
 	<groupId>se.gu.featuredashboard</groupId>

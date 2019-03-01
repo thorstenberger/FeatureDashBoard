@@ -1,4 +1,4 @@
-package se.gu.featuredashboard.testsuit.parsing;
+package se.gu.featuredashboard.testsuite.parsing;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
