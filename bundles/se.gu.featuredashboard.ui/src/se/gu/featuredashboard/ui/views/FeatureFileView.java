@@ -7,6 +7,7 @@ import com.google.inject.Injector;
 import com.google.inject.util.Modules;
 
 import se.gu.featuredashboard.model.featuremodel.FeatureFileContainer;
+import se.gu.featuredashboard.ui.providers.GraphContentProvider;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -19,6 +20,7 @@ import org.eclipse.gef.graph.Edge;
 import org.eclipse.gef.graph.Graph;
 import org.eclipse.gef.graph.Node;
 import org.eclipse.gef.layout.algorithms.TreeLayoutAlgorithm;
+import org.eclipse.gef.mvc.fx.ui.MvcFxUiModule;
 import org.eclipse.gef.mvc.fx.ui.parts.AbstractFXView;
 import org.eclipse.gef.mvc.fx.viewer.IViewer;
 import org.eclipse.gef.zest.fx.ZestFxModule;
@@ -27,8 +29,12 @@ import org.eclipse.gef.zest.fx.ui.ZestFxUiModule;
 
 public class FeatureFileView extends AbstractFXView {
 
+	private List<Node> graphNodes; 
+	private List<Edge> graphEdges;
+	Map<IFile, Node> lookup = new HashMap<>();
+	
 	public FeatureFileView() {
-		super(Guice.createInjector(Modules.override(new ZestFxModule()).with(new ZestFxUiModule())));
+		super(Guice.createInjector(Modules.override(new MvcFxUiModule()).with(new ZestFxModule())));
 	}
 	
 	public FeatureFileView(Injector injector) {
@@ -41,47 +47,25 @@ public class FeatureFileView extends AbstractFXView {
 	}
 	
 	public void setInputToView(List<FeatureFileContainer> featureFileList) {
-		
-		Map<IFile, Node> lookup = new HashMap<>();
-		
-		List<Node> graphNodes = new ArrayList<>(); 
-		List<Edge> graphEdges = new ArrayList<>();
+		graphNodes = new ArrayList<>(); 
+		graphEdges = new ArrayList<>();
 		
 		for(FeatureFileContainer featureFileContainer : featureFileList) {
-			
-			Node featureNode = new Node.Builder()
-					.attr(ZestProperties.LABEL__NE, "Feature: \n " + featureFileContainer.getFeature().getFeatureID())
-					.attr(ZestProperties.SIZE__N, new Dimension(70,30))
-					.attr(ZestProperties.LABEL_CSS_STYLE__NE, "-fx-font-size:14;-fx-font-weight:bold;-fx-fill:white;")
-					.attr(ZestProperties.SHAPE_CSS_STYLE__N, "-fx-fill:green;")
-					.buildNode();
-			
-			featureFileContainer.getFiles().forEach(file -> {
-				
+			Node featureNode = GraphContentProvider.getFeatureNode(featureFileContainer.getFeature().getFeatureID());
+			featureFileContainer.getFiles().forEach(file -> {				
 				if(lookup.containsKey(file)) {
 					graphEdges.add(new Edge(featureNode, lookup.get(file)));
+					graphNodes.add(lookup.get(file));
 				} else {				
-					Node fileNode = new Node.Builder()
-							.attr(ZestProperties.LABEL__NE, file.getName())
-							.buildNode();
-					
+					Node fileNode = GraphContentProvider.getNormalNode(file.getName());
 					lookup.put(file, fileNode);
-					
 					graphEdges.add(new Edge(featureNode, fileNode));
 					graphNodes.add(fileNode);
 				}
-			});
-			
+			});	
 			graphNodes.add(featureNode);
 		}
-		
-		Graph featureFileGraph = new Graph.Builder()
-				.nodes(graphNodes)
-				.edges(graphEdges)
-				.attr(ZestProperties.LAYOUT_ALGORITHM__G, new TreeLayoutAlgorithm())
-				.build();
-		
-		setGraph(featureFileGraph);
+		setGraph(GraphContentProvider.getGraph(graphEdges, graphNodes));
 	}
 	
 	private void setGraph(Graph graph) {
