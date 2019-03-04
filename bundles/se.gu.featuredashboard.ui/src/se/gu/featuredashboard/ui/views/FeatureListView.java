@@ -52,13 +52,13 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 
-import se.featuredashboard.utils.jobs.ParseProjectJob;
 import se.gu.featuredashboard.model.featuremodel.Feature;
 import se.gu.featuredashboard.model.featuremodel.FeatureFileContainer;
 import se.gu.featuredashboard.model.location.FeatureAnnotationsLocation;
 import se.gu.featuredashboard.providers.FeatureTableContentProvider;
 import se.gu.featuredashboard.providers.FeatureTableLabelProvider;
 import se.gu.featuredashboard.ui.viewscontroller.MainViewController;
+import se.gu.featuredashboard.utils.jobs.ParseProjectJob;
 
 public class FeatureListView extends ViewPart {
 	

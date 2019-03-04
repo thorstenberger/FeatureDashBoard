@@ -1,4 +1,4 @@
-package se.featuredashboard.utils.jobs;
+package se.gu.featuredashboard.utils.jobs;
 
 import java.util.ArrayList;
 import java.util.Arrays;
