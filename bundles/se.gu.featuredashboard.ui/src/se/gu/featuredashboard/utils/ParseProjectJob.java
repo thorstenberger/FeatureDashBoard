@@ -1,6 +1,5 @@
 package se.gu.featuredashboard.utils;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -8,35 +7,38 @@ import java.util.Map;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.jface.dialogs.MessageDialog;
 
 import se.gu.featuredashboard.model.featuremodel.Feature;
+import se.gu.featuredashboard.model.featuremodel.FeatureContainer;
+import se.gu.featuredashboard.model.featuremodel.Project;
 import se.gu.featuredashboard.model.location.FeatureAnnotationsLocation;
 import se.gu.featuredashboard.parsing.location.InFileAnnotationParser;
 
 public class ParseProjectJob extends Job {
 
-	private IProject project;
+	private Project project;
 	private InFileAnnotationParser parser = new InFileAnnotationParser();
-	// A mapping from a file to all feature annotations in that file
-	private Map<Feature, List<IFile>> featureFile;
 	
-	@Deprecated
+	private Map<Feature, FeatureContainer> information;
+	
 	public ParseProjectJob(String name) {
 		super(name);
-		throw new UnsupportedOperationException("This constructure should not be used");
+		this.information = new HashMap<>();
 	}
 	
-	public ParseProjectJob(String name, IProject project) {
+	public ParseProjectJob(String name, Project project) {
 		super(name);
 		this.project = project;
-		this.featureFile = new HashMap<>();
+		this.information = new HashMap<>();
+	}
+	
+	public void setProject(Project project) {
+		this.project = project;
 	}
 
 	@Override
@@ -49,16 +51,17 @@ public class ParseProjectJob extends Job {
 		return handleProject(project, monitor);
 	}
 
-	private IStatus handleProject(IProject project, IProgressMonitor monitor) {
+	private IStatus handleProject(Project project, IProgressMonitor monitor) {
 		
-		handleResource(project, monitor);
+		handleResource(project.getIProject(), monitor);
 		
 		if(monitor.isCanceled()) {
 			return Status.CANCEL_STATUS;
 		}
 	
-		
 		monitor.done();
+		
+		project.addFeatures(information.values());
 		
 		return Status.OK_STATUS;
 	}
@@ -89,23 +92,19 @@ public class ParseProjectJob extends Job {
 		
 		List<FeatureAnnotationsLocation> features = parser.readParseAnnotations(resource.getLocation().toString());
 		
-		for(FeatureAnnotationsLocation location : features) {			
-			List<IFile> list = featureFile.get(location.getFeature());
+		for(FeatureAnnotationsLocation location : features) {
+			FeatureContainer container = information.get(location.getFeature());
 			
-			if(list == null) {
-				List<IFile> temp = new ArrayList<>();
-				temp.add(resource);
-				featureFile.put(location.getFeature(), temp);
-			} else {
-				list.add(resource);
-				featureFile.put(location.getFeature(), list);
+			if(container == null) {	
+				container = new FeatureContainer(location.getFeature());
+				information.put(location.getFeature(), container);
 			}
+			// Since we want to get how many other features apart from itself, subtract 1
+			container.incrementTanglingDegree(features.size()-1);
+			container.addFile(resource);
+			container.addBlockLines(location.getBlocklines());
 		}
 		
-	}
-	
-	public Map<Feature, List<IFile>> getFeatures(){
-		return featureFile;
 	}
 	
 }

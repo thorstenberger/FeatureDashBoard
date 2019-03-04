@@ -135,4 +135,19 @@
       </view>
       </extension>
       
+      <extension
+         point="org.eclipse.ui.views">
+      <category
+            name="FeatureDashboard"
+            id="se.gu.featuredashboard.ui.views">
+      </category>
+      <view
+            name="Feature Metrics View"
+            icon="icons/featureDashboard_icon.png"
+            category="se.gu.featuredashboard.ui.views"
+            class="se.gu.featuredashboard.ui.views.FeatureMetricsView"
+            id="se.gu.featuredashboard.ui.views.FeatureMetricsView">
+      </view>
+      </extension>
+      
 </plugin>

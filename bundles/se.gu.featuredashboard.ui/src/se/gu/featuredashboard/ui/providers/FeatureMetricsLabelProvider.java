@@ -1,9 +1,19 @@
 package se.gu.featuredashboard.ui.providers;
 
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IFolder;
 import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.jface.viewers.ITableLabelProvider;
 import org.eclipse.swt.graphics.Image;
+
+import se.gu.featuredashboard.model.featuremodel.FeatureContainer;
+import se.gu.featuredashboard.model.location.BlockLine;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Random;
+import java.util.stream.IntStream;
 
 public class FeatureMetricsLabelProvider implements ITableLabelProvider {
 
@@ -39,14 +49,34 @@ public class FeatureMetricsLabelProvider implements ITableLabelProvider {
 
 	@Override
 	public String getColumnText(Object element, int columnIndex) {
+		FeatureContainer featureContainer = (FeatureContainer) element;
+		
 		switch (columnIndex) {
 			case 0:
-				return "Test1";
+				return featureContainer.getFeature().getFeatureID();
 			case 1:
-				return String.valueOf(rand.nextInt(100));
+				return Integer.toString(featureContainer.getLinesOfFeatureCode());
+			case 2:
+				return Integer.toString(featureContainer.getNumberOfInFileAnnotations());
+			case 3:
+				return "TBD";
+			case 4:
+				return Integer.toString(featureContainer.getTanglingDegree());
+			case 5:
+				return Integer.toString(featureContainer.getScatteringDegree());
 			default:
-				return "Test2";
+				return "Error";
 		}		
+	}	
+	
+	private String getNumberOfLines(List<BlockLine> lines) {
+		int numberOfLines = 0;
+		
+		for(BlockLine block : lines) {
+			numberOfLines += Math.abs(block.getStartLine() - block.getEndLine());
+		}
+		
+		return Integer.toString(numberOfLines);
 	}
 
-}
+}	

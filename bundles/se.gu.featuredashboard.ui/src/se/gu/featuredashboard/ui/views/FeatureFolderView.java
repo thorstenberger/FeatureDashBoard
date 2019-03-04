@@ -21,7 +21,7 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.util.Modules;
 
-import se.gu.featuredashboard.model.featuremodel.FeatureFileContainer;
+import se.gu.featuredashboard.model.featuremodel.FeatureContainer;
 import se.gu.featuredashboard.ui.providers.GraphContentProvider;
 
 public class FeatureFolderView extends AbstractFXView {
@@ -43,13 +43,13 @@ public class FeatureFolderView extends AbstractFXView {
 	}
 	
 	// We can use the same list as we can get the folder that the file is located in from IFile.getParent()
-	public void setInputToView(List<FeatureFileContainer> featureFileList) {
+	public void inputToView(List<FeatureContainer> featureFileList) {
 		Map<IContainer, Node> lookup = new HashMap<>();
 		
 		graphNodes = new ArrayList<>(); 
 		graphEdges = new ArrayList<>();
 		
-		for(FeatureFileContainer featureFileContainer : featureFileList) {
+		for(FeatureContainer featureFileContainer : featureFileList) {
 			Node featureNode = GraphContentProvider.getFeatureNode(featureFileContainer.getFeature().getFeatureID());
 			featureFileContainer.getFiles().forEach(file -> {
 				IFolder folder = (IFolder) file.getParent();

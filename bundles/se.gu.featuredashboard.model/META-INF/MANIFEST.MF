@@ -7,3 +7,4 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Export-Package: se.gu.featuredashboard.model.featuremodel,
  se.gu.featuredashboard.model.location
 Require-Bundle: org.eclipse.core.resources
+Import-Package: org.eclipse.core.runtime
