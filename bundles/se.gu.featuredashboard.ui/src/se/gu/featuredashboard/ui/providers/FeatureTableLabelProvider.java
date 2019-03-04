@@ -1,4 +1,4 @@
-package se.gu.featuredashboard.providers;
+package se.gu.featuredashboard.ui.providers;
 
 import org.eclipse.jface.viewers.LabelProvider;
 
