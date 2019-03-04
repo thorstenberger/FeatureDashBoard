@@ -1,4 +1,4 @@
-package se.gu.featuredashboard.ui.providers;
+package se.gu.featuredashboard.utils;
 
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.Viewer;

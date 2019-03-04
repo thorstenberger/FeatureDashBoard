@@ -15,9 +15,9 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.ui.part.ViewPart;
 
 import se.gu.featuredashboard.ui.listeners.TableSelectionListener;
-import se.gu.featuredashboard.ui.providers.FeatureMetricsComparator;
 import se.gu.featuredashboard.ui.providers.FeatureMetricsContentProvider;
 import se.gu.featuredashboard.ui.providers.FeatureMetricsLabelProvider;
+import se.gu.featuredashboard.utils.FeatureMetricsComparator;
 
 public class FeatureMetricsView extends ViewPart {
 	

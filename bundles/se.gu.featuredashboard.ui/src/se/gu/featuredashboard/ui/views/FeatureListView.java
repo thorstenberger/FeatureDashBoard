@@ -58,7 +58,7 @@ import se.gu.featuredashboard.model.location.FeatureAnnotationsLocation;
 import se.gu.featuredashboard.ui.providers.FeatureTableContentProvider;
 import se.gu.featuredashboard.ui.providers.FeatureTableLabelProvider;
 import se.gu.featuredashboard.ui.viewscontroller.MainViewController;
-import se.gu.featuredashboard.utils.jobs.ParseProjectJob;
+import se.gu.featuredashboard.utils.ParseProjectJob;
 
 public class FeatureListView extends ViewPart {
 	
