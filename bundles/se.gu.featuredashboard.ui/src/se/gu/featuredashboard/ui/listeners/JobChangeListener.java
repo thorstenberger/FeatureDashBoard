@@ -8,7 +8,7 @@ import se.gu.featuredashboard.utils.ICallbackListener;
 
 public class JobChangeListener implements IJobChangeListener {
 
-	ICallbackListener callback;
+	private ICallbackListener callback;
 	
 	public JobChangeListener(ICallbackListener callback) {
 		this.callback = callback;
