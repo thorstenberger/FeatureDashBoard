@@ -37,10 +37,12 @@ public class FeatureListView extends ViewPart implements ICallbackListener {
 	private FeatureFileView featureFileView;
 	private FeatureFolderView featureFolderView;
 	private FeatureMetricsView featureMetricsView;
+	private ProjectMetricsView projectMetricsView;
 	
 	private static final String FEATUREFOLDER_VIEW_ID = "se.gu.featuredashboard.ui.views.FeatureFolderView";
 	private static final String FEATUREFILE_VIEW_ID = "se.gu.featuredashboard.ui.views.FeatureFileView";
 	private static final String FEATUREMETRICS_VIEW_ID = "se.gu.featuredashboard.ui.views.FeatureMetricsView";
+	private static final String PROJECTMETRICS_VIEW_ID = "se.gu.featuredashboard.ui.views.ProjectMetricsView";
 	
 	@Override
 	public void createPartControl(Composite parent) {
@@ -125,6 +127,9 @@ public class FeatureListView extends ViewPart implements ICallbackListener {
 				try {
 					featureMetricsView = (FeatureMetricsView) window.getActivePage().showView(FEATUREMETRICS_VIEW_ID);
 					featureMetricsView.inputToView(currentlyActiveProject);
+					
+					projectMetricsView = (ProjectMetricsView) window.getActivePage().showView(PROJECTMETRICS_VIEW_ID);
+					projectMetricsView.inputToView(currentlyActiveProject);
 				} catch (PartInitException e) {
 					e.printStackTrace();
 				}

@@ -1,9 +1,12 @@
 package se.gu.featuredashboard.model.featuremodel;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
 
 import se.gu.featuredashboard.model.location.BlockLine;
 
@@ -12,8 +15,8 @@ public class FeatureContainer {
 	private Feature feature;
 	private List<IFile> files;
 	private List<BlockLine> annotatedLines;
-	private Integer linesOfFeatureCode;
 	private int tanglingDegree = 0;
+	private DecimalFormat df = new DecimalFormat("#.##");
 	
 	public FeatureContainer(Feature feature) {
 		this.feature = feature;
@@ -56,11 +59,7 @@ public class FeatureContainer {
 	}
 	
 	public int getLinesOfFeatureCode() {
-		if(linesOfFeatureCode != null) {
-			return linesOfFeatureCode;
-		}
-		
-		linesOfFeatureCode = new Integer(0);
+		int linesOfFeatureCode = 0;
 		
 		for(BlockLine block : annotatedLines) {
 			if(block.getStartLine() == block.getEndLine()) {
@@ -90,6 +89,37 @@ public class FeatureContainer {
 	
 	public int getTanglingDegree() {
 		return tanglingDegree;
+	}
+	
+	public Object[] getNestingInfo() {
+		int maxDepth = Integer.MIN_VALUE;
+		int minDepth = Integer.MAX_VALUE;
+		int totalDepth = 0;
+		
+		for(IFile file : files) {
+			int depth = returnMaxDepth(file);
+			
+			totalDepth += depth;
+			
+			if(depth < minDepth) {
+				minDepth = depth;
+			}
+			
+			if(depth > maxDepth) {
+				maxDepth = depth;
+			}
+		}
+		
+		//Not very strict but it works for now..
+		return new Object[] {maxDepth, minDepth, totalDepth, df.format((double)totalDepth/(double)files.size())};
+	}
+	
+	private int returnMaxDepth(IResource resource) {
+		if(resource instanceof IProject) {
+			return 0;
+		} else {
+			return 1 + returnMaxDepth(resource.getParent());
+		}
 	}
 	
 }

@@ -150,4 +150,19 @@
       </view>
       </extension>
       
+      <extension
+         point="org.eclipse.ui.views">
+      <category
+            name="FeatureDashboard"
+            id="se.gu.featuredashboard.ui.views">
+      </category>
+      <view
+            name="Project Metrics View"
+            icon="icons/featureDashboard_icon.png"
+            category="se.gu.featuredashboard.ui.views"
+            class="se.gu.featuredashboard.ui.views.ProjectMetricsView"
+            id="se.gu.featuredashboard.ui.views.ProjectMetricsView">
+      </view>
+      </extension>
+      
 </plugin>

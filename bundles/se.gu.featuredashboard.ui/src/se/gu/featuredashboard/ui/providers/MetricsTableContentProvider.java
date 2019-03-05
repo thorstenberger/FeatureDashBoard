@@ -4,7 +4,7 @@ import java.util.Collection;
 
 import org.eclipse.jface.viewers.IStructuredContentProvider;
 
-public class FeatureMetricsContentProvider implements IStructuredContentProvider {
+public class MetricsTableContentProvider implements IStructuredContentProvider {
 
 	@Override
 	public Object[] getElements(Object inputElement) {

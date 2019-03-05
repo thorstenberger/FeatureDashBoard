@@ -8,9 +8,10 @@ import org.eclipse.jface.viewers.ViewerComparator;
 import org.eclipse.swt.SWT;
 
 import se.gu.featuredashboard.model.featuremodel.FeatureContainer;
+import se.gu.featuredashboard.model.featuremodel.Project;
 import se.gu.featuredashboard.ui.views.FeatureMetricsView;
 
-public class FeatureMetricsComparator extends ViewerComparator {
+public class MetricsComparator extends ViewerComparator {
 	
 	private int propertyIndex = 0;
 	private int column;
@@ -48,31 +49,36 @@ public class FeatureMetricsComparator extends ViewerComparator {
 	
 	@Override
 	public int compare(Viewer viewer, Object obj1, Object obj2) {
-		FeatureContainer feature1 = (FeatureContainer) obj1;
-		FeatureContainer feature2 = (FeatureContainer) obj2;
-
 		int result = 0;
 		
-		switch (column) {
-			case 1:
-				result = compareStrings(feature1.getFeature().getFeatureID(), feature2.getFeature().getFeatureID());
-				break;
-			case 2:
-				result = Integer.compare(feature1.getLinesOfFeatureCode(), feature2.getLinesOfFeatureCode());
-				break;
-			case 3:
-				result = Integer.compare(feature1.getNumberOfInFileAnnotations(), feature2.getNumberOfInFileAnnotations());
-				break;
-			case 4:
-				break;
-			case 5:
-				result = Integer.compare(feature1.getTanglingDegree(), feature2.getTanglingDegree());
-				break;
-			case 6:
-				result = Integer.compare(feature1.getScatteringDegree(), feature2.getScatteringDegree());
-				break;
-			default:
-				break;
+		if(obj1 instanceof FeatureContainer && obj2 instanceof FeatureContainer) {
+			FeatureContainer feature1 = (FeatureContainer) obj1;
+			FeatureContainer feature2 = (FeatureContainer) obj2;
+	
+			switch (column) {
+				case 1:
+					result = compareStrings(feature1.getFeature().getFeatureID(), feature2.getFeature().getFeatureID());
+					break;
+				case 2:
+					result = Integer.compare(feature1.getLinesOfFeatureCode(), feature2.getLinesOfFeatureCode());
+					break;
+				case 3:
+					result = Integer.compare(feature1.getNumberOfInFileAnnotations(), feature2.getNumberOfInFileAnnotations());
+					break;
+				case 4:
+					break;
+				case 5:
+					result = Integer.compare(feature1.getTanglingDegree(), feature2.getTanglingDegree());
+					break;
+				case 6:
+					result = Integer.compare(feature1.getScatteringDegree(), feature2.getScatteringDegree());
+					break;
+				default:
+					break;
+			}
+		} else if(obj1 instanceof Project && obj2 instanceof Project) {
+			Project p1 = (Project) obj1;
+			Project p2 = (Project) obj2;
 		}
 		
 		if(direction == DESCENDING) {
