@@ -124,15 +124,15 @@ public class FeatureListView extends ViewPart implements ICallbackListener {
 			@Override
 			public void run() {
 				table.setInput(currentlyActiveProject.getFeatureInformation().toArray());
-				try {
-					featureMetricsView = (FeatureMetricsView) window.getActivePage().showView(FEATUREMETRICS_VIEW_ID);
-					featureMetricsView.inputToView(currentlyActiveProject);
-					
-					projectMetricsView = (ProjectMetricsView) window.getActivePage().showView(PROJECTMETRICS_VIEW_ID);
-					projectMetricsView.inputToView(currentlyActiveProject);
-				} catch (PartInitException e) {
-					e.printStackTrace();
-				}
+//				try {
+//					featureMetricsView = (FeatureMetricsView) window.getActivePage().showView(FEATUREMETRICS_VIEW_ID);
+//					featureMetricsView.inputToView(currentlyActiveProject);
+//					
+//					projectMetricsView = (ProjectMetricsView) window.getActivePage().showView(PROJECTMETRICS_VIEW_ID);
+//					projectMetricsView.inputToView(currentlyActiveProject);
+//				} catch (PartInitException e) {
+//					e.printStackTrace();
+//				}
 			}
 
 		});

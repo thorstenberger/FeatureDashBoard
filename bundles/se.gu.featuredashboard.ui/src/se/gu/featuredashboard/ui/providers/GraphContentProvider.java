@@ -2,6 +2,7 @@ package se.gu.featuredashboard.ui.providers;
 
 import java.util.List;
 
+import org.eclipse.core.resources.IFile;
 import org.eclipse.gef.geometry.planar.Dimension;
 import org.eclipse.gef.graph.Edge;
 import org.eclipse.gef.graph.Graph;
@@ -9,9 +10,12 @@ import org.eclipse.gef.graph.Node;
 import org.eclipse.gef.layout.algorithms.TreeLayoutAlgorithm;
 import org.eclipse.gef.zest.fx.ZestProperties;
 
+import se.gu.featuredashboard.utils.gef.FileNode;
+
 public class GraphContentProvider {
 	
 	private static Node node;
+	private static FileNode node2;
 	private static Graph graph;
 	private static Dimension featureNodeDimension = new Dimension(70,30);
 	
@@ -32,6 +36,15 @@ public class GraphContentProvider {
 				.buildNode();
 		
 		return node;
+	}
+
+	public static Node getFileNode(String nodeLabel, IFile file) {
+		node2 = new FileNode();
+		ZestProperties.setLabel(node2, nodeLabel);
+		
+		node2.setFile(file);
+		
+		return node2;
 	}
 	
 	public static Graph getGraph(List<Edge> edges, List<Node> nodes) {

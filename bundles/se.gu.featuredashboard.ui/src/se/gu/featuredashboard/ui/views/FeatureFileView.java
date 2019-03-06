@@ -8,6 +8,7 @@ import com.google.inject.util.Modules;
 
 import se.gu.featuredashboard.model.featuremodel.FeatureContainer;
 import se.gu.featuredashboard.ui.providers.GraphContentProvider;
+import se.gu.featuredashboard.utils.gef.CustomZestFxModule;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -22,6 +23,9 @@ import org.eclipse.gef.mvc.fx.ui.MvcFxUiModule;
 import org.eclipse.gef.mvc.fx.ui.parts.AbstractFXView;
 import org.eclipse.gef.mvc.fx.viewer.IViewer;
 import org.eclipse.gef.zest.fx.ZestFxModule;
+import org.eclipse.jface.viewers.ISelection;
+import org.eclipse.jface.viewers.ISelectionChangedListener;
+import org.eclipse.jface.viewers.ISelectionProvider;
 
 public class FeatureFileView extends AbstractFXView {
 
@@ -29,7 +33,7 @@ public class FeatureFileView extends AbstractFXView {
 	private List<Edge> graphEdges;
 	
 	public FeatureFileView() {
-		super(Guice.createInjector(Modules.override(new MvcFxUiModule()).with(new ZestFxModule())));
+		super(Guice.createInjector(Modules.override(new MvcFxUiModule()).with(new CustomZestFxModule())));
 	}
 	
 	public FeatureFileView(Injector injector) {
@@ -51,7 +55,7 @@ public class FeatureFileView extends AbstractFXView {
 			Node featureNode = GraphContentProvider.getFeatureNode(featureFileContainer.getFeature().getFeatureID());
 			featureFileContainer.getFiles().forEach(file -> {				
 				if(!lookup.containsKey(file)) {
-					Node fileNode = GraphContentProvider.getNormalNode(file.getName());
+					Node fileNode = GraphContentProvider.getFileNode(file.getName(), file);
 					lookup.put(file, fileNode);
 					graphNodes.add(fileNode);
 				}

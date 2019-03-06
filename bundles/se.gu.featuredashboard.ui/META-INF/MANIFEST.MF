@@ -6,7 +6,7 @@ Bundle-Version: 0.1.0.qualifier
 Require-Bundle: org.eclipse.ui,
  org.eclipse.capra.core,
  org.eclipse.core.runtime,
- org.eclipse.core.resources, 
+ org.eclipse.core.resources,
  org.eclipse.jface,
  org.eclipse.gef.zest.fx,
  org.eclipse.gef.zest.fx.ui,
@@ -19,5 +19,8 @@ Require-Bundle: org.eclipse.ui,
  com.google.inject,
  org.eclipse.gef.common,
  se.gu.featuredashboard.model,
- se.gu.featuredashboard.parsing
+ se.gu.featuredashboard.parsing,
+ org.eclipse.core.filesystem;bundle-version="1.7.200",
+ org.eclipse.ui.ide;bundle-version="3.14.200"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Import-Package: org.eclipse.gef.zest.fx.jface
