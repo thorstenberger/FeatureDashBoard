@@ -2,7 +2,6 @@ package se.gu.featuredashboard.ui.providers;
 
 import org.eclipse.jface.viewers.LabelProvider;
 
-import se.gu.featuredashboard.model.featuremodel.Feature;
 import se.gu.featuredashboard.model.featuremodel.FeatureContainer;
 
 public class FeatureTableLabelProvider extends LabelProvider {

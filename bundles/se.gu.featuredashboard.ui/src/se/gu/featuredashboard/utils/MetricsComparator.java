@@ -1,15 +1,11 @@
 package se.gu.featuredashboard.utils;
 
-import java.util.Comparator;
-
-import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerComparator;
 import org.eclipse.swt.SWT;
 
 import se.gu.featuredashboard.model.featuremodel.FeatureContainer;
 import se.gu.featuredashboard.model.featuremodel.Project;
-import se.gu.featuredashboard.ui.views.FeatureMetricsView;
 
 public class MetricsComparator extends ViewerComparator {
 	

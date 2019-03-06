@@ -1,7 +1,5 @@
 package se.gu.featuredashboard.ui.views;
 
-import java.util.List;
-
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;

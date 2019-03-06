@@ -1,20 +1,13 @@
 package se.gu.featuredashboard.ui.providers;
 
-import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IFolder;
 import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.jface.viewers.ITableLabelProvider;
 import org.eclipse.swt.graphics.Image;
 
 import se.gu.featuredashboard.model.featuremodel.FeatureContainer;
 import se.gu.featuredashboard.model.featuremodel.Project;
-import se.gu.featuredashboard.model.location.BlockLine;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.Random;
-import java.util.stream.IntStream;
 
 public class MetricsTableLabelProvider implements ITableLabelProvider {
 

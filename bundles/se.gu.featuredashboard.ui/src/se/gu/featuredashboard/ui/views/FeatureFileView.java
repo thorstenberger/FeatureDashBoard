@@ -22,10 +22,6 @@ import org.eclipse.gef.graph.Node;
 import org.eclipse.gef.mvc.fx.ui.MvcFxUiModule;
 import org.eclipse.gef.mvc.fx.ui.parts.AbstractFXView;
 import org.eclipse.gef.mvc.fx.viewer.IViewer;
-import org.eclipse.gef.zest.fx.ZestFxModule;
-import org.eclipse.jface.viewers.ISelection;
-import org.eclipse.jface.viewers.ISelectionChangedListener;
-import org.eclipse.jface.viewers.ISelectionProvider;
 
 public class FeatureFileView extends AbstractFXView {
 
