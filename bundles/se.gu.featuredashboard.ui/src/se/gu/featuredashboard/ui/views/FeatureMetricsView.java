@@ -17,8 +17,6 @@ import se.gu.featuredashboard.utils.MetricsComparator;
 public class FeatureMetricsView extends ViewPart {
 	
 	private TableViewer featureViewer;
-	private TableViewer projectViewer;
-	private Table projectTable;
 	private Table featureTable;
 	
 	public static final String COLUMN_1_NAME = "Feature";

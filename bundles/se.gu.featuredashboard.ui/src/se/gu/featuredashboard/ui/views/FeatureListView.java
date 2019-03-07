@@ -60,13 +60,9 @@ public class FeatureListView extends ViewPart implements ICallbackListener {
 		ResourcesPlugin.getWorkspace().removeResourceChangeListener(projectChangeListener);
 		ResourcesPlugin.getWorkspace().addResourceChangeListener(projectChangeListener);
 		
-		parseProject = new ParseProjectAction(this, parent.getShell());
-		
 		table = CheckboxTableViewer.newCheckList(parent, SWT.NONE);
 		table.setContentProvider(new FeatureTableContentProvider());
 		table.setLabelProvider(new FeatureTableLabelProvider());
-		
-		parseProject.run();
 		
 		table.addCheckStateListener(new ICheckStateListener() {
 			
@@ -98,6 +94,8 @@ public class FeatureListView extends ViewPart implements ICallbackListener {
 			
 		});
 		
+		parseProject = new ParseProjectAction(this, parent.getShell());
+		parseProject.run();
 		parseProject.setText(ACTION_TEXT);
 		parseProject.setToolTipText(ACTION_TOOLTOP_TEXT);
 		parseProject.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(ISharedImages.IMG_TOOL_REDO));

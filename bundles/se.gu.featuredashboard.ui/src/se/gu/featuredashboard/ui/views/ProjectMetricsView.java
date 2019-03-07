@@ -8,7 +8,6 @@ import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.ui.part.ViewPart;
 
-import se.gu.featuredashboard.model.featuremodel.Project;
 import se.gu.featuredashboard.model.featuremodel.ProjectStore;
 import se.gu.featuredashboard.ui.listeners.TableSelectionListener;
 import se.gu.featuredashboard.ui.providers.MetricsTableContentProvider;

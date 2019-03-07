@@ -7,11 +7,7 @@ import org.eclipse.swt.graphics.Image;
 import se.gu.featuredashboard.model.featuremodel.FeatureContainer;
 import se.gu.featuredashboard.model.featuremodel.Project;
 
-import java.util.Random;
-
 public class MetricsTableLabelProvider implements ITableLabelProvider {
-
-	private Random rand = new Random();
 	
 	@Override
 	public void addListener(ILabelProviderListener listener) {
