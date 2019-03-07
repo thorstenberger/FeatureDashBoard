@@ -14,6 +14,10 @@ public class ProjectStore {
 		parsedProjects.put(absoluteLocation, parsedProject);
 	}
 	
+	public static void removeProject(IPath absoluteLocation) {
+		parsedProjects.remove(absoluteLocation);
+	}
+	
 	public static Project getProject(IPath absoluteLocation) {
 		return parsedProjects.get(absoluteLocation);
 	}
