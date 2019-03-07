@@ -4,45 +4,42 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.CheckStateChangedEvent;
 import org.eclipse.jface.viewers.CheckboxTableViewer;
 import org.eclipse.jface.viewers.ICheckStateListener;
-import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 
 import se.gu.featuredashboard.model.featuremodel.FeatureContainer;
-import se.gu.featuredashboard.model.featuremodel.Project;
 import se.gu.featuredashboard.model.featuremodel.ProjectStore;
-import se.gu.featuredashboard.ui.listeners.JobChangeListener;
 import se.gu.featuredashboard.ui.listeners.ProjectChangeListener;
 import se.gu.featuredashboard.ui.providers.FeatureTableContentProvider;
 import se.gu.featuredashboard.ui.providers.FeatureTableLabelProvider;
 import se.gu.featuredashboard.utils.ICallbackEvent;
 import se.gu.featuredashboard.utils.ICallbackListener;
-import se.gu.featuredashboard.utils.ParseProjectJob;
+import se.gu.featuredashboard.utils.ParseProjectAction;
 
 public class FeatureListView extends ViewPart implements ICallbackListener {
 	
 	private CheckboxTableViewer table;
 	private IWorkbenchWindow window;
-	private ParseProjectJob parseProject;
-	private Project activeProject;
 	
 	private FeatureFileView featureFileView;
 	private FeatureFolderView featureFolderView;
 	private FeatureMetricsView featureMetricsView;
 	private ProjectMetricsView projectMetricsView;
+	
+	private ParseProjectAction parseProject;
+	private static final String ACTION_TEXT = "Parse selected project";
+	private static final String ACTION_TOOLTOP_TEXT = "Parses the selected project in the Package Exlorer";
 	
 	private static final String FEATUREFOLDER_VIEW_ID = "se.gu.featuredashboard.ui.views.FeatureFolderView";
 	private static final String FEATUREFILE_VIEW_ID = "se.gu.featuredashboard.ui.views.FeatureFileView";
@@ -55,53 +52,21 @@ public class FeatureListView extends ViewPart implements ICallbackListener {
 	public void createPartControl(Composite parent) {
 		
 		window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
-		parseProject = new ParseProjectJob("Parse selected project");
-		parseProject.addJobChangeListener(new JobChangeListener(this));
-		
 		projectChangeListener = ProjectChangeListener.getInstance(this);
 		
 		// When opening/closing this view to parse a project this method will be called multiple times.
 		// Thus to prevent that we add more than 1 listener, remove if there is one attached and then 
-		// attach a new one. It would be best just to check if there was a listener attacked or not
+		// attach a new one. Can't check if one is already attached which is unfortunate
 		ResourcesPlugin.getWorkspace().removeResourceChangeListener(projectChangeListener);
 		ResourcesPlugin.getWorkspace().addResourceChangeListener(projectChangeListener);
-	
-		try {
-			IStructuredSelection selection = (IStructuredSelection) window.getSelectionService().getSelection();
-			
-			if(selection != null) {
-				Object firstElement = selection.getFirstElement();
-				
-				if(firstElement instanceof IAdaptable) {
-					IProject selectedProject = (IProject)((IAdaptable)firstElement).getAdapter(IProject.class);
-					
-					// Have we already parsed this project without making any changes since?
-					activeProject = ProjectStore.getProject(selectedProject.getLocation());
-					
-					if(activeProject == null) {
-						activeProject = new Project(selectedProject, selectedProject.getName(), selectedProject.getLocation());
-						ProjectStore.addProject(activeProject.getLocation(), activeProject);
-						
-						parseProject.setProject(activeProject);
-						parseProject.setUser(true);
-						parseProject.schedule();
-					} else {
-						callbackMethod(new ICallbackEvent(ICallbackEvent.EventType.ParsingComplete));
-					}
-					
-				} else {
-					MessageDialog.openError(parent.getShell(), "Error", "Current selection is not a project.");
-				}
-				
-			}
-			
-		} catch(ClassCastException e) {
-			MessageDialog.openError(parent.getShell(), "Error", "Current selection is not a project.");
-		}
+		
+		parseProject = new ParseProjectAction(this, parent.getShell());
 		
 		table = CheckboxTableViewer.newCheckList(parent, SWT.NONE);
 		table.setContentProvider(new FeatureTableContentProvider());
 		table.setLabelProvider(new FeatureTableLabelProvider());
+		
+		parseProject.run();
 		
 		table.addCheckStateListener(new ICheckStateListener() {
 			
@@ -132,11 +97,17 @@ public class FeatureListView extends ViewPart implements ICallbackListener {
 			}
 			
 		});
+		
+		parseProject.setText(ACTION_TEXT);
+		parseProject.setToolTipText(ACTION_TOOLTOP_TEXT);
+		parseProject.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(ISharedImages.IMG_TOOL_REDO));
+		
+		getViewSite().getActionBars().getToolBarManager().add(parseProject);
+		getViewSite().getActionBars().getMenuManager().add(parseProject);
 	}
 	
 	@Override
 	public void setFocus() {
-		// TODO Auto-generated method stub
 	}
 
 	@Override
@@ -144,14 +115,14 @@ public class FeatureListView extends ViewPart implements ICallbackListener {
 
 		if(event.getEventType() == ICallbackEvent.EventType.ParsingComplete) {
 			Display.getDefault().asyncExec(new Runnable() {
-
+				
 				@Override
 				public void run() {
-					table.setInput(activeProject.getFeatureInformation().toArray());
+					table.setInput(parseProject.getActiveProject().getFeatureInformation().toArray());
 					
 					try {
 						featureMetricsView = (FeatureMetricsView) window.getActivePage().showView(FEATUREMETRICS_VIEW_ID);
-						featureMetricsView.inputToView(activeProject);
+						featureMetricsView.inputToView(parseProject.getActiveProject());
 						
 						projectMetricsView = (ProjectMetricsView) window.getActivePage().showView(PROJECTMETRICS_VIEW_ID);
 						projectMetricsView.updateTable();
@@ -162,8 +133,6 @@ public class FeatureListView extends ViewPart implements ICallbackListener {
 
 			});
 		} else if(event.getEventType() == ICallbackEvent.EventType.ChangeDetected) {
-			// If we have previously parsed the project but there has been a change detected
-			// then we want to parse it again next time it is selected
 			ProjectStore.removeProject((IPath) event.getData());
 		}
 		
