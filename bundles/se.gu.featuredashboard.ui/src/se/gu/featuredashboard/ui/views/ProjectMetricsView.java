@@ -84,8 +84,6 @@ public class ProjectMetricsView extends ViewPart {
 		
 		projectTable.setHeaderVisible(true);
 		projectTable.setLinesVisible(true);
-		
-		System.out.println(ProjectStore.getAll().size());
 	}
 
 	@Override
