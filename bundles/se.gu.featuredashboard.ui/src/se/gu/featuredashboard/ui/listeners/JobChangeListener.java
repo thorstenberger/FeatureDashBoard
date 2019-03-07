@@ -4,6 +4,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.IJobChangeListener;
 
+import se.gu.featuredashboard.utils.ICallbackEvent;
 import se.gu.featuredashboard.utils.ICallbackListener;
 
 public class JobChangeListener implements IJobChangeListener {
@@ -30,7 +31,8 @@ public class JobChangeListener implements IJobChangeListener {
 	public void done(IJobChangeEvent event) {
 		IStatus status = (IStatus) event.getResult();
 		if(status.getCode() == IStatus.OK) {
-			callback.callbackMethod();
+			ICallbackEvent callbackEvent = new ICallbackEvent(ICallbackEvent.EventType.ParsingComplete);
+			callback.callbackMethod(callbackEvent);
 		}
 	}
 

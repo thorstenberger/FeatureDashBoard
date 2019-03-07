@@ -9,6 +9,7 @@ import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.ui.part.ViewPart;
 
 import se.gu.featuredashboard.model.featuremodel.Project;
+import se.gu.featuredashboard.model.featuremodel.ProjectStore;
 import se.gu.featuredashboard.ui.listeners.TableSelectionListener;
 import se.gu.featuredashboard.ui.providers.MetricsTableContentProvider;
 import se.gu.featuredashboard.ui.providers.MetricsTableLabelProvider;
@@ -83,6 +84,8 @@ public class ProjectMetricsView extends ViewPart {
 		
 		projectTable.setHeaderVisible(true);
 		projectTable.setLinesVisible(true);
+		
+		System.out.println(ProjectStore.getAll().size());
 	}
 
 	@Override
@@ -91,8 +94,8 @@ public class ProjectMetricsView extends ViewPart {
 		
 	}
 	
-	public void inputToView(Project project) {
-		projectViewer.setInput(new Object[] {project});
+	public void updateTable() {
+		projectViewer.setInput(ProjectStore.getAll().toArray());
 	}
 	
 }
