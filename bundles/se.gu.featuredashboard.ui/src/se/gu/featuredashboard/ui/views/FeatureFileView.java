@@ -51,7 +51,7 @@ public class FeatureFileView extends AbstractFXView {
 			Node featureNode = GraphContentProvider.getFeatureNode(featureFileContainer.getFeature().getFeatureID());
 			featureFileContainer.getFiles().forEach(file -> {				
 				if(!lookup.containsKey(file)) {
-					Node fileNode = GraphContentProvider.getFileNode(file.getName(), file);
+					Node fileNode = GraphContentProvider.getFileNode(file.getName(), file, featureFileContainer.getLines(file));
 					lookup.put(file, fileNode);
 					graphNodes.add(fileNode);
 				}

@@ -10,12 +10,13 @@ import org.eclipse.gef.graph.Node;
 import org.eclipse.gef.layout.algorithms.TreeLayoutAlgorithm;
 import org.eclipse.gef.zest.fx.ZestProperties;
 
+import se.gu.featuredashboard.model.location.BlockLine;
 import se.gu.featuredashboard.utils.gef.FileNode;
 
 public class GraphContentProvider {
 	
 	private static Node node;
-	private static FileNode node2;
+	private static FileNode fileNode;
 	private static Graph graph;
 	private static Dimension featureNodeDimension = new Dimension(70,30);
 	
@@ -38,13 +39,14 @@ public class GraphContentProvider {
 		return node;
 	}
 
-	public static Node getFileNode(String nodeLabel, IFile file) {
-		node2 = new FileNode();
-		ZestProperties.setLabel(node2, nodeLabel);
+	public static Node getFileNode(String nodeLabel, IFile file, List<BlockLine> annotatedLines) {
+		fileNode = new FileNode();
+		fileNode.setFile(file);
+		fileNode.setAnnotatedLines(annotatedLines);
 		
-		node2.setFile(file);
+		ZestProperties.setLabel(fileNode, nodeLabel);
 		
-		return node2;
+		return fileNode;
 	}
 	
 	public static Graph getGraph(List<Edge> edges, List<Node> nodes) {

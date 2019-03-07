@@ -165,4 +165,45 @@
       </view>
       </extension>
       
+      <extension
+      		id="se.gu.featuredashboard.ui.AnnotationMarker"
+      		name="Feature marker"
+         	point="org.eclipse.core.resources.markers">
+         	<persistent value="true"></persistent>
+      		<super type="org.eclipse.core.resources.marker"></super>
+      		<super type="org.eclipse.core.resources.textmarker"></super>
+      </extension>
+      
+      <extension
+         point="org.eclipse.ui.editors.annotationTypes">
+      <type
+      	markerSeverity="0"
+       	super="org.eclipse.ui.workbench.texteditor.info"
+      	markerType="se.gu.featuredashboard.ui.AnnotationMarker"
+       	name="se.gu.featuredashboard.ui.AnnotationType"/>
+   </extension>	
+   
+   <extension
+         point="org.eclipse.ui.editors.markerAnnotationSpecification"
+         id="se.gu.featuredashboard.ui.AnnotationSpecification">
+      <specification
+            annotationType="se.gu.featuredashboard.ui.AnnotationType"
+            colorPreferenceKey="se.gu.featuredashboard.ui.AnnotationMarker.color"
+            colorPreferenceValue="192,255,192"
+            contributesToHeader="false"
+            highlightPreferenceKey="se.gu.featuredashboard.ui.AnnotationMarker.highlight"
+            highlightPreferenceValue="true"
+            includeOnPreferencePage="true"
+            label="Feature marker"
+            overviewRulerPreferenceKey="se.gu.featuredashboard.ui.AnnotationMarker.overview"
+            overviewRulerPreferenceValue="true"
+            presentationLayer="0"
+            textPreferenceKey="se.gu.featuredashboard.ui.AnnotationMarker.text"
+            textPreferenceValue="true"
+            textStylePreferenceValue="BOX"
+            verticalRulerPreferenceKey="se.gu.featuredashboard.ui.AnnotationMarker.ruler"
+            verticalRulerPreferenceValue="true">
+      </specification>
+   </extension>
+      
 </plugin>

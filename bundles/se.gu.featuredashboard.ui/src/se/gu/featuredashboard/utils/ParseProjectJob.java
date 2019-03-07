@@ -101,8 +101,11 @@ public class ParseProjectJob extends Job {
 			}
 			// Since we want to get how many other features apart from itself, subtract 1
 			container.incrementTanglingDegree(features.size()-1);
+			
+			// Not sure if yu need addFile, addBlockLines and addFileToLines. Later on we can see if it's necessary
 			container.addFile(resource);
 			container.addBlockLines(location.getBlocklines());
+			container.addFileToLines(resource, location.getBlocklines());
 		}
 		
 	}

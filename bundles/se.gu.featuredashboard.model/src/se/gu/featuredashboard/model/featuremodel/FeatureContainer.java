@@ -2,7 +2,9 @@ package se.gu.featuredashboard.model.featuremodel;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
@@ -15,6 +17,7 @@ public class FeatureContainer {
 	private Feature feature;
 	private List<IFile> files;
 	private List<BlockLine> annotatedLines;
+	private Map<IFile, List<BlockLine>> fileToLines;
 	private int tanglingDegree = 0;
 	private DecimalFormat df = new DecimalFormat("#.##");
 	
@@ -22,12 +25,14 @@ public class FeatureContainer {
 		this.feature = feature;
 		files = new ArrayList<>();
 		annotatedLines = new ArrayList<>();
+		this.fileToLines = new HashMap<>();
 	}
 	
 	public FeatureContainer(Feature feature, List<IFile> files, List<BlockLine> annotatedLines) {
 		this.feature = feature;
 		this.files = files;
 		this.annotatedLines = annotatedLines;
+		this.fileToLines = new HashMap<>();
 	}
 	
 	public Feature getFeature() {
@@ -56,6 +61,14 @@ public class FeatureContainer {
 	
 	public void addBlockLines(List<BlockLine> annotatedLines) {
 		this.annotatedLines.addAll(annotatedLines);
+	}
+	
+	public void addFileToLines(IFile file, List<BlockLine> annotatedLines) {
+		fileToLines.put(file, annotatedLines);
+	}
+	
+	public List<BlockLine> getLines(IFile file){
+		return fileToLines.get(file);
 	}
 	
 	public int getLinesOfFeatureCode() {
