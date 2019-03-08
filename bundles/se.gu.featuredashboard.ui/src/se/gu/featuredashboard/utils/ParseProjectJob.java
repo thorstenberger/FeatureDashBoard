@@ -28,13 +28,12 @@ public class ParseProjectJob extends Job {
 	
 	public ParseProjectJob(String name) {
 		super(name);
-		this.information = new HashMap<>();
+		
 	}
 	
 	public ParseProjectJob(String name, Project project) {
 		super(name);
 		this.project = project;
-		this.information = new HashMap<>();
 	}
 	
 	public void setProject(Project project) {
@@ -52,6 +51,8 @@ public class ParseProjectJob extends Job {
 	}
 
 	private IStatus handleProject(Project project, IProgressMonitor monitor) {
+		
+		information = new HashMap<>();
 		
 		handleResource(project.getIProject(), monitor);
 		

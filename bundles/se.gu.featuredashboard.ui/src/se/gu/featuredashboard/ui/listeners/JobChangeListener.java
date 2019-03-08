@@ -29,6 +29,7 @@ public class JobChangeListener implements IJobChangeListener {
 
 	@Override
 	public void done(IJobChangeEvent event) {
+		System.out.println("***************Parsing complete****************");
 		IStatus status = (IStatus) event.getResult();
 		if(status.getCode() == IStatus.OK) {
 			ICallbackEvent callbackEvent = new ICallbackEvent(ICallbackEvent.EventType.ParsingComplete);
