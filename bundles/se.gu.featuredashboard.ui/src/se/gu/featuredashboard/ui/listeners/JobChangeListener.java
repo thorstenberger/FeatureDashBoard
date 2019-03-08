@@ -3,6 +3,8 @@ package se.gu.featuredashboard.ui.listeners;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.IJobChangeListener;
+import org.eclipse.e4.core.services.log.Logger;
+import org.eclipse.ui.PlatformUI;
 
 import se.gu.featuredashboard.utils.ICallbackEvent;
 import se.gu.featuredashboard.utils.ICallbackListener;
@@ -10,6 +12,7 @@ import se.gu.featuredashboard.utils.ICallbackListener;
 public class JobChangeListener implements IJobChangeListener {
 
 	private ICallbackListener callback;
+	Logger logger = PlatformUI.getWorkbench().getService(org.eclipse.e4.core.services.log.Logger.class);
 	
 	public JobChangeListener(ICallbackListener callback) {
 		this.callback = callback;
@@ -29,7 +32,7 @@ public class JobChangeListener implements IJobChangeListener {
 
 	@Override
 	public void done(IJobChangeEvent event) {
-		System.out.println("***************Parsing complete****************");
+		logger.info("Parsing complete");
 		IStatus status = (IStatus) event.getResult();
 		if(status.getCode() == IStatus.OK) {
 			ICallbackEvent callbackEvent = new ICallbackEvent(ICallbackEvent.EventType.ParsingComplete);

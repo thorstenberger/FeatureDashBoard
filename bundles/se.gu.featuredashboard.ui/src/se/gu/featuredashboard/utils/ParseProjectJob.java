@@ -26,18 +26,10 @@ public class ParseProjectJob extends Job {
 	
 	private Map<Feature, FeatureContainer> information;
 	
-	public ParseProjectJob(String name) {
-		super(name);
-		
-	}
-	
 	public ParseProjectJob(String name, Project project) {
 		super(name);
 		this.project = project;
-	}
-	
-	public void setProject(Project project) {
-		this.project = project;
+		information = new HashMap<>();
 	}
 
 	@Override
@@ -47,12 +39,10 @@ public class ParseProjectJob extends Job {
 			return Status.CANCEL_STATUS;
 		}
 		
-		return handleProject(project, monitor);
+		return handleProject(monitor);
 	}
 
-	private IStatus handleProject(Project project, IProgressMonitor monitor) {
-		
-		information = new HashMap<>();
+	private IStatus handleProject(IProgressMonitor monitor) {
 		
 		handleResource(project.getIProject(), monitor);
 		
