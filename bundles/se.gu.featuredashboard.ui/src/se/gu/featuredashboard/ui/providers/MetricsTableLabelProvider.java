@@ -79,9 +79,9 @@ public class MetricsTableLabelProvider implements ITableLabelProvider {
 			case 3:
 				return project.getAvgLoFC();
 			case 4:
-				return project.getAverageSD();
-			case 5:
 				return project.getAverageND();
+			case 5:
+				return project.getAverageSD();
 			default:
 				return "Error";
 		}

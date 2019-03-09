@@ -20,6 +20,7 @@ import org.eclipse.ui.ide.IDE;
 
 import javafx.scene.Node;
 import javafx.scene.input.MouseEvent;
+import se.gu.featuredashboard.utils.FeaturedashboardConstants;
 
 public class NodeOnClickPolicy extends AbstractPolicy implements IOnClickHandler {
 	
@@ -113,7 +114,7 @@ public class NodeOnClickPolicy extends AbstractPolicy implements IOnClickHandler
 
 	@Override
 	protected ITransactionalOperation createOperation() {
-		return new OnClickOperation("OnClickOperation", getHost());
+		return new OnClickOperation(FeaturedashboardConstants.NODE_ONCLICK_OPERATION_ID, getHost());
 	}
 
 	@Override

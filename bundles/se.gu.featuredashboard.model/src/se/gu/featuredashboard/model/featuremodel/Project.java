@@ -27,12 +27,24 @@ public class Project {
 		return project;
 	}
 	
-	public List<FeatureContainer> getFeatureInformation(){
+	public FeatureContainer getFeatureContainer(Feature feature){
+		for(FeatureContainer container : features) {
+			if(container.getFeature().equals(feature))
+				return container;
+		}
+		return null;
+	}
+	
+	public List<FeatureContainer> getFeatureContainers(){
 		return features;
 	}
 	
-	public void addFeatures(Collection<FeatureContainer> features) {
-		this.features.addAll(features);
+	public void addFeatures(Collection<FeatureContainer> featureContainers) {
+		features.addAll(featureContainers);
+	}
+	
+	public void addFeature(FeatureContainer container) {
+		features.add(container);
 	}
 	
 	public IPath getLocation() {
@@ -98,7 +110,6 @@ public class Project {
 		
 		return this.absoluteLocation.equals(p.getLocation()) 
 				&& this.ID.equals(p.getID()) 
-				&& this.features == p.getFeatureInformation() 
 				&& this.project == p.getIProject();
 		
 	}

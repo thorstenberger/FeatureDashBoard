@@ -12,34 +12,61 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.e4.core.services.log.Logger;
+import org.eclipse.ui.PlatformUI;
 
 import se.gu.featuredashboard.model.featuremodel.Feature;
 import se.gu.featuredashboard.model.featuremodel.FeatureContainer;
 import se.gu.featuredashboard.model.featuremodel.Project;
+import se.gu.featuredashboard.model.featuremodel.ProjectStore;
 import se.gu.featuredashboard.model.location.FeatureAnnotationsLocation;
 import se.gu.featuredashboard.parsing.location.InFileAnnotationParser;
 
-public class ParseProjectJob extends Job {
+public class ParseJob extends Job {
 
 	private Project project;
 	private InFileAnnotationParser parser = new InFileAnnotationParser();
-	
+	private IFile file;
 	private Map<Feature, FeatureContainer> information;
+	private Logger logger = PlatformUI.getWorkbench().getService(org.eclipse.e4.core.services.log.Logger.class);
 	
-	public ParseProjectJob(String name, Project project) {
+	private static final String JAVA_FILE = "java";
+	
+	public ParseJob(String name, Project project) {
 		super(name);
 		this.project = project;
 		information = new HashMap<>();
 	}
+	
+	public ParseJob(String name, Project project, IFile file) {
+		super(name);
+		this.project = project;
+		this.file = file;
+	}
 
 	@Override
 	protected IStatus run(IProgressMonitor monitor) {
+			
+		logger.info("Run ParseJob");
+		
+		IStatus statusToReturn = Status.OK_STATUS;
 		
 		if(project == null) {
-			return Status.CANCEL_STATUS;
+			statusToReturn = Status.CANCEL_STATUS;
+		} else if(file == null) {
+			statusToReturn = handleProject(monitor);
+		} else {
+			statusToReturn = handleSingleFile(monitor);
 		}
 		
-		return handleProject(monitor);
+		if(statusToReturn != Status.CANCEL_STATUS && !monitor.isCanceled()) {
+			ProjectStore.setActiveProject(project);
+			logger.warn("Parse job was cancelled");
+		}
+		
+		monitor.done();
+		
+		return statusToReturn;
 	}
 
 	private IStatus handleProject(IProgressMonitor monitor) {
@@ -49,8 +76,6 @@ public class ParseProjectJob extends Job {
 		if(monitor.isCanceled()) {
 			return Status.CANCEL_STATUS;
 		}
-	
-		monitor.done();
 		
 		project.addFeatures(information.values());
 		
@@ -63,7 +88,7 @@ public class ParseProjectJob extends Job {
 		}
 		
 		try {
-			Arrays.stream(container.members()).forEach(member ->{
+			Arrays.stream(container.members()).forEach(member -> {
 				if(member instanceof IContainer) {
 					handleResource((IContainer) member, monitor);
 				} else if(member instanceof IFile) {
@@ -81,6 +106,10 @@ public class ParseProjectJob extends Job {
 			return;
 		}
 		
+		// Have an preference option which will allow you to include/exlude file extensions
+		if(!resource.getFileExtension().equals(JAVA_FILE))
+			return;
+		
 		List<FeatureAnnotationsLocation> features = parser.readParseAnnotations(resource.getLocation().toString());
 		
 		for(FeatureAnnotationsLocation location : features) {
@@ -92,13 +121,28 @@ public class ParseProjectJob extends Job {
 			}
 			// Since we want to get how many other features apart from itself, subtract 1
 			container.incrementTanglingDegree(features.size()-1);
-			
-			// Not sure if yu need addFile, addBlockLines and addFileToLines. Later on we can see if it's necessary
-			container.addFile(resource);
-			container.addBlockLines(location.getBlocklines());
 			container.addFileToLines(resource, location.getBlocklines());
 		}
 		
 	}
 	
+	private IStatus handleSingleFile(IProgressMonitor monitor) {
+		// Have an preference option which will allow you to include/exlude file extensions
+		if(!file.getFileExtension().equals(JAVA_FILE))
+			return Status.CANCEL_STATUS;
+		
+		List<FeatureAnnotationsLocation> features = parser.readParseAnnotations(file.getLocation().toString());
+		
+		for(FeatureAnnotationsLocation location : features) {
+			FeatureContainer container = project.getFeatureContainer(location.getFeature());
+			if(container == null) {
+				container = new FeatureContainer(location.getFeature());
+				project.addFeature(container);
+			}
+			// TODO - increment tangling degree correctly.
+			container.addFileToLines(file, location.getBlocklines());
+		}
+		
+		return Status.OK_STATUS;
+	}	
 }

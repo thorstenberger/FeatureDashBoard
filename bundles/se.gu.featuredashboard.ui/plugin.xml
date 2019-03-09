@@ -2,192 +2,205 @@
 <?eclipse version="3.4"?>
 <plugin>
 
-   <extension
-         point="org.eclipse.ui.commands">
-      <category
-            name="Trace Link Category"
-            id="se.gu.featuredashboard.ui.commands.traceLinkCategory">
-      </category>
-      <command
-            name="Create Trace Link Command"
-            categoryId="se.gu.featuredashboard.ui.commands.traceLinkCategory"
-            id="se.gu.featuredashboard.ui.commands.createTraceLinkCommand">
-      </command>
-   </extension>
-   <extension
-         point="org.eclipse.ui.handlers">
-      <handler
-            commandId="se.gu.featuredashboard.ui.commands.createTraceLinkCommand"
-            class="se.gu.featuredashboard.ui.handlers.CreateTraceLinkHandler">
-      </handler>
-   </extension>
-   <extension
-         point="org.eclipse.ui.bindings">
-      <key
-            commandId="se.gu.featuredashboard.ui.commands.createTraceLinkCommand"
-            contextId="org.eclipse.ui.contexts.window"
+	<extension
+		point="org.eclipse.ui.commands">
+		<category
+			name="Trace Link Category"
+			id="se.gu.featuredashboard.ui.commands.traceLinkCategory">
+		</category>
+		<command
+			name="Create Trace Link Command"
+			categoryId="se.gu.featuredashboard.ui.commands.traceLinkCategory"
+			id="se.gu.featuredashboard.ui.commands.createTraceLinkCommand">
+		</command>
+	</extension>
+	
+	<extension
+		point="org.eclipse.ui.handlers">
+		<handler
+			commandId="se.gu.featuredashboard.ui.commands.createTraceLinkCommand"
+			class="se.gu.featuredashboard.ui.handlers.CreateTraceLinkHandler">
+		</handler>
+	</extension>
+   
+	<extension
+		point="org.eclipse.ui.bindings">
+		<key
+			commandId="se.gu.featuredashboard.ui.commands.createTraceLinkCommand"
+			contextId="org.eclipse.ui.contexts.window"
             sequence="M1+6"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
-      </key>
-   </extension>
-   <extension
-         point="org.eclipse.ui.menus">
-      <menuContribution
-            locationURI="menu:org.eclipse.ui.main.menu?after=additions">
-         <menu
-               label="FeatureDashboard"
-               mnemonic="M"
-               id="se.gu.featuredashboard.ui.menus.featureDashboardMenu">
-            <command
-                  commandId="se.gu.featuredashboard.ui.commands.createTraceLinkCommand"
-                  mnemonic="S"
-                  id="se.gu.featuredashboard.ui.menus.createTraceLink">
-            </command>
-         </menu>
-      </menuContribution>
-      <menuContribution
-            locationURI="toolbar:org.eclipse.ui.main.toolbar?after=additions">
-         <toolbar
-               id="se.gu.featuredashboard.ui.toolbars.Example1Toolbar">
-            <command
-                  commandId="se.gu.featuredashboard.ui.commands.createTraceLinkCommand"
-                  icon="icons/featureDashboard_icon.png"
-                  tooltip="run feature location dashboard for example1"
-                  id="se.gu.featuredashboard.ui.toolbars.createTraceLinkCommand">
-            </command>
-         </toolbar>
-      </menuContribution>
-   </extension>
+		</key>
+	</extension>
+	
+	<extension
+		point="org.eclipse.ui.menus">
+		<menuContribution
+			locationURI="menu:org.eclipse.ui.main.menu?after=additions">
+			<menu
+				label="FeatureDashboard"
+				mnemonic="M"
+				id="se.gu.featuredashboard.ui.menus.featureDashboardMenu">
+				<command
+					commandId="se.gu.featuredashboard.ui.commands.createTraceLinkCommand"
+					mnemonic="S"
+					id="se.gu.featuredashboard.ui.menus.createTraceLink">
+				</command>
+			</menu>
+      	</menuContribution>
+		<menuContribution
+			locationURI="toolbar:org.eclipse.ui.main.toolbar?after=additions">
+			<toolbar
+				id="se.gu.featuredashboard.ui.toolbars.Example1Toolbar">
+				<command
+					commandId="se.gu.featuredashboard.ui.commands.createTraceLinkCommand"
+					icon="icons/featureDashboard_icon.png"
+					tooltip="run feature location dashboard for example1"
+					id="se.gu.featuredashboard.ui.toolbars.createTraceLinkCommand">
+				</command>
+			</toolbar>
+		</menuContribution>
+	</extension>
+	
+	<extension
+		point = "org.eclipse.ui.preferencePages">
+		<page 
+			id="se.gu.featuredashboard.ui.mainPreferences.page"
+			class="se.gu.featuredashboard.ui.preferences.MainPreferences"
+		name="Feature Dashboard">
+		</page>
+	</extension>
    
-   <extension
-      point = "org.eclipse.ui.preferencePages">
-       <page id="se.gu.featuredashboard.ui.mainPreferences.page"
-	    class="se.gu.featuredashboard.ui.preferences.MainPreferences"
-            name="Feature Dashboard">
+	<extension
+		point = "org.eclipse.ui.preferencePages">
+		<page 
+			id="se.gu.featuredashboard.ui.regexPreference.page"
+			class="se.gu.featuredashboard.ui.preferences.RegexPreferences"
+	    	category = "se.gu.featuredashboard.ui.mainPreferences.page"
+			name="Regex Patterns">
        </page>
-   </extension>
-   <extension
-      point = "org.eclipse.ui.preferencePages">
-       <page id="se.gu.featuredashboard.ui.regexPreference.page"
-	    class="se.gu.featuredashboard.ui.preferences.RegexPreferences"
-	    category = "se.gu.featuredashboard.ui.mainPreferences.page"
-            name="Regex Patterns">
-       </page>
-   </extension>
+	</extension>
    
-    <extension
-         point="org.eclipse.ui.views">
-      <category
-            name="FeatureDashboard"
-            id="se.gu.featuredashboard.ui.views">
-      </category>
-      <view
-            name="Main View"
+	<extension
+		point="org.eclipse.ui.views">
+		<category
+			name="FeatureDashboard"
+			id="se.gu.featuredashboard.ui.views">
+		</category>
+		<view
+			name="Main View"
             icon="icons/featureDashboard_icon.png"
             category="se.gu.featuredashboard.ui.views"
             class="se.gu.featuredashboard.ui.views.MainView"
             id="se.gu.featuredashboard.ui.views.MainView">
-      </view>
-      </extension>
+		</view>
+	</extension>
       
-      <extension
-         point="org.eclipse.ui.views">
-      <category
-            name="FeatureDashboard"
+	<extension
+		point="org.eclipse.ui.views">
+		<category
+			name="FeatureDashboard"
             id="se.gu.featuredashboard.ui.views">
-      </category>
-      <view
-            name="Feature List View"
+		</category>
+		<view
+			name="Feature List View"
             icon="icons/featureDashboard_icon.png"
             category="se.gu.featuredashboard.ui.views"
             class="se.gu.featuredashboard.ui.views.FeatureListView"
             id="se.gu.featuredashboard.ui.views.FeatureListView">
-      </view>
-      </extension>
+		</view>
+	</extension>
       
-      <extension
-         point="org.eclipse.ui.views">
-      <category
-            name="FeatureDashboard"
+	<extension
+		point="org.eclipse.ui.views">
+		<category
+			name="FeatureDashboard"
             id="se.gu.featuredashboard.ui.views">
-      </category>
-      <view
-            name="Feature-to-File View"
+		</category>
+		<view
+			name="Feature-to-File View"
             icon="icons/featureDashboard_icon.png"
             category="se.gu.featuredashboard.ui.views"
             class="se.gu.featuredashboard.ui.views.FeatureFileView"
             id="se.gu.featuredashboard.ui.views.FeatureFileView">
-      </view>
-      </extension>
+		</view>
+	</extension>
       
-      <extension
-         point="org.eclipse.ui.views">
-      <category
-            name="FeatureDashboard"
+	<extension
+		point="org.eclipse.ui.views">
+		<category
+			name="FeatureDashboard"
             id="se.gu.featuredashboard.ui.views">
-      </category>
-      <view
-            name="Feature-to-Folder View"
+		</category>
+		<view
+			name="Feature-to-Folder View"
             icon="icons/featureDashboard_icon.png"
             category="se.gu.featuredashboard.ui.views"
             class="se.gu.featuredashboard.ui.views.FeatureFolderView"
             id="se.gu.featuredashboard.ui.views.FeatureFolderView">
-      </view>
-      </extension>
+		</view>
+	</extension>
       
-      <extension
-         point="org.eclipse.ui.views">
-      <category
-            name="FeatureDashboard"
+	<extension
+		point="org.eclipse.ui.views">
+		<category
+			name="FeatureDashboard"
             id="se.gu.featuredashboard.ui.views">
-      </category>
-      <view
-            name="Feature Metrics View"
+		</category>
+		<view
+			name="Feature Metrics View"
             icon="icons/featureDashboard_icon.png"
             category="se.gu.featuredashboard.ui.views"
             class="se.gu.featuredashboard.ui.views.FeatureMetricsView"
             id="se.gu.featuredashboard.ui.views.FeatureMetricsView">
-      </view>
-      </extension>
+		</view>
+	</extension>
       
-      <extension
-         point="org.eclipse.ui.views">
-      <category
-            name="FeatureDashboard"
+	<extension
+		point="org.eclipse.ui.views">
+		<category
+			name="FeatureDashboard"
             id="se.gu.featuredashboard.ui.views">
-      </category>
-      <view
-            name="Project Metrics View"
+		</category>
+		<view
+			name="Project Metrics View"
             icon="icons/featureDashboard_icon.png"
             category="se.gu.featuredashboard.ui.views"
             class="se.gu.featuredashboard.ui.views.ProjectMetricsView"
             id="se.gu.featuredashboard.ui.views.ProjectMetricsView">
-      </view>
-      </extension>
+		</view>
+	</extension>
       
-      <extension
-      		id="se.gu.featuredashboard.ui.AnnotationMarker"
-      		name="Feature marker"
-         	point="org.eclipse.core.resources.markers">
-         	<persistent value="true"></persistent>
-      		<super type="org.eclipse.core.resources.marker"></super>
-      		<super type="org.eclipse.core.resources.textmarker"></super>
-      </extension>
+	<extension
+		id="se.gu.featuredashboard.ui.AnnotationMarker"
+      	name="Feature marker"
+        point="org.eclipse.core.resources.markers">
+		<persistent 
+			value="true">
+		</persistent>
+		<super 
+			type="org.eclipse.core.resources.marker">
+		</super>
+		<super 
+			type="org.eclipse.core.resources.textmarker">
+		</super>
+	</extension>
       
-      <extension
-         point="org.eclipse.ui.editors.annotationTypes">
-      <type
-      	markerSeverity="0"
-       	super="org.eclipse.ui.workbench.texteditor.info"
-      	markerType="se.gu.featuredashboard.ui.AnnotationMarker"
-       	name="se.gu.featuredashboard.ui.AnnotationType"/>
-   </extension>	
+	<extension
+		point="org.eclipse.ui.editors.annotationTypes">
+		<type
+			markerSeverity="0"
+       		super="org.eclipse.ui.workbench.texteditor.info"
+      		markerType="se.gu.featuredashboard.ui.AnnotationMarker"
+       		name="se.gu.featuredashboard.ui.AnnotationType">
+		</type>
+	</extension>	
    
-   <extension
-         point="org.eclipse.ui.editors.markerAnnotationSpecification"
-         id="se.gu.featuredashboard.ui.AnnotationSpecification">
-      <specification
-            annotationType="se.gu.featuredashboard.ui.AnnotationType"
+	<extension
+		point="org.eclipse.ui.editors.markerAnnotationSpecification"
+		id="se.gu.featuredashboard.ui.AnnotationSpecification">
+		<specification
+			annotationType="se.gu.featuredashboard.ui.AnnotationType"
             colorPreferenceKey="se.gu.featuredashboard.ui.AnnotationMarker.color"
             colorPreferenceValue="192,255,192"
             contributesToHeader="false"
@@ -203,7 +216,18 @@
             textStylePreferenceValue="BOX"
             verticalRulerPreferenceKey="se.gu.featuredashboard.ui.AnnotationMarker.ruler"
             verticalRulerPreferenceValue="true">
-      </specification>
-   </extension>
-      
+		</specification>
+	</extension>
+    
+	<extension
+		id="se.gu.featuredashboard.utils.Builder"
+		point="org.eclipse.core.resources.builders"
+		name="Featuredashboard builder">
+		<builder>
+			<run
+				class="se.gu.featuredashboard.utils.Builder">
+			</run>
+		</builder>
+	</extension>
+    
 </plugin>

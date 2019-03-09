@@ -1,21 +1,23 @@
 package se.gu.featuredashboard.ui.listeners;
 
+import java.util.List;
+
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.IJobChangeListener;
 import org.eclipse.e4.core.services.log.Logger;
 import org.eclipse.ui.PlatformUI;
 
-import se.gu.featuredashboard.utils.ICallbackEvent;
-import se.gu.featuredashboard.utils.ICallbackListener;
+import se.gu.featuredashboard.utils.IUpdateViewListener;
 
 public class JobChangeListener implements IJobChangeListener {
 
-	private ICallbackListener callback;
-	Logger logger = PlatformUI.getWorkbench().getService(org.eclipse.e4.core.services.log.Logger.class);
+	private List<IUpdateViewListener> listeners;
+	private Logger logger = PlatformUI.getWorkbench().getService(org.eclipse.e4.core.services.log.Logger.class);
 	
-	public JobChangeListener(ICallbackListener callback) {
-		this.callback = callback;
+	public JobChangeListener(List<IUpdateViewListener> listeners) {
+		this.listeners = listeners;
 	}
 	
 	@Override
@@ -32,11 +34,13 @@ public class JobChangeListener implements IJobChangeListener {
 
 	@Override
 	public void done(IJobChangeEvent event) {
-		logger.info("Parsing complete");
+		logger.info("Parsing job is done");	
 		IStatus status = (IStatus) event.getResult();
-		if(status.getCode() == IStatus.OK) {
-			ICallbackEvent callbackEvent = new ICallbackEvent(ICallbackEvent.EventType.ParsingComplete);
-			callback.callbackMethod(callbackEvent);
+		if(status.getCode() == Status.OK_STATUS.getCode()) {
+			listeners.forEach(listener -> {
+				if(listener != null)
+					listener.updateView();
+			});
 		}
 	}
 

@@ -5,8 +5,7 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.TableColumn;
 
-import se.gu.featuredashboard.ui.views.FeatureMetricsView;
-import se.gu.featuredashboard.ui.views.ProjectMetricsView;
+import se.gu.featuredashboard.utils.FeaturedashboardConstants;
 import se.gu.featuredashboard.utils.MetricsComparator;
 
 public class TableSelectionListener implements SelectionListener {
@@ -27,43 +26,55 @@ public class TableSelectionListener implements SelectionListener {
 		
 		int columnToSort = 0;
 		
-		if(id.equals(FeatureMetricsView.ID)) {
+		if(id.equals(FeaturedashboardConstants.FEATURETABLE_ID)) {
 			switch(column.getText()) {
-				case FeatureMetricsView.COLUMN_1_NAME:
+				case FeaturedashboardConstants.FEATURETABLE_COLUMN_1_NAME:
 					columnToSort = 1;
 					break;
-				case FeatureMetricsView.COLUMN_2_NAME:
+				case FeaturedashboardConstants.FEATURETABLE_COLUMN_2_NAME:
 					columnToSort = 2;
 					break;
-				case FeatureMetricsView.COLUMN_3_NAME:
+				case FeaturedashboardConstants.FEATURETABLE_COLUMN_3_NAME:
 					columnToSort = 3;
 					break;
-				case FeatureMetricsView.COLUMN_4_NAME:
+				case FeaturedashboardConstants.FEATURETABLE_COLUMN_4_NAME:
 					columnToSort = 4;
 					break;
-				case FeatureMetricsView.COLUMN_5_NAME:
+				case FeaturedashboardConstants.FEATURETABLE_COLUMN_5_NAME:
 					columnToSort = 5;
 					break;
-				case FeatureMetricsView.COLUMN_6_NAME:
+				case FeaturedashboardConstants.FEATURETABLE_COLUMN_6_NAME:
 					columnToSort = 6;
 					break;
+				case FeaturedashboardConstants.FEATURETABLE_COLUMN_7_NAME:
+					columnToSort = 7;
+					break;
+				case FeaturedashboardConstants.FEATURETABLE_COLUMN_8_NAME:
+					columnToSort = 8;
+					break;
+				case FeaturedashboardConstants.FEATURETABLE_COLUMN_9_NAME:
+					columnToSort = 9;
+					break;
 			}
-		} else if(id.equals(ProjectMetricsView.ID)) {
+		} else if(id.equals(FeaturedashboardConstants.PROJECTTABLE_ID)) {
 			switch(column.getText()) {
-				case ProjectMetricsView.COLUMN_1_NAME:
+				case FeaturedashboardConstants.PROJECTTABLE_COLUMN_1_NAME:
 					columnToSort = 1;
 					break;
-				case ProjectMetricsView.COLUMN_2_NAME:
+				case FeaturedashboardConstants.PROJECTTABLE_COLUMN_2_NAME:
 					columnToSort = 2;
 					break;
-				case ProjectMetricsView.COLUMN_3_NAME:
+				case FeaturedashboardConstants.PROJECTTABLE_COLUMN_3_NAME:
 					columnToSort = 3;
 					break;
-				case ProjectMetricsView.COLUMN_4_NAME:
+				case FeaturedashboardConstants.PROJECTTABLE_COLUMN_4_NAME:
 					columnToSort = 4;
 					break;
-				case ProjectMetricsView.COLUMN_5_NAME:
+				case FeaturedashboardConstants.PROJECTTABLE_COLUMN_5_NAME:
 					columnToSort = 5;
+					break;
+				case FeaturedashboardConstants.PROJECTTABLE_COLUMN_6_NAME:
+					columnToSort = 6;
 					break;
 			}
 		}

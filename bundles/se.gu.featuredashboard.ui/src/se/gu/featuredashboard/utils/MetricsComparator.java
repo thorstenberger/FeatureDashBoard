@@ -14,7 +14,7 @@ public class MetricsComparator extends ViewerComparator {
 	
 	private static final int DESCENDING = 1;
     private int direction = DESCENDING;
-	
+    
 	public void setColumn(int column) {
 		this.column = column;
         if (column == this.propertyIndex) {
@@ -70,11 +70,34 @@ public class MetricsComparator extends ViewerComparator {
 					result = Integer.compare(feature1.getScatteringDegree(), feature2.getScatteringDegree());
 					break;
 				default:
-					break;
+					Object[] nestingInfo1 = feature1.getNestingInfo();
+					Object[] nestingInfo2 = feature2.getNestingInfo();
+					if(column == 7)
+						result = Integer.compare((int) nestingInfo1[0], (int) nestingInfo2[0]);
+					else if(column == 8)
+						result = Double.compare(Double.parseDouble((String) nestingInfo1[3]), Double.parseDouble((String) nestingInfo2[3]));
+					else
+						result = Integer.compare((int) nestingInfo1[1], (int) nestingInfo2[1]);
 			}
 		} else if(obj1 instanceof Project && obj2 instanceof Project) {
 			Project p1 = (Project) obj1;
 			Project p2 = (Project) obj2;
+			
+			switch(column) {
+				case 1:
+					result = compareStrings(p1.getID(), p2.getID());
+					break;
+				case 2:
+					result = Integer.compare(p1.getNumberOfFeatures(), p2.getNumberOfFeatures());
+				case 3:
+					result = Integer.compare(p1.getTotalLoFC(), p1.getTotalLoFC());
+				case 4:
+					result = Double.compare(Double.parseDouble(p1.getAvgLoFC()), Double.parseDouble(p2.getAvgLoFC()));
+				case 5:
+					result = Double.compare(Double.parseDouble(p1.getAverageND()), Double.parseDouble(p2.getAverageND()));
+				case 6:
+					result = Double.compare(Double.parseDouble(p1.getAverageSD()), Double.parseDouble(p2.getAverageSD()));
+			}
 		}
 		
 		if(direction == DESCENDING) {
