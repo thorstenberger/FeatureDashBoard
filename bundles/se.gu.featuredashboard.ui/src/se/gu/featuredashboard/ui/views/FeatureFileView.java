@@ -17,13 +17,11 @@ import java.util.Map;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.gef.graph.Edge;
-import org.eclipse.gef.graph.Graph;
 import org.eclipse.gef.graph.Node;
 import org.eclipse.gef.mvc.fx.ui.MvcFxUiModule;
-import org.eclipse.gef.mvc.fx.ui.parts.AbstractFXView;
-import org.eclipse.gef.mvc.fx.viewer.IViewer;
+import org.eclipse.gef.zest.fx.ui.parts.ZestFxUiView;
 
-public class FeatureFileView extends AbstractFXView {
+public class FeatureFileView extends ZestFxUiView {
 
 	private List<Node> graphNodes; 
 	private List<Edge> graphEdges;
@@ -61,20 +59,6 @@ public class FeatureFileView extends AbstractFXView {
 		}
 		
 		setGraph(GraphContentProvider.getGraph(graphEdges, graphNodes));
-	}
-	
-	private void setGraph(Graph graph) {
-		// check we have a content viewer
-		IViewer contentViewer = getContentViewer();
-		if (contentViewer == null) {
-			throw new IllegalStateException("Invalid configuration: Content viewer could not be retrieved.");
-		}
-		// set contents (will wrap graph into contents list)
-		List<Object> contents = new ArrayList<>(1);
-		if (graph != null) {
-			contents.add(graph);
-		}
-		contentViewer.getContents().setAll(contents);
 	}
 
 	@Override

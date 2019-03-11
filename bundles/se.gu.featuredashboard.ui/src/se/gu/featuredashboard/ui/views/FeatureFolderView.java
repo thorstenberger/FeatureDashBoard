@@ -9,12 +9,10 @@ import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.gef.graph.Edge;
-import org.eclipse.gef.graph.Graph;
 import org.eclipse.gef.graph.Node;
-import org.eclipse.gef.mvc.fx.ui.parts.AbstractFXView;
-import org.eclipse.gef.mvc.fx.viewer.IViewer;
 import org.eclipse.gef.zest.fx.ZestFxModule;
 import org.eclipse.gef.zest.fx.ui.ZestFxUiModule;
+import org.eclipse.gef.zest.fx.ui.parts.ZestFxUiView;
 import org.eclipse.swt.widgets.Composite;
 
 import com.google.inject.Guice;
@@ -24,7 +22,7 @@ import com.google.inject.util.Modules;
 import se.gu.featuredashboard.model.featuremodel.FeatureContainer;
 import se.gu.featuredashboard.ui.providers.GraphContentProvider;
 
-public class FeatureFolderView extends AbstractFXView {
+public class FeatureFolderView extends ZestFxUiView {
 
 	private List<Edge> graphEdges;
 	private List<Node> graphNodes;
@@ -79,20 +77,6 @@ public class FeatureFolderView extends AbstractFXView {
 				getParentStructure(parent.getParent(), parent, lookup);
 			}
 		}
-	}
-	
-	private void setGraph(Graph graph) {
-		// check we have a content viewer
-		IViewer contentViewer = getContentViewer();
-		if (contentViewer == null) {
-			throw new IllegalStateException("Invalid configuration: Content viewer could not be retrieved.");
-		}
-		// set contents (will wrap graph into contents list)
-		List<Object> contents = new ArrayList<>(1);
-		if (graph != null) {
-			contents.add(graph);
-		}
-		contentViewer.getContents().setAll(contents);
 	}
 	
 }
