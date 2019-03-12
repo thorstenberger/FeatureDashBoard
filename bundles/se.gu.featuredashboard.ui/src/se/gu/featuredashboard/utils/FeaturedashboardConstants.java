@@ -18,6 +18,7 @@ public class FeaturedashboardConstants {
 	// Column names/tooltips for FeatureMetricsView
 	public static final String FEATURETABLE_COLUMN_1_NAME = "Feature";
 	public static final String FEATURETABLE_COLUMN_1_TOOLTIP = "The feature of interest";
+	public static final int FEATURETABLE_COLUMN_1_SIZE = 175;
 	
 	public static final String FEATURETABLE_COLUMN_2_NAME = "LOFC";
 	public static final String FEATURETABLE_COLUMN_2_TOOLTIP = "How many annotated lines for this feature";

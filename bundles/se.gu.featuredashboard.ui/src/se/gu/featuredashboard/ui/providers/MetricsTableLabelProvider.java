@@ -42,8 +42,6 @@ public class MetricsTableLabelProvider implements ITableLabelProvider {
 		if(element instanceof FeatureContainer) {
 			FeatureContainer featureContainer = (FeatureContainer) element;
 			
-			Object[] info = featureContainer.getNestingInfo();
-			
 			switch (columnIndex) {
 				case 0:
 					return featureContainer.getFeature().getFeatureID();
@@ -58,11 +56,11 @@ public class MetricsTableLabelProvider implements ITableLabelProvider {
 				case 5:
 					return Integer.toString(featureContainer.getScatteringDegree());
 				case 6:
-					return Integer.toString((int) info[0]);
+					return Integer.toString(featureContainer.getMaxND());
 				case 7:
-					return (String) info[3];
+					return featureContainer.getAvgND();
 				case 8:
-					return Integer.toString((int) info[1]);
+					return Integer.toString(featureContainer.getMinND());
 				default:
 					return "Error";
 			}

@@ -10,6 +10,8 @@ import org.eclipse.core.runtime.IPath;
 
 public class Project {
 	
+	private int numberOfFeatures = 0;
+	
 	private IProject project;
 	private List<FeatureContainer> features;
 	private String ID;
@@ -41,10 +43,12 @@ public class Project {
 	
 	public void addFeatures(Collection<FeatureContainer> featureContainers) {
 		features.addAll(featureContainers);
+		numberOfFeatures += featureContainers.size();
 	}
 	
 	public void addFeature(FeatureContainer container) {
 		features.add(container);
+		numberOfFeatures++;
 	}
 	
 	public IPath getLocation() {
@@ -56,57 +60,40 @@ public class Project {
 	}
 	
 	public int getNumberOfFeatures() {
-		return this.features.size();
+		return numberOfFeatures;
 	}
 	
 	public int getTotalLoFC() {
-		int totalLoFC = 0;
-		
-		for(FeatureContainer container : features) {
-			totalLoFC += container.getLinesOfFeatureCode();
-		}
-		
-		return totalLoFC;
+		return features.stream().mapToInt(FeatureContainer::getLinesOfFeatureCode).sum();
 	}
 	
 	public String getAvgLoFC() {
-		return df.format((double)this.getTotalLoFC()/(double)features.size());
+		return df.format((double)this.getTotalLoFC()/(double)getNumberOfFeatures());
 	}
 	
 	public String getAverageSD() {
-		double avgNestingDegree = 0;
-		
-		for(FeatureContainer container : features) {
-			avgNestingDegree += container.getScatteringDegree();
-		}
-		
-		avgNestingDegree /= features.size();
-		
-		return df.format(avgNestingDegree);
+		int totalNestingDegree = features.stream().mapToInt(FeatureContainer::getScatteringDegree).sum();
+		return df.format((double)totalNestingDegree/(double)getNumberOfFeatures());
 	}
 	
 	public String getAverageND() {
-		double totalDepth = 0;
-		
-		for(FeatureContainer container : features) {
-			totalDepth = (int) container.getNestingInfo()[2];
-		}
-		
-		return df.format(totalDepth/features.size());
+		int totalDepth = features.stream().mapToInt(FeatureContainer::getTotalND).sum();
+		return df.format((double)totalDepth/(double)getNumberOfFeatures()	);
 	}
 	
 	@Override
 	public boolean equals(Object obj) {
 		
-		if(obj == null) {
+		if(obj == null)
 			return false;
-		}
 		
-		if(!(obj instanceof Project)) {
+		if(!(obj instanceof Project))
 			return false;
-		}
 		
 		Project p = (Project) obj;
+		
+		if(p == obj)
+			return true;
 		
 		return this.absoluteLocation.equals(p.getLocation()) 
 				&& this.ID.equals(p.getID()) 

@@ -69,15 +69,14 @@ public class MetricsComparator extends ViewerComparator {
 				case 6:
 					result = Integer.compare(feature1.getScatteringDegree(), feature2.getScatteringDegree());
 					break;
-				default:
-					Object[] nestingInfo1 = feature1.getNestingInfo();
-					Object[] nestingInfo2 = feature2.getNestingInfo();
-					if(column == 7)
-						result = Integer.compare((int) nestingInfo1[0], (int) nestingInfo2[0]);
-					else if(column == 8)
-						result = Double.compare(Double.parseDouble((String) nestingInfo1[3]), Double.parseDouble((String) nestingInfo2[3]));
-					else
-						result = Integer.compare((int) nestingInfo1[1], (int) nestingInfo2[1]);
+				case 7:
+					result = Integer.compare(feature1.getMaxND(), feature2.getMaxND());
+					break;
+				case 8:
+					result = Double.compare(Double.parseDouble(feature1.getAvgND()), Double.parseDouble(feature2.getAvgND()));
+					break;
+				case 9:
+					result = Integer.compare(feature1.getMinND(), feature2.getMinND());
 			}
 		} else if(obj1 instanceof Project && obj2 instanceof Project) {
 			Project p1 = (Project) obj1;

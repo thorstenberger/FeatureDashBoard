@@ -15,9 +15,18 @@ import se.gu.featuredashboard.model.location.BlockLine;
 
 public class FeatureContainer {
 	
+	private Integer maxNestingDepth;
+	private Integer minNestingDepth;
+	private String avgNestingDepth;
+	private Integer totalNestingDepth;
+	private Integer LOFC;
+	private Integer scatteringDegree;
+	private Integer inFileAnnotations;
+	private Integer tanglingDegree;
+	
 	private Feature feature;
+	private Map<IFile, Integer> tanglingInfo;
 	private Map<IFile, List<BlockLine>> fileToLines;
-	private int tanglingDegree = 0;
 	private DecimalFormat df = new DecimalFormat("#.##");
 	
 	public FeatureContainer(Feature feature) {
@@ -39,6 +48,8 @@ public class FeatureContainer {
 	
 	public void addFileToLines(IFile file, List<BlockLine> annotatedLines) {
 		fileToLines.put(file, annotatedLines);
+		// When we run the builder we will update a certain FeatureContainer and then we need to recalcualte the metrics
+		resetMetrics();
 	}
 	
 	public List<BlockLine> getLines(IFile file){
@@ -46,75 +57,113 @@ public class FeatureContainer {
 	}
 	
 	public int getLinesOfFeatureCode() {
-		int linesOfFeatureCode = 0;
-		
-		for(List<BlockLine> blocks : getBlocks()) {
-			for(BlockLine block : blocks) {
-				if(block.getStartLine() == block.getEndLine()) {
-					linesOfFeatureCode = linesOfFeatureCode + 1;
+		if(LOFC == null) {
+			LOFC = 0;
+			for(List<BlockLine> blocks : getBlocks()) {
+				for(BlockLine block : blocks) {
+					if(block.getStartLine() == block.getEndLine()) {
+						LOFC++;
+					}
+					LOFC += Math.abs(block.getStartLine() - block.getEndLine());
 				}
-				linesOfFeatureCode += Math.abs(block.getStartLine() - block.getEndLine());
 			}
 		}
-		
-		return linesOfFeatureCode;
+		return LOFC;
 	}
 	
 	public int getScatteringDegree() {
-		return getFiles().size();
+		if(scatteringDegree == null)
+			scatteringDegree = getFiles().size();
+		return scatteringDegree;
 	}
 	
 	public int getNumberOfInFileAnnotations() {
-		int fileAnnotations = 0;
-		for(List<BlockLine> blocks : getBlocks()) {
-			for(BlockLine block : blocks) {
-				fileAnnotations++;
+		if(inFileAnnotations == null) {
+			inFileAnnotations = 0; 		
+			for(List<BlockLine> blocks : getBlocks()) {
+				inFileAnnotations += blocks.size();
 			}
 		}
-		return fileAnnotations;
+		return inFileAnnotations;
 	}
 	
-	public int getNuberOfFolderAnnotations() {
-		throw new UnsupportedOperationException();
-	}
-	
-	public void incrementTanglingDegree(int increment) {
-		this.tanglingDegree += increment;
+	public void setTanglingDegree(IFile file, int otherFeatures) {
+		if(tanglingInfo == null)
+			tanglingInfo = new HashMap<>();
+		tanglingInfo.put(file, otherFeatures);
 	}
 	
 	public int getTanglingDegree() {
+		if(tanglingDegree == null)
+			tanglingDegree = tanglingInfo.values().stream().mapToInt(Integer::intValue).sum();
 		return tanglingDegree;
 	}
 	
-	public Object[] getNestingInfo() {
-		int maxDepth = Integer.MIN_VALUE;
-		int minDepth = Integer.MAX_VALUE;
-		int totalDepth = 0;
+	public int getMaxND() {
+		if(maxNestingDepth == null)
+			calculateNestingInfo();
+		return maxNestingDepth;
+	}
+	
+	public int getMinND() {
+		if(minNestingDepth == null)
+			calculateNestingInfo();
+		return minNestingDepth;
+	}
+	
+	public int getTotalND() {
+		if(totalNestingDepth == null)
+			calculateNestingInfo();
+		return totalNestingDepth;
+	}
+	
+	public String getAvgND() {
+		if(avgNestingDepth == null)
+			calculateNestingInfo();
+		return avgNestingDepth;
+	}
+	
+	// Calculate all info at the same time
+	private void calculateNestingInfo() {
+		maxNestingDepth = Integer.MIN_VALUE;
+		avgNestingDepth = new String();
+		minNestingDepth = Integer.MAX_VALUE;
+		totalNestingDepth = 0;
 		
 		for(IFile file : getFiles()) {
-			int depth = returnMaxDepth(file);
+			int depth = returnDepth(file);
 			
-			totalDepth += depth;
+			totalNestingDepth += depth;
 			
-			if(depth < minDepth) {
-				minDepth = depth;
+			if(depth < minNestingDepth) {
+				minNestingDepth = depth;
 			}
 			
-			if(depth > maxDepth) {
-				maxDepth = depth;
+			if(depth > maxNestingDepth) {
+				maxNestingDepth = depth;
 			}
 		}
 		
-		//Not very strict but it works for now..
-		return new Object[] {maxDepth, minDepth, totalDepth, df.format((double)totalDepth/(double)getFiles().size())};
+		avgNestingDepth = df.format((double)totalNestingDepth/(double)getScatteringDegree());
 	}
 	
-	private int returnMaxDepth(IResource resource) {
+	private int returnDepth(IResource resource) {
 		if(resource instanceof IProject) {
 			return 0;
 		} else {
-			return 1 + returnMaxDepth(resource.getParent());
+			return 1 + returnDepth(resource.getParent());
 		}
+	}
+	
+	// When there is an update we need to recalculate the metrics
+	private void resetMetrics() {
+		tanglingDegree = null;
+		maxNestingDepth = null;
+		minNestingDepth = null;
+		avgNestingDepth = null;
+		LOFC = null;
+		scatteringDegree = null;
+		inFileAnnotations = null;
 	}
 	
 }

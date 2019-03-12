@@ -2,8 +2,10 @@ package se.gu.featuredashboard.utils;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
@@ -102,40 +104,42 @@ public class ParseJob extends Job {
 	}
 	
 	private void handleFile(IFile resource, IProgressMonitor monitor) {
-		if(monitor.isCanceled()) {
-			return;
-		}
-		
-		// Have an preference option which will allow you to include/exlude file extensions
-		if(!resource.getFileExtension().equals(JAVA_FILE))
+		if(monitor.isCanceled())
 			return;
 		
-		List<FeatureAnnotationsLocation> features = parser.readParseAnnotations(resource.getLocation().toString());
+		List<FeatureAnnotationsLocation> locations = parser.readParseAnnotations(resource.getLocation().toString());
+		Set<Feature> uniqueFeatures = new HashSet<>();
 		
-		for(FeatureAnnotationsLocation location : features) {
+		for(FeatureAnnotationsLocation location : locations) {
+			uniqueFeatures.add(location.getFeature());
 			FeatureContainer container = information.get(location.getFeature());
 			
 			if(container == null) {	
 				container = new FeatureContainer(location.getFeature());
 				information.put(location.getFeature(), container);
 			}
-			// Since we want to get how many other features apart from itself, subtract 1
-			container.incrementTanglingDegree(features.size()-1);
 			container.addFileToLines(resource, location.getBlocklines());
+		}
+		
+		for(Feature feature : uniqueFeatures) {
+			FeatureContainer container = information.get(feature);
+			container.setTanglingDegree(resource, uniqueFeatures.size()-1);
 		}
 		
 	}
 	
 	private IStatus handleSingleFile(IProgressMonitor monitor) {
-		// Have an preference option which will allow you to include/exlude file extensions
-		if(!file.getFileExtension().equals(JAVA_FILE))
-			return Status.CANCEL_STATUS;
-		
 		List<FeatureAnnotationsLocation> features = parser.readParseAnnotations(file.getLocation().toString());
+		Set<Feature> uniqueFeatures = new HashSet<>();
+		
+		FeatureContainer container = null;
+		boolean newFeature = false;
 		
 		for(FeatureAnnotationsLocation location : features) {
-			FeatureContainer container = project.getFeatureContainer(location.getFeature());
+			uniqueFeatures.add(location.getFeature());
+			container = project.getFeatureContainer(location.getFeature());
 			if(container == null) {
+				newFeature = true;
 				container = new FeatureContainer(location.getFeature());
 				project.addFeature(container);
 			}
@@ -143,6 +147,17 @@ public class ParseJob extends Job {
 			container.addFileToLines(file, location.getBlocklines());
 		}
 		
+		// If we introduce a new feature then we need to update the tangling degree with all the other features as well
+		if(container != null) {
+			if(newFeature) {
+				project.getFeatureContainers().forEach(parsedContainers -> {
+					parsedContainers.setTanglingDegree(file, uniqueFeatures.size()-1);
+				});
+			} else {
+				container.setTanglingDegree(file, uniqueFeatures.size()-1);
+			}
+		}
+
 		return Status.OK_STATUS;
 	}	
 }

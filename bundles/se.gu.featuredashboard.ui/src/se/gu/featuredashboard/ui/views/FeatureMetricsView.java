@@ -41,7 +41,7 @@ public class FeatureMetricsView extends ViewPart implements IUpdateViewListener 
 		column.setText(FeaturedashboardConstants.FEATURETABLE_COLUMN_1_NAME);
 		column.setToolTipText(FeaturedashboardConstants.FEATURETABLE_COLUMN_1_TOOLTIP);
 		column.addSelectionListener(tableSelectionListener);
-		column.setWidth(100);
+		column.setWidth(FeaturedashboardConstants.FEATURETABLE_COLUMN_1_SIZE);
 		
 		column = new TableColumn(featureTable, SWT.RIGHT);
 		column.setText(FeaturedashboardConstants.FEATURETABLE_COLUMN_2_NAME);
