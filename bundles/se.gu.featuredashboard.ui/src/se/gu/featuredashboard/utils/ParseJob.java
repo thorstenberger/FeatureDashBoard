@@ -143,7 +143,6 @@ public class ParseJob extends Job {
 				container = new FeatureContainer(location.getFeature());
 				project.addFeature(container);
 			}
-			// TODO - increment tangling degree correctly.
 			container.addFileToLines(file, location.getBlocklines());
 		}
 		
