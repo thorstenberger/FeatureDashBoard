@@ -1,5 +1,6 @@
 package se.gu.featuredashboard.utils.gef;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.core.resources.IFile;
@@ -20,8 +21,10 @@ public class FileNode extends Node {
 		return this.file;
 	}
 	
-	public void setAnnotatedLines(List<BlockLine> annotatedLines) {
-		this.annotatedLines = annotatedLines;
+	public void addAnnotatedLines(List<BlockLine> annotatedLines) {
+		if(this.annotatedLines == null)
+			this.annotatedLines = new ArrayList<>();
+		this.annotatedLines.addAll(annotatedLines);
 	}
 	
 	public List<BlockLine> getAnnotatedLines(){

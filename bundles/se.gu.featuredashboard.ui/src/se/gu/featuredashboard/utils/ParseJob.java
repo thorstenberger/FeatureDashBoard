@@ -32,8 +32,6 @@ public class ParseJob extends Job {
 	private Map<Feature, FeatureContainer> information;
 	private Logger logger = PlatformUI.getWorkbench().getService(org.eclipse.e4.core.services.log.Logger.class);
 	
-	private static final String JAVA_FILE = "java";
-	
 	public ParseJob(String name, Project project) {
 		super(name);
 		this.project = project;

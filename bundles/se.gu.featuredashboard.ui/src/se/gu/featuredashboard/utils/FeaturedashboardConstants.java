@@ -6,7 +6,7 @@ public class FeaturedashboardConstants {
 	public static final String ACTION_TEXT = "Parse selected project";
 	public static final String ACTION_TOOLTOP_TEXT = "Parses the selected project in the Project/Package Exlorer";
 	
-	// View ID's
+	// ID's
 	public static final String FEATUREFOLDER_VIEW_ID = "se.gu.featuredashboard.ui.views.FeatureFolderView";
 	public static final String FEATUREFILE_VIEW_ID = "se.gu.featuredashboard.ui.views.FeatureFileView";
 	public static final String FEATURELIST_VIEW_ID = "se.gu.featuredashboard.ui.views.FeatureListView";
@@ -14,6 +14,8 @@ public class FeaturedashboardConstants {
 	public static final String PROJECTMETRICS_VIEW_ID = "se.gu.featuredashboard.ui.views.ProjectMetricsView";
 	public static final String PACKAGE_EXPLORER = "org.eclipse.jdt.ui.PackageExplorer";
 	public static final String PROJECT_EXPLORER = "org.eclipse.ui.navigator.ProjectExplorer";
+	public static final String BUILDER_ID = "se.gu.featuredashboard.utils.Builder";
+	public static final String FEATURE_MARKER_ID = "se.gu.featuredashboard.ui.AnnotationMarker";
 	
 	// Column names/tooltips for FeatureMetricsView
 	public static final String FEATURETABLE_COLUMN_1_NAME = "Feature";
@@ -69,8 +71,6 @@ public class FeaturedashboardConstants {
 
 	// When selecting something that isn't a project in package/project explorer
 	public static final String WRONG_SELECTION_MESSAGE = "Current selection is not a project";
-	
-	public static final String BUILDER_ID = "se.gu.featuredashboard.utils.Builder";
 	
 	// Used to determine which operation is responsible for graph node clicks
 	public static final String NODE_ONCLICK_OPERATION_ID = "OnClickOperation";

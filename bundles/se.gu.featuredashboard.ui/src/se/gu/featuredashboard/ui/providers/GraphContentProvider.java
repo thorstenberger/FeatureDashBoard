@@ -42,7 +42,7 @@ public class GraphContentProvider {
 	public static Node getFileNode(String nodeLabel, IFile file, List<BlockLine> annotatedLines) {
 		fileNode = new FileNode();
 		fileNode.setFile(file);
-		fileNode.setAnnotatedLines(annotatedLines);
+		fileNode.addAnnotatedLines(annotatedLines);
 		
 		ZestProperties.setLabel(fileNode, nodeLabel);
 		

@@ -85,10 +85,8 @@ public class ParseProjectAction extends Action {
 					}
 				}
 			}
-		} catch(ClassCastException e) {
-			logger.error("There was en exception trying to cast the current selection");
-		} catch(CoreException e) {
-			logger.error("There was an exception adding or checking if the project has a builder");
+		} catch(ClassCastException | CoreException e) {
+			logger.error(e.getMessage());
 		}
 	}
 	

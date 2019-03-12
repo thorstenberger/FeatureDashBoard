@@ -9,6 +9,7 @@ import com.google.inject.util.Modules;
 import se.gu.featuredashboard.model.featuremodel.FeatureContainer;
 import se.gu.featuredashboard.ui.providers.GraphContentProvider;
 import se.gu.featuredashboard.utils.gef.CustomZestFxModule;
+import se.gu.featuredashboard.utils.gef.FileNode;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -52,6 +53,9 @@ public class FeatureFileView extends ZestFxUiView {
 					Node fileNode = GraphContentProvider.getFileNode(file.getName(), file, featureFileContainer.getLines(file));
 					lookup.put(file, fileNode);
 					graphNodes.add(fileNode);
+				} else {
+					FileNode n = (FileNode) lookup.get(file);
+					n.addAnnotatedLines(featureFileContainer.getLines(file));
 				}
 				graphEdges.add(new Edge(featureNode, lookup.get(file)));
 			});	

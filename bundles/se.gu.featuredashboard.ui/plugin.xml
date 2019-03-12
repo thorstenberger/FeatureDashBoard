@@ -176,7 +176,7 @@
       	name="Feature marker"
         point="org.eclipse.core.resources.markers">
 		<persistent 
-			value="true">
+			value="false">
 		</persistent>
 		<super 
 			type="org.eclipse.core.resources.marker">
@@ -202,7 +202,7 @@
 		<specification
 			annotationType="se.gu.featuredashboard.ui.AnnotationType"
             colorPreferenceKey="se.gu.featuredashboard.ui.AnnotationMarker.color"
-            colorPreferenceValue="192,255,192"
+            colorPreferenceValue="0,255,0"
             contributesToHeader="false"
             highlightPreferenceKey="se.gu.featuredashboard.ui.AnnotationMarker.highlight"
             highlightPreferenceValue="true"
