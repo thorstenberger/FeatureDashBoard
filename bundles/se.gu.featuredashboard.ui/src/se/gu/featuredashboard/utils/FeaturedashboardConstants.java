@@ -16,6 +16,7 @@ public class FeaturedashboardConstants {
 	public static final String PROJECT_EXPLORER = "org.eclipse.ui.navigator.ProjectExplorer";
 	public static final String BUILDER_ID = "se.gu.featuredashboard.utils.Builder";
 	public static final String FEATURE_MARKER_ID = "se.gu.featuredashboard.ui.AnnotationMarker";
+	public static final String REMOVEMARKERS_COMMAND_ID = "se.gu.featuredashboard.ui.commands.RemoveMarkers";
 	
 	// Column names/tooltips for FeatureMetricsView
 	public static final String FEATURETABLE_COLUMN_1_NAME = "Feature";
