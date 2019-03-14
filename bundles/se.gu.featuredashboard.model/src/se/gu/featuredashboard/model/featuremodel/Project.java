@@ -24,6 +24,7 @@ public class Project {
 		this.ID = ID;
 		this.absoluteLocation = absoluteLocation;
 		features = new ArrayList<>();
+		outputFolders = new ArrayList<>();
 	}
 	
 	public IProject getIProject() {
@@ -57,8 +58,6 @@ public class Project {
 	}
 	
 	public void setOutputFolder(IPath path) {
-		if(outputFolders == null)
-			outputFolders = new ArrayList<>();
 		outputFolders.add(path);
 	}
 	

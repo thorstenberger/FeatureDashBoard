@@ -106,8 +106,6 @@ public class ParseJob extends Job {
 		if(monitor.isCanceled())
 			return;
 		
-		System.out.println(resource.getLocation());
-		
 		List<FeatureAnnotationsLocation> locations = parser.readParseAnnotations(resource.getLocation().toString());
 		Set<Feature> uniqueFeatures = new HashSet<>();
 		
