@@ -5,6 +5,9 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
+import org.eclipse.cdt.core.model.CoreModel;
+import org.eclipse.cdt.core.model.ICProject;
+import org.eclipse.cdt.core.model.IOutputEntry;
 import org.eclipse.core.resources.ICommand;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
@@ -18,6 +21,8 @@ import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.JavaCore;
 
 import se.gu.featuredashboard.model.featuremodel.Project;
 import se.gu.featuredashboard.model.featuremodel.ProjectStore;
@@ -52,41 +57,50 @@ public class ParseProjectAction extends Action {
 				logger.info("Project explorer is not open, trying to use Package explorer instead");
 				explorerOfChoice = FeaturedashboardConstants.PACKAGE_EXPLORER;
 			}
-			IStructuredSelection selection = (IStructuredSelection) window.getSelectionService().getSelection(explorerOfChoice);
 			
-			if(selection != null) {
-				Object firstElement = selection.getFirstElement();
+			IStructuredSelection selection = (IStructuredSelection) window.getSelectionService().getSelection(explorerOfChoice);
+			if(selection == null) {
+				return;
+			}
+			
+			Object firstElement = selection.getFirstElement();
+			if(!(firstElement instanceof IAdaptable)){
+				return;
+			}
+			
+			IProject selectedProject = (IProject)((IAdaptable)firstElement).getAdapter(IProject.class);
+			
+			if(!hasBuilder(selectedProject)) {
+				logger.info("This project doesn't have the builder attached to it. Attaching");
+				addBuilder(selectedProject);
+			}
+			
+			if(!ProjectStore.isProjectParsed(selectedProject.getLocation())) {
+				Project project = new Project(selectedProject, selectedProject.getName(), selectedProject.getLocation());
 				
-				if(firstElement instanceof IAdaptable) {
-					IProject selectedProject = (IProject)((IAdaptable)firstElement).getAdapter(IProject.class);
-					
-					if(!hasBuilder(selectedProject)) {
-						logger.info("This project doesn't have the builder attached to it. Attaching");
-						addBuilder(selectedProject);
-					}
-					
-					if(!ProjectStore.isProjectParsed(selectedProject.getLocation())) {
-						logger.info("This project hasn't beeen parsed yet");
-						Project project = new Project(selectedProject, selectedProject.getName(), selectedProject.getLocation());
-						
-						ProjectStore.addProject(project.getLocation(), project);
-						
-						parseProjectJob = new ParseJob("Parse project", project);
-						parseProjectJob.addJobChangeListener(new JobChangeListener(viewsToUpdate));
-						parseProjectJob.setUser(true);
-						parseProjectJob.schedule();	 
-					} else {
-						logger.info("This project has already been parsed. Updating views");
-						ProjectStore.setActiveProject(selectedProject.getLocation());
-						viewsToUpdate.forEach(view -> {
-							if(view != null)
-								view.updateView();
-						});
-					}
+				if(selectedProject.hasNature(JavaCore.NATURE_ID)) {
+					IJavaProject javaProject = JavaCore.create(selectedProject);
+					project.setOutputFolder(javaProject.readOutputLocation());
+				} else if(selectedProject.hasNature(org.eclipse.cdt.core.CProjectNature.C_NATURE_ID) || selectedProject.hasNature(org.eclipse.cdt.core.CCProjectNature.CC_NATURE_ID)) {
+					ICProject cProject = CoreModel.getDefault().create(selectedProject);
+					Arrays.stream(cProject.getOutputEntries()).map(IOutputEntry::getPath).forEach(project::setOutputFolder);
 				}
+				ProjectStore.addProject(project.getLocation(), project);
+				
+				parseProjectJob = new ParseJob("Parse project", project);
+				parseProjectJob.addJobChangeListener(new JobChangeListener(viewsToUpdate));
+				parseProjectJob.setUser(true);
+				parseProjectJob.schedule();	 
+			} else {
+				logger.info("This project has already been parsed. Updating views");
+				ProjectStore.setActiveProject(selectedProject.getLocation());
+				viewsToUpdate.forEach(view -> {
+					if(view != null)
+						view.updateView();
+				});
 			}
 		} catch(ClassCastException | CoreException e) {
-			logger.error(e.getMessage());
+			logger.error("An exception ocurred: " + e.getMessage());
 		}
 	}
 	

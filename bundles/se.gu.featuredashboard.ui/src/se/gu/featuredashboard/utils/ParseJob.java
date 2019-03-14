@@ -90,7 +90,8 @@ public class ParseJob extends Job {
 		try {
 			Arrays.stream(container.members()).forEach(member -> {
 				if(member instanceof IContainer) {
-					handleResource((IContainer) member, monitor);
+					if(!project.getOutputFolders().stream().anyMatch(path -> member.getFullPath().equals(path)))
+						handleResource((IContainer) member, monitor);
 				} else if(member instanceof IFile) {
 					handleFile((IFile) member, monitor);
 				}
@@ -104,6 +105,8 @@ public class ParseJob extends Job {
 	private void handleFile(IFile resource, IProgressMonitor monitor) {
 		if(monitor.isCanceled())
 			return;
+		
+		System.out.println(resource.getLocation());
 		
 		List<FeatureAnnotationsLocation> locations = parser.readParseAnnotations(resource.getLocation().toString());
 		Set<Feature> uniqueFeatures = new HashSet<>();

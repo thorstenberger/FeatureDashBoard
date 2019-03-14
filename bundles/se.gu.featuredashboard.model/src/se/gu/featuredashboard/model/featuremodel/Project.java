@@ -16,6 +16,7 @@ public class Project {
 	private List<FeatureContainer> features;
 	private String ID;
 	private IPath absoluteLocation;
+	private List<IPath> outputFolders;
 	private DecimalFormat df = new DecimalFormat("#.##");
 	
 	public Project(IProject project, String ID, IPath absoluteLocation) {
@@ -53,6 +54,16 @@ public class Project {
 	
 	public IPath getLocation() {
 		return absoluteLocation;
+	}
+	
+	public void setOutputFolder(IPath path) {
+		if(outputFolders == null)
+			outputFolders = new ArrayList<>();
+		outputFolders.add(path);
+	}
+	
+	public List<IPath> getOutputFolders() {
+		return outputFolders;
 	}
 	
 	public String getID() {
