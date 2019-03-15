@@ -29,7 +29,7 @@ public class ParseMappingFile {
 			fileStream.forEach(line -> {
 				
 				String[] lineElements = line.split(":");
-				if(lineElements.length == 0)
+				if(lineElements.length < 2)
 					return;
 				
 				Feature feature = new Feature(lineElements[0]);
