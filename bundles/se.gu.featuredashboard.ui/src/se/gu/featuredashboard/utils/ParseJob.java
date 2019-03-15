@@ -236,6 +236,7 @@ public class ParseJob extends Job {
 		mapping.keySet().forEach(feature -> {
 			List<IResource> resources = mapping.get(feature); 
 			
+			// If only a feature is specified but no mappings
 			if(!(resources.size() > 0))
 				return;
 			
@@ -246,6 +247,7 @@ public class ParseJob extends Job {
 			}
 			
 			for(IResource resource : resources) {
+				// If the specified file/folder doesn't exist
 				if(resource == null)
 					continue;
 				
@@ -301,7 +303,7 @@ public class ParseJob extends Job {
 	            ++count;
 	        } 
 	    } catch(IOException | CoreException e) {
-	    	e.printStackTrace();
+	    	logger.warn("Error trying to read file for number of lines");
 	    }
 	    return count;
 	}

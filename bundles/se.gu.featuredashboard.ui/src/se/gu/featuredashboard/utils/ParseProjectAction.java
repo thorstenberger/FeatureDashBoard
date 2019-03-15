@@ -100,7 +100,7 @@ public class ParseProjectAction extends Action {
 				});
 			}
 		} catch(ClassCastException | CoreException e) {
-			logger.error("An exception ocurred: " + e.getMessage());
+			logger.warn("An exception ocurred: " + e.getMessage());
 		}
 	}
 	
