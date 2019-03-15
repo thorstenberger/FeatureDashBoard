@@ -21,6 +21,8 @@ public class FeaturedashboardConstants {
 	public static final String FEATUREFILE_FILE = "feature-file";
 	public static final String FEATUREFOLDER_FILE = "feature-folder";
 	
+	public static final String EXPORT_FILENAME = "FeatureMetrics.csv";
+	
 	// Column names/tooltips for FeatureMetricsView
 	public static final String FEATURETABLE_COLUMN_1_NAME = "Feature";
 	public static final String FEATURETABLE_COLUMN_1_TOOLTIP = "The feature of interest";

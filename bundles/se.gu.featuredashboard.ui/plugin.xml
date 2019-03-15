@@ -51,6 +51,11 @@
 					commandId="se.gu.featuredashboard.ui.commands.RemoveMarkers"
 					id="se.gu.featuredashboard.ui.menus.RemoveMarkers">
 				</command>
+				<command
+					mnemonic="E"
+					commandId="se.gu.featuredashboard.ui.commands.Export"
+					id="se.gu.featuredashboard.ui.menus.Export">
+				</command>
 			</menu>
       	</menuContribution>
 		<menuContribution
@@ -242,6 +247,27 @@
 		<handler
 			commandId="se.gu.featuredashboard.ui.commands.RemoveMarkers"
 			class="se.gu.featuredashboard.ui.handlers.RemoveMarkers">
+		</handler>
+	</extension>
+	
+	<extension
+		point="org.eclipse.ui.commands">
+		<category
+			name="Export feature metrics to CSV"
+			id="se.gu.featuredashboard.ui.commands.Export">
+		</category>
+		<command
+			name="Export feature metrics"
+			categoryId="se.gu.featuredashboard.ui.commands.Export"
+			id="se.gu.featuredashboard.ui.commands.Export">
+		</command>
+	</extension>
+	
+	<extension
+		point="org.eclipse.ui.handlers">
+		<handler
+			commandId="se.gu.featuredashboard.ui.commands.Export"
+			class="se.gu.featuredashboard.ui.handlers.Export">
 		</handler>
 	</extension>
     
