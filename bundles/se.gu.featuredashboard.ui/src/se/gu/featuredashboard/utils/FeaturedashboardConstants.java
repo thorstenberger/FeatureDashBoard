@@ -18,10 +18,13 @@ public class FeaturedashboardConstants {
 	public static final String FEATURE_MARKER_ID = "se.gu.featuredashboard.ui.AnnotationMarker";
 	public static final String REMOVEMARKERS_COMMAND_ID = "se.gu.featuredashboard.ui.commands.RemoveMarkers";
 	
+	// File name associated strings
 	public static final String FEATUREFILE_FILE = "feature-file";
 	public static final String FEATUREFOLDER_FILE = "feature-folder";
-	
 	public static final String EXPORT_FILENAME = "FeatureMetrics.csv";
+	
+	public static final String SYNTAXERROR_DIALOG_TITLE = "Syntax Errors!";
+	public static final String SYNTAXERROR_DIALOG_MESSAGE = "Syntax errors when parsing mapping files";
 	
 	// Column names/tooltips for FeatureMetricsView
 	public static final String FEATURETABLE_COLUMN_1_NAME = "Feature";

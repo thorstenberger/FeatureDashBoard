@@ -3,6 +3,7 @@ package se.gu.featuredashboard.utils;
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -20,6 +21,8 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.e4.core.services.log.Logger;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 
 import se.gu.featuredashboard.model.featuremodel.Feature;
@@ -30,6 +33,7 @@ import se.gu.featuredashboard.model.location.BlockLine;
 import se.gu.featuredashboard.model.location.FeatureAnnotationsLocation;
 import se.gu.featuredashboard.parsing.InFileAnnotationParser;
 import se.gu.featuredashboard.parsing.ParseMappingFile;
+import se.gu.featuredashboard.parsing.SyntaxException;
 
 public class ParseJob extends Job {
 
@@ -37,20 +41,24 @@ public class ParseJob extends Job {
 	private InFileAnnotationParser parser = new InFileAnnotationParser();
 	private IFile file;
 	private IProject iProject;
+	private Shell shell;
 	private Map<Feature, FeatureContainer> information;
 	private Logger logger = PlatformUI.getWorkbench().getService(org.eclipse.e4.core.services.log.Logger.class);
 	private Set<IResource> visited;
+	private List<Tuple<String, String>> syntaxExceptions;
 	
 	/**
 	 * @param name - identifier for this {@link Job}
 	 * @param project - the affected {@link Project}
 	 * */
-	public ParseJob(String name, Project project) {
+	public ParseJob(String name, Project project, Shell shell) {
 		super(name);
 		this.project = project;
+		this.shell = shell;
 		iProject = project.getIProject();
 		information = new HashMap<>();
 		visited = new HashSet<>();
+		syntaxExceptions = new ArrayList<>();
 	}
 	
 	/**
@@ -63,7 +71,6 @@ public class ParseJob extends Job {
 		this.project = project;
 		this.file = file;
 		iProject = project.getIProject();
-		visited = new HashSet<>();
 	}
 
 	/**
@@ -84,15 +91,32 @@ public class ParseJob extends Job {
 			statusToReturn = Status.CANCEL_STATUS;
 		} else if(file == null) {
 			statusToReturn = handleProject(monitor);
+			
+			if(syntaxExceptions.size() > 0) {
+				StringBuilder errorMessage = new StringBuilder();
+				syntaxExceptions.forEach(wrongSyntax -> {
+					errorMessage.append(wrongSyntax.getKey() + "  ---> " + wrongSyntax.getValue());
+					errorMessage.append("\n");
+				});
+				
+				Display.getDefault().asyncExec(() -> {
+					CustomDialog dialog = new CustomDialog(shell, 
+														   FeaturedashboardConstants.SYNTAXERROR_DIALOG_TITLE, 
+														   FeaturedashboardConstants.SYNTAXERROR_DIALOG_MESSAGE, 
+														   errorMessage.toString());
+					dialog.create();
+					dialog.open();
+				});
+			}
 		} else {
 			statusToReturn = handleSingleFile(monitor);
 		}
 		
 		if(statusToReturn != Status.CANCEL_STATUS && !monitor.isCanceled()) {
 			ProjectStore.setActiveProject(project);
-			logger.warn("Parse job was cancelled");
 		}
 		
+		logger.warn("Parse job finished");
 		monitor.done();
 		
 		return statusToReturn;
@@ -228,31 +252,20 @@ public class ParseJob extends Job {
 		if(monitor.isCanceled())
 			return;
 		
-		Map<Feature, List<IResource>> mapping = ParseMappingFile.readMappingFile(mappingFile, iProject);
-		
-		visited.add(mappingFile);
-		
-		mapping.keySet().forEach(feature -> {
-			List<IResource> resources = mapping.get(feature); 
+		try {
+			Map<Feature, List<IResource>> mapping = ParseMappingFile.readMappingFile(mappingFile, iProject);
 			
-			// If only a feature is specified but no mappings
-			if(!(resources.size() > 0))
-				return;
+			visited.add(mappingFile);
 			
-			FeatureContainer featureContainer = information.get(feature);
-			if(featureContainer == null) {
-				featureContainer = new FeatureContainer(feature);
-				information.put(feature, featureContainer);
-			}
-			
-			for(IResource resource : resources) {
-				// If the specified file/folder doesn't exist
-				if(resource == null)
-					continue;
-				
-				mapResourceToFeature(featureContainer, resource, monitor);
-			}
-		});
+			mapping.keySet().forEach(feature -> {
+				List<IResource> resources = mapping.get(feature); 
+				for(IResource resource : resources) {
+					mapResourceToFeature(feature, resource, monitor);
+				}
+			});
+		} catch(SyntaxException e) {
+			syntaxExceptions.add(new Tuple<String, String>(mappingFile.getFullPath().toString(), e.getMessage()));
+		}
 	}
 	
 	/**
@@ -261,31 +274,51 @@ public class ParseJob extends Job {
 	 * @param resource - the current {@link IResource} we are looking at
 	 * @param monitor - the {@link IProgressMonitor} for this job
 	 * */
-	private void mapResourceToFeature(FeatureContainer featureContainer, IResource resource, IProgressMonitor monitor) {
+	private void mapResourceToFeature(Feature feature, IResource resource, IProgressMonitor monitor) {
 		if(monitor.isCanceled())
 			return;
 		
-		try {
+		FeatureContainer featureContainer = null;
+		
+		try {	
 			visited.add(resource);
 			if(resource instanceof IContainer) {
+				// Since getFolder will return an IFolder object regardless if the path exists or not, we need to try and get the members first.
+				// If the path doesn't exist then a CoreException will be thrown, thus not creating an FeatureContainer that is null
+				IResource[] members = ((IContainer) resource).members();
+				
+				featureContainer = getFeatureContainer(feature);
 				featureContainer.incrementNumberOfFolderAnnotations();
-				IContainer folder = (IContainer) resource;
-				Arrays.stream(folder.members()).forEach(member -> mapResourceToFeature(featureContainer, member, monitor));
+				Arrays.stream(members).forEach(member -> mapResourceToFeature(feature, member, monitor));
 			} else {
-				featureContainer.addFileToBlocks((IFile) resource, Arrays.asList(new BlockLine(1, countLines((IFile) resource))));
+				// Since getFile will return an IFile object regardless if they exists or not, we need to try and get the members first.
+				// If the file doesn't exist then an IOException will be thrown, thus not creating an FeatureContainer that is null
+				BlockLine block = new BlockLine(1, countLines((IFile) resource));	
+				
+				featureContainer = getFeatureContainer(feature);
+				featureContainer.addFileToBlocks((IFile) resource, Arrays.asList(block));
 				featureContainer.setTanglingDegree((IFile) resource, 0);
 				featureContainer.incrementNumberOfFileAnnotations();
 			}
-		} catch (CoreException e) {
-			logger.warn("Error trying to map folder and files to feature");
+		} catch (CoreException | IOException e) {
+			logger.warn("Error trying to map resource to feature. Affected resource: " + resource.getLocation());
 		}
+	}
+	
+	private FeatureContainer getFeatureContainer(Feature feature) {
+		FeatureContainer featureContainer = information.get(feature);
+		if(featureContainer == null) {
+			featureContainer = new FeatureContainer(feature);
+			information.put(feature, featureContainer);
+		}
+		return featureContainer;
 	}
 	
 	/**
 	 * Used by {@link ParseJob#mapResourceToFeature(FeatureContainer, IResource)} to efficiently get the number of lines for a file
 	 * @param file - the {@link IFile} to read 
 	 * */
-	private int countLines(IFile file) {
+	private int countLines(IFile file) throws IOException, CoreException {
 		int count = 0;
 		try (InputStream is = new BufferedInputStream(file.getContents())){
 	        byte[] c = new byte[1024];
@@ -301,8 +334,6 @@ public class ParseJob extends Job {
 	        if(endsWithoutNewLine) {
 	            ++count;
 	        } 
-	    } catch(IOException | CoreException e) {
-	    	logger.warn("Error trying to read file for number of lines");
 	    }
 	    return count;
 	}

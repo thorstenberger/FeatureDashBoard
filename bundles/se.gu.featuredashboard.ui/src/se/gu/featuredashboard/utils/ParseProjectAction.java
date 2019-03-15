@@ -17,6 +17,7 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.e4.core.services.log.Logger;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
@@ -34,7 +35,12 @@ import se.gu.featuredashboard.ui.views.ProjectMetricsView;
 public class ParseProjectAction extends Action {
 	
 	private ParseJob parseProjectJob;
+	private Shell shell;
 	private Logger logger = PlatformUI.getWorkbench().getService(org.eclipse.e4.core.services.log.Logger.class);
+	
+	public ParseProjectAction(Shell shell) {
+		this.shell = shell;
+	}
 	
 	@Override
 	public void run() {
@@ -87,7 +93,7 @@ public class ParseProjectAction extends Action {
 				}
 				ProjectStore.addProject(project.getLocation(), project);
 				
-				parseProjectJob = new ParseJob("Parse project", project);
+				parseProjectJob = new ParseJob("Parse project", project, shell);
 				parseProjectJob.addJobChangeListener(new JobChangeListener(viewsToUpdate));
 				parseProjectJob.setUser(true);
 				parseProjectJob.schedule();	 

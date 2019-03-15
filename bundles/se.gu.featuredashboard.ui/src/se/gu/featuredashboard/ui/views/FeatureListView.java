@@ -74,7 +74,7 @@ public class FeatureListView extends ViewPart implements IUpdateViewListener {
 			
 		});
 		
-		parseProject = new ParseProjectAction();
+		parseProject = new ParseProjectAction(parent.getShell());
 		parseProject.setText(FeaturedashboardConstants.ACTION_TEXT);
 		parseProject.setToolTipText(FeaturedashboardConstants.ACTION_TOOLTOP_TEXT);
 		parseProject.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(ISharedImages.IMG_TOOL_REDO));
