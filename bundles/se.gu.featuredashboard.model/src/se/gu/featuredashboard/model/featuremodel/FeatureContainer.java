@@ -21,8 +21,10 @@ public class FeatureContainer {
 	private Integer totalNestingDepth;
 	private Integer LOFC;
 	private Integer scatteringDegree;
-	private Integer inFileAnnotations;
 	private Integer tanglingDegree;
+	
+	private int fileAnnotations = 0;
+	private int folderAnnotations = 0;
 	
 	private Feature feature;
 	private Map<IFile, Integer> tanglingInfo;
@@ -46,7 +48,7 @@ public class FeatureContainer {
 		return fileToLines.values();
 	}
 	
-	public void addFileToLines(IFile file, List<BlockLine> annotatedLines) {
+	public void addFileToBlocks(IFile file, List<BlockLine> annotatedLines) {
 		fileToLines.put(file, annotatedLines);
 		// When we run the builder we will update a certain FeatureContainer and then we need to recalcualte the metrics
 		resetMetrics();
@@ -71,20 +73,31 @@ public class FeatureContainer {
 		return LOFC;
 	}
 	
-	public int getScatteringDegree() {
-		if(scatteringDegree == null)
-			scatteringDegree = getFiles().size();
-		return scatteringDegree;
+	public void incrementNumberOfFolderAnnotations() {
+		folderAnnotations++;
 	}
 	
-	public int getNumberOfInFileAnnotations() {
-		if(inFileAnnotations == null) {
-			inFileAnnotations = 0; 		
-			for(List<BlockLine> blocks : getBlocks()) {
-				inFileAnnotations += blocks.size();
+	public int getNumberOfFolderAnnotations() {
+		return folderAnnotations;
+	}
+	
+	public void incrementNumberOfFileAnnotations() {
+		fileAnnotations++;
+	}
+	
+	public int getNumberOfFileAnnotations() {
+		return fileAnnotations;
+	}
+	
+	public int getScatteringDegree() {
+		if(scatteringDegree == null) {
+			scatteringDegree = 0;
+			for(List<BlockLine> blockLists : getBlocks()) {
+				scatteringDegree += blockLists.size();
 			}
+			scatteringDegree += getNumberOfFolderAnnotations();
 		}
-		return inFileAnnotations;
+		return scatteringDegree;
 	}
 	
 	public void setTanglingDegree(IFile file, int otherFeatures) {
@@ -163,7 +176,6 @@ public class FeatureContainer {
 		avgNestingDepth = null;
 		LOFC = null;
 		scatteringDegree = null;
-		inFileAnnotations = null;
 	}
 	
 }

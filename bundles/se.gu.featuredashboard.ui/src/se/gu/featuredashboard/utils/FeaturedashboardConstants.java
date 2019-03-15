@@ -18,6 +18,9 @@ public class FeaturedashboardConstants {
 	public static final String FEATURE_MARKER_ID = "se.gu.featuredashboard.ui.AnnotationMarker";
 	public static final String REMOVEMARKERS_COMMAND_ID = "se.gu.featuredashboard.ui.commands.RemoveMarkers";
 	
+	public static final String FEATUREFILE_FILE = "feature-file";
+	public static final String FEATUREFOLDER_FILE = "feature-folder";
+	
 	// Column names/tooltips for FeatureMetricsView
 	public static final String FEATURETABLE_COLUMN_1_NAME = "Feature";
 	public static final String FEATURETABLE_COLUMN_1_TOOLTIP = "The feature of interest";
@@ -30,7 +33,7 @@ public class FeaturedashboardConstants {
 	public static final String FEATURETABLE_COLUMN_3_TOOLTIP = "How many in-file annotations for this feature";
 	
 	public static final String FEATURETABLE_COLUMN_4_NAME = "NoFoA";
-	public static final String FEATURETABLE_COLUMN_4_TOOLTIP = "How many folder annotations for this feature";
+	public static final String FEATURETABLE_COLUMN_4_TOOLTIP = "How folders directly referensing this this feature";
 	
 	public static final String FEATURETABLE_COLUMN_5_NAME = "Tangling Degree";
 	public static final String FEATURETABLE_COLUMN_5_TOOLTIP = "How many other features share the same artefact as this feature";

@@ -59,9 +59,10 @@ public class MetricsComparator extends ViewerComparator {
 					result = Integer.compare(feature1.getLinesOfFeatureCode(), feature2.getLinesOfFeatureCode());
 					break;
 				case 3:
-					result = Integer.compare(feature1.getNumberOfInFileAnnotations(), feature2.getNumberOfInFileAnnotations());
+					result = Integer.compare(feature1.getNumberOfFileAnnotations(), feature2.getNumberOfFileAnnotations());
 					break;
 				case 4:
+					result = Integer.compare(feature1.getNumberOfFolderAnnotations(), feature2.getNumberOfFolderAnnotations());
 					break;
 				case 5:
 					result = Integer.compare(feature1.getTanglingDegree(), feature2.getTanglingDegree());
@@ -77,6 +78,7 @@ public class MetricsComparator extends ViewerComparator {
 					break;
 				case 9:
 					result = Integer.compare(feature1.getMinND(), feature2.getMinND());
+					break;
 			}
 		} else if(obj1 instanceof Project && obj2 instanceof Project) {
 			Project p1 = (Project) obj1;
@@ -88,14 +90,19 @@ public class MetricsComparator extends ViewerComparator {
 					break;
 				case 2:
 					result = Integer.compare(p1.getNumberOfFeatures(), p2.getNumberOfFeatures());
+					break;
 				case 3:
 					result = Integer.compare(p1.getTotalLoFC(), p1.getTotalLoFC());
+					break;
 				case 4:
 					result = Double.compare(Double.parseDouble(p1.getAvgLoFC()), Double.parseDouble(p2.getAvgLoFC()));
+					break;
 				case 5:
 					result = Double.compare(Double.parseDouble(p1.getAverageND()), Double.parseDouble(p2.getAverageND()));
+					break;
 				case 6:
 					result = Double.compare(Double.parseDouble(p1.getAverageSD()), Double.parseDouble(p2.getAverageSD()));
+					break;
 			}
 		}
 		

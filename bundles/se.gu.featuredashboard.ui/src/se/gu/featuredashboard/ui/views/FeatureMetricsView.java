@@ -1,5 +1,6 @@
 package se.gu.featuredashboard.ui.views;
 
+import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
@@ -12,7 +13,6 @@ import org.eclipse.ui.part.ViewPart;
 import se.gu.featuredashboard.model.featuremodel.Project;
 import se.gu.featuredashboard.model.featuremodel.ProjectStore;
 import se.gu.featuredashboard.ui.listeners.TableSelectionListener;
-import se.gu.featuredashboard.ui.providers.MetricsTableContentProvider;
 import se.gu.featuredashboard.ui.providers.MetricsTableLabelProvider;
 import se.gu.featuredashboard.utils.FeaturedashboardConstants;
 import se.gu.featuredashboard.utils.IUpdateViewListener;
@@ -28,7 +28,7 @@ public class FeatureMetricsView extends ViewPart implements IUpdateViewListener 
 		MetricsComparator comparator = new MetricsComparator();
 		
 		featureViewer = new TableViewer(parent, SWT.NONE);
-		featureViewer.setContentProvider(new MetricsTableContentProvider());
+		featureViewer.setContentProvider(ArrayContentProvider.getInstance());
 		featureViewer.setLabelProvider(new MetricsTableLabelProvider());
 		featureViewer.setComparator(comparator);
 		

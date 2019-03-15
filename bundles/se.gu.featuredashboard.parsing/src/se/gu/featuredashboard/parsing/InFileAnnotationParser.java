@@ -1,4 +1,4 @@
-package se.gu.featuredashboard.parsing.location;
+package se.gu.featuredashboard.parsing;
 
 import java.io.File;
 import java.io.IOException;
@@ -123,7 +123,7 @@ public class InFileAnnotationParser {
 
 			if(multipleLineBeginLocations.get(id) != null){ // multipleLineEndLocations.get(i) is not null as well
 				for(int i=0; i< multipleLineBeginLocations.get(id).size();i++){ // the same size of multipleLineEndLocations.get(i)
-					blocks.add(new BlockLine(multipleLineBeginLocations.get(id).get(i), multipleLineEndLocations.get(id).get(i)));
+					blocks.add(new BlockLine(multipleLineBeginLocations.get(id).get(i), multipleLineEndLocations.get(id).get(i)-1));
 				}
 			}
 

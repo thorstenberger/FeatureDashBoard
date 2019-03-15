@@ -81,7 +81,7 @@ public class NodeOnClickPolicy extends AbstractPolicy implements IOnClickHandler
 							marker.setAttribute(IMarker.CHAR_END, document.getLineOffset(block.getEndLine()+1));
 						} else {
 							marker.setAttribute(IMarker.CHAR_START, document.getLineOffset(block.getStartLine()));
-							marker.setAttribute(IMarker.CHAR_END, document.getLineOffset(block.getEndLine()-1));
+							marker.setAttribute(IMarker.CHAR_END, document.getLineOffset(block.getEndLine()));
 						}	
 					}
 				} catch (CoreException | BadLocationException e) {

@@ -30,3 +30,4 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.cdt.core
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Import-Package: org.eclipse.gef.zest.fx.jface
+Export-Package: se.gu.featuredashboard.utils

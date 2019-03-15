@@ -17,7 +17,7 @@ import se.gu.featuredashboard.model.featuremodel.Feature;
 import se.gu.featuredashboard.model.location.BlockLine;
 import se.gu.featuredashboard.model.location.FeatureAnnotationsLocation;
 import se.gu.featuredashboard.model.location.FeatureLocationDashboard;
-import se.gu.featuredashboard.parsing.location.InFileAnnotationParser;
+import se.gu.featuredashboard.parsing.InFileAnnotationParser;
 
 public class InFileAnnotationParser_Test {
 

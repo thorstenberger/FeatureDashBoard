@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.CheckStateChangedEvent;
 import org.eclipse.jface.viewers.CheckboxTableViewer;
 import org.eclipse.jface.viewers.ICheckStateListener;
@@ -19,7 +20,6 @@ import org.eclipse.ui.part.ViewPart;
 import se.gu.featuredashboard.model.featuremodel.FeatureContainer;
 import se.gu.featuredashboard.model.featuremodel.Project;
 import se.gu.featuredashboard.model.featuremodel.ProjectStore;
-import se.gu.featuredashboard.ui.providers.FeatureTableContentProvider;
 import se.gu.featuredashboard.ui.providers.FeatureTableLabelProvider;
 import se.gu.featuredashboard.utils.FeaturedashboardConstants;
 import se.gu.featuredashboard.utils.IUpdateViewListener;
@@ -41,7 +41,7 @@ public class FeatureListView extends ViewPart implements IUpdateViewListener {
 		window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
 		
 		table = CheckboxTableViewer.newCheckList(parent, SWT.NONE);
-		table.setContentProvider(new FeatureTableContentProvider());
+		table.setContentProvider(ArrayContentProvider.getInstance());
 		table.setLabelProvider(new FeatureTableLabelProvider());
 		
 		table.addCheckStateListener(new ICheckStateListener() {

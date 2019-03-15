@@ -48,9 +48,9 @@ public class MetricsTableLabelProvider implements ITableLabelProvider {
 				case 1:
 					return Integer.toString(featureContainer.getLinesOfFeatureCode());
 				case 2:
-					return Integer.toString(featureContainer.getNumberOfInFileAnnotations());
+					return Integer.toString(featureContainer.getNumberOfFileAnnotations());
 				case 3:
-					return "TBD";
+					return Integer.toString(featureContainer.getNumberOfFolderAnnotations());
 				case 4:
 					return Integer.toString(featureContainer.getTanglingDegree());
 				case 5:
