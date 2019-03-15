@@ -39,30 +39,24 @@ public class Export extends ResourceHandler {
 			writer.write("FeatureName,LOFC,NoFiA,NoFoA,TanglingDegree,ScatteringDegree,MaxND,AvgND,MinND");
 			writer.newLine();
 			
-			project.getFeatureContainers().forEach(featureContainer -> writeFeatureContainerInfo(writer, featureContainer));
+			for(FeatureContainer featureContainer : project.getFeatureContainers()) {
+				writer.write(String.format("%s,%d,%d,%d,%d,%d,%d,%s,%d", featureContainer.getFeature().getFeatureID(),
+						 												 featureContainer.getLinesOfFeatureCode(),
+						 												 featureContainer.getNumberOfFileAnnotations(),
+						 												 featureContainer.getNumberOfFolderAnnotations(),
+						 												 featureContainer.getTanglingDegree(),
+						 												 featureContainer.getScatteringDegree(),
+						 												 featureContainer.getMaxND(),
+						 												 featureContainer.getAvgND(),
+						 												 featureContainer.getMinND()));
+				writer.newLine();
+			}
 			
 		} catch(IOException e) {
-			logger.warn("Unable to open feature metrics file");
+			logger.warn("Unable to write feature metrics file");
 		}
 		
 		return resource;
-	}
-	
-	private static void writeFeatureContainerInfo(BufferedWriter writer, FeatureContainer featureContainer) {
-		try {
-			writer.write(String.format("%s,%d,%d,%d,%d,%d,%d,%s,%d", featureContainer.getFeature().getFeatureID(),
-																	 featureContainer.getLinesOfFeatureCode(),
-																	 featureContainer.getNumberOfFileAnnotations(),
-																	 featureContainer.getNumberOfFolderAnnotations(),
-																	 featureContainer.getTanglingDegree(),
-																	 featureContainer.getScatteringDegree(),
-																	 featureContainer.getMaxND(),
-																	 featureContainer.getAvgND(),
-																	 featureContainer.getMinND()));
-			writer.newLine();
-		} catch (IOException e) {
-			logger.warn("Unable to write FeatureContainer metrics to file");
-		}
 	}
 
 }
