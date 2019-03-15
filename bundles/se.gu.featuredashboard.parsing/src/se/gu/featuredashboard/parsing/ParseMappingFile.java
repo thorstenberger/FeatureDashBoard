@@ -38,13 +38,12 @@ public class ParseMappingFile {
 				List<IResource> files = Arrays.stream(lineElements[1].replaceAll("\\s", "")
 						.split(","))
 						.map(resource -> {
-							String featureFilePath = featureFile.getLocation().toString();
+							String featureFilePath = featureFile.getFullPath().toString();
 							String resourceLocation = featureFilePath.substring(0, (featureFilePath.length()-featureFile.getName().length())) + resource;
 							if(featureFile.getFileExtension().equals(FEATUREFILE_FILE))
-								return project.getWorkspace().getRoot().getFileForLocation(new Path(resourceLocation));
-							else 
-								return project.getWorkspace().getRoot().getContainerForLocation(new Path(resourceLocation));
-								
+								return project.getWorkspace().getRoot().getFile(new Path(resourceLocation));
+							else
+								return project.getWorkspace().getRoot().getFolder(new Path(resourceLocation));
 						})
 						.collect(Collectors.toList());
 				

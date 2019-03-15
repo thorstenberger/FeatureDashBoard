@@ -225,21 +225,31 @@ public class ParseJob extends Job {
 	 * @param resource - the mapping file as an {@link IFile}
 	 * @param monitor - the {@link IProgressMonitor} for this job  
 	 * */
-	private void handleMappingFile(IFile resource, IProgressMonitor monitor) {
+	private void handleMappingFile(IFile mappingFile, IProgressMonitor monitor) {
 		if(monitor.isCanceled())
 			return;
 		
-		Map<Feature, List<IResource>> mapping = ParseMappingFile.readMappingFile(resource, iProject);
-		visited.add(resource);
+		Map<Feature, List<IResource>> mapping = ParseMappingFile.readMappingFile(mappingFile, iProject);
+		
+		visited.add(mappingFile);
 		
 		mapping.keySet().forEach(feature -> {
+			List<IResource> resources = mapping.get(feature); 
+			
+			if(!(resources.size() > 0))
+				return;
+			
 			FeatureContainer featureContainer = information.get(feature);
 			if(featureContainer == null) {
 				featureContainer = new FeatureContainer(feature);
 				information.put(feature, featureContainer);
-			}		
-			for(IResource file : mapping.get(feature)) {
-				mapResourceToFeature(featureContainer, file, monitor);
+			}
+			
+			for(IResource resource : resources) {
+				if(resource == null)
+					continue;
+				
+				mapResourceToFeature(featureContainer, resource, monitor);
 			}
 		});
 	}
