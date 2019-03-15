@@ -142,11 +142,7 @@ public class ParseJob extends Job {
 					if(!project.getOutputFolders().stream().anyMatch(path -> member.getFullPath().equals(path)))
 						handleResource((IContainer) member, monitor);
 				} else if(member instanceof IFile) {
-					IFile currentFile = (IFile) member;
-					if(currentFile.getFileExtension().equals(FeaturedashboardConstants.FEATUREFILE_FILE) || currentFile.getFileExtension().equals(FeaturedashboardConstants.FEATUREFOLDER_FILE))
-						handleMappingFile(currentFile, monitor);
-					else
-						handleFile(currentFile, monitor);
+					handleFile((IFile) member, monitor);
 				}
 			});
 		} catch (CoreException e) {
