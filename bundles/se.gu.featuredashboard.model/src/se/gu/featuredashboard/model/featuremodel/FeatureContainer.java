@@ -3,11 +3,14 @@ package se.gu.featuredashboard.model.featuremodel;
 import java.text.DecimalFormat;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 
@@ -22,9 +25,10 @@ public class FeatureContainer {
 	private Integer LOFC;
 	private Integer scatteringDegree;
 	private Integer tanglingDegree;
+	private Integer folderAnnotations;
+	private Integer fileAnnotations;
 	
-	private int fileAnnotations = 0;
-	private int folderAnnotations = 0;
+	private Map<IFolder, List<IResource>> annotationMap;
 	
 	private Feature feature;
 	private Map<IFile, Integer> tanglingInfo;
@@ -34,6 +38,7 @@ public class FeatureContainer {
 	public FeatureContainer(Feature feature) {
 		this.feature = feature;
 		this.fileToLines = new HashMap<>();
+		this.annotationMap = new HashMap<>();
 	}
 	
 	public Feature getFeature() {
@@ -73,19 +78,29 @@ public class FeatureContainer {
 		return LOFC;
 	}
 	
-	public void incrementNumberOfFolderAnnotations() {
-		folderAnnotations++;
+	public void addMappingResource(IFolder folder, List<IResource> resources) {
+		annotationMap.put(folder, resources);
+		resetMetrics();
+	}
+	
+	private void getDirectAnnotationCount() {
+		folderAnnotations = 0;
+		fileAnnotations = 0;
+		for(List<IResource> resources : annotationMap.values()) {
+			folderAnnotations = (int) resources.stream().filter(resource -> resource instanceof IFolder).count();
+			fileAnnotations = (int) resources.stream().filter(resource -> resource instanceof IFile).count();
+		}
 	}
 	
 	public int getNumberOfFolderAnnotations() {
+		if(folderAnnotations == null)
+			getDirectAnnotationCount();
 		return folderAnnotations;
 	}
 	
-	public void incrementNumberOfFileAnnotations() {
-		fileAnnotations++;
-	}
-	
 	public int getNumberOfFileAnnotations() {
+		if(fileAnnotations == null)
+			getDirectAnnotationCount();
 		return fileAnnotations;
 	}
 	
@@ -95,6 +110,8 @@ public class FeatureContainer {
 			for(List<BlockLine> blockLists : getBlocks()) {
 				scatteringDegree += blockLists.size();
 			}
+			// When a file is mentioned in a mapping file, it is added in fileToLines 
+			// with the block, thus we don't need to call getNumberOfFileAnnotations()
 			scatteringDegree += getNumberOfFolderAnnotations();
 		}
 		return scatteringDegree;
@@ -176,6 +193,8 @@ public class FeatureContainer {
 		avgNestingDepth = null;
 		LOFC = null;
 		scatteringDegree = null;
+		folderAnnotations = null;
+		fileAnnotations = null;
 	}
 	
 }

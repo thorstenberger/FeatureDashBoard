@@ -51,6 +51,11 @@ public class Builder extends IncrementalProjectBuilder {
 			JobChangeListener jobChangeListener = new JobChangeListener(Arrays.asList(featureListView, featureMetricsView, projectMetricsView));
 			
 			Arrays.stream(delta.getAffectedChildren()).forEach(child -> {
+				Project project = ProjectStore.getProject(iProject.getLocation());
+				// Means that a builder is attached in a previous session but we haven't parsed the project in this session
+				if(project == null)
+					return;
+				
 				findAffectedChildren(ProjectStore.getProject(iProject.getLocation()), child, jobChangeListener);
 			});
 			

@@ -11,8 +11,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.eclipse.core.internal.resources.Folder;
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
@@ -45,7 +47,12 @@ public class ParseJob extends Job {
 	private Map<Feature, FeatureContainer> information;
 	private Logger logger = PlatformUI.getWorkbench().getService(org.eclipse.e4.core.services.log.Logger.class);
 	private Set<IResource> visited;
+	private JobType jobType;
 	private List<Tuple<String, String>> syntaxExceptions;
+	
+	private enum JobType {
+		FULL, SINGLE
+	};
 	
 	/**
 	 * @param name - identifier for this {@link Job}
@@ -55,10 +62,8 @@ public class ParseJob extends Job {
 		super(name);
 		this.project = project;
 		this.shell = shell;
-		iProject = project.getIProject();
-		information = new HashMap<>();
-		visited = new HashSet<>();
-		syntaxExceptions = new ArrayList<>();
+		init();
+		jobType = JobType.FULL;
 	}
 	
 	/**
@@ -70,9 +75,17 @@ public class ParseJob extends Job {
 		super(name);
 		this.project = project;
 		this.file = file;
-		iProject = project.getIProject();
+		init();
+		jobType = JobType.SINGLE;
 	}
 
+	private void init() {
+		iProject = project.getIProject();
+		information = new HashMap<>();
+		visited = new HashSet<>();
+		syntaxExceptions = new ArrayList<>();
+	}
+	
 	/**
 	 * When .schedule is called on {@link Job} this method will be executed and starting the job.
 	 * Calls either {@link ParseJob#handleResource(IContainer, IProgressMonitor)} when we should parse an entire Project or
@@ -87,37 +100,39 @@ public class ParseJob extends Job {
 		
 		IStatus statusToReturn = Status.OK_STATUS;
 		
-		if(project == null) {
-			statusToReturn = Status.CANCEL_STATUS;
-		} else if(file == null) {
+		if(project == null)
+			return Status.CANCEL_STATUS;
+		
+		if(jobType == JobType.FULL) {
 			statusToReturn = handleProject(monitor);
-			
-			if(syntaxExceptions.size() > 0) {
-				StringBuilder errorMessage = new StringBuilder();
-				syntaxExceptions.forEach(wrongSyntax -> {
-					errorMessage.append(wrongSyntax.getKey() + "  ---> " + wrongSyntax.getValue());
-					errorMessage.append("\n");
-				});
-				
-				Display.getDefault().asyncExec(() -> {
-					CustomDialog dialog = new CustomDialog(shell, 
-														   FeaturedashboardConstants.SYNTAXERROR_DIALOG_TITLE, 
-														   FeaturedashboardConstants.SYNTAXERROR_DIALOG_MESSAGE, 
-														   errorMessage.toString());
-					dialog.create();
-					dialog.open();
-				});
-			}
 		} else {
-			statusToReturn = handleSingleFile(monitor);
+			if((file.getFileExtension().equals(FeaturedashboardConstants.FEATUREFILE_FILE) || file.getFileExtension().equals(FeaturedashboardConstants.FEATUREFOLDER_FILE)) 
+					&& !project.getOutputFolders().stream().anyMatch(folder -> file.getLocation().toString().contains(folder.toString())))
+				statusToReturn = handleMappingFile(file, monitor);
+			else
+				statusToReturn = handleSingleFile(file, monitor);
+		}
+		
+		if(syntaxExceptions.size() > 0) {
+			StringBuilder errorMessage = new StringBuilder();
+			syntaxExceptions.forEach(wrongSyntax -> {
+				errorMessage.append(wrongSyntax.getKey() + "  ---> " + wrongSyntax.getValue());
+				errorMessage.append("\n");
+			});	
+			Display.getDefault().asyncExec(() -> {
+				CustomDialog dialog = new CustomDialog(shell, 
+													   FeaturedashboardConstants.SYNTAXERROR_DIALOG_TITLE, 
+													   FeaturedashboardConstants.SYNTAXERROR_DIALOG_MESSAGE, 
+													   errorMessage.toString());
+				dialog.create();
+				dialog.open();
+			});
 		}
 		
 		if(statusToReturn != Status.CANCEL_STATUS && !monitor.isCanceled()) {
 			ProjectStore.setActiveProject(project);
+			monitor.done();
 		}
-		
-		logger.warn("Parse job finished");
-		monitor.done();
 		
 		return statusToReturn;
 	}
@@ -188,12 +203,7 @@ public class ParseJob extends Job {
 		
 		for(FeatureAnnotationsLocation location : locations) {
 			uniqueFeatures.add(location.getFeature());
-			FeatureContainer container = information.get(location.getFeature());
-			
-			if(container == null) {	
-				container = new FeatureContainer(location.getFeature());
-				information.put(location.getFeature(), container);
-			}
+			FeatureContainer container = getFeatureContainer(location.getFeature());
 			container.addFileToBlocks(resource, location.getBlocklines());
 		}
 		
@@ -210,8 +220,8 @@ public class ParseJob extends Job {
 	 * @param monitor - the {@link IProgressMonitor} for this job
 	 * @return {link IStatus} to indicate the successfulness of this job
 	 * */
-	private IStatus handleSingleFile(IProgressMonitor monitor) {
-		List<FeatureAnnotationsLocation> features = parser.readParseAnnotations(file.getLocation().toString());
+	private IStatus handleSingleFile(IFile updatedFile, IProgressMonitor monitor) {
+		List<FeatureAnnotationsLocation> features = parser.readParseAnnotations(updatedFile.getLocation().toString());
 		Set<Feature> uniqueFeatures = new HashSet<>();
 		
 		FeatureContainer container = null;
@@ -219,23 +229,18 @@ public class ParseJob extends Job {
 		
 		for(FeatureAnnotationsLocation location : features) {
 			uniqueFeatures.add(location.getFeature());
-			container = project.getFeatureContainer(location.getFeature());
-			if(container == null) {
-				newFeature = true;
-				container = new FeatureContainer(location.getFeature());
-				project.addFeature(container);
-			}
-			container.addFileToBlocks(file, location.getBlocklines());
+			container = getFeatureContainer(location.getFeature());
+			container.addFileToBlocks(updatedFile, location.getBlocklines());
 		}
 		
 		// If we introduce a new feature then we need to update the tangling degree with all the other features as well
 		if(container != null) {
 			if(newFeature) {
 				project.getFeatureContainers().forEach(parsedContainers -> {
-					parsedContainers.setTanglingDegree(file, uniqueFeatures.size()-1);
+					parsedContainers.setTanglingDegree(updatedFile, uniqueFeatures.size()-1);
 				});
 			} else {
-				container.setTanglingDegree(file, uniqueFeatures.size()-1);
+				container.setTanglingDegree(updatedFile, uniqueFeatures.size()-1);
 			}
 		}
 
@@ -248,33 +253,42 @@ public class ParseJob extends Job {
 	 * @param resource - the mapping file as an {@link IFile}
 	 * @param monitor - the {@link IProgressMonitor} for this job  
 	 * */
-	private void handleMappingFile(IFile mappingFile, IProgressMonitor monitor) {
+	private IStatus handleMappingFile(IFile mappingFile, IProgressMonitor monitor) {
 		if(monitor.isCanceled())
-			return;
+			return Status.CANCEL_STATUS;
 		
 		try {
 			Map<Feature, List<IResource>> mapping = ParseMappingFile.readMappingFile(mappingFile, iProject);
 			
 			visited.add(mappingFile);
 			
+			IFolder folder = (IFolder) mappingFile.getParent();
+			List<IResource> folderResources = new ArrayList<>();
+			
 			mapping.keySet().forEach(feature -> {
 				List<IResource> resources = mapping.get(feature); 
-				for(IResource resource : resources) {
-					mapResourceToFeature(feature, resource, monitor);
+				for(IResource resource : resources) { 
+					mapResourceToFeature(feature, resource, folderResources, monitor);
 				}
+				FeatureContainer featureContainer = getFeatureContainer(feature);
+				featureContainer.addMappingResource(folder, folderResources);
 			});
 		} catch(SyntaxException e) {
 			syntaxExceptions.add(new Tuple<String, String>(mappingFile.getFullPath().toString(), e.getMessage()));
 		}
+		
+		return Status.OK_STATUS;
 	}
 	
 	/**
 	 * Called by {@link ParseJob#handleMappingFile(IFile, IProgressMonitor)} to recursively associate a specfic {@link FeatureContainer} with a resource
 	 * @param featureContainer - the {@link FeatureContainer} that contains the specific feature
 	 * @param resource - the current {@link IResource} we are looking at
+	 * @param parentFolder - the folder that the mapping file is contained in
+	 * @param folderResources - a list of resources belonging to the feature in the mapping file
 	 * @param monitor - the {@link IProgressMonitor} for this job
 	 * */
-	private void mapResourceToFeature(Feature feature, IResource resource, IProgressMonitor monitor) {
+	private void mapResourceToFeature(Feature feature, IResource resource, List<IResource> folderResources, IProgressMonitor monitor) {
 		if(monitor.isCanceled())
 			return;
 		
@@ -283,33 +297,40 @@ public class ParseJob extends Job {
 		try {	
 			visited.add(resource);
 			if(resource instanceof IContainer) {
-				// Since getFolder will return an IFolder object regardless if the path exists or not, we need to try and get the members first.
-				// If the path doesn't exist then a CoreException will be thrown, thus not creating an FeatureContainer that is null
-				IResource[] members = ((IContainer) resource).members();
+				IFolder folder = (IFolder) resource;
+				IResource[] members = folder.members();
 				
 				featureContainer = getFeatureContainer(feature);
-				featureContainer.incrementNumberOfFolderAnnotations();
-				Arrays.stream(members).forEach(member -> mapResourceToFeature(feature, member, monitor));
+				folderResources.add(folder);
+				Arrays.stream(members).forEach(member -> mapResourceToFeature(feature, member, folderResources, monitor));
 			} else {
-				// Since getFile will return an IFile object regardless if they exists or not, we need to try and get the members first.
-				// If the file doesn't exist then an IOException will be thrown, thus not creating an FeatureContainer that is null
-				BlockLine block = new BlockLine(1, countLines((IFile) resource));	
+				IFile leafFile = (IFile) resource;
+				BlockLine block = new BlockLine(1, countLines(leafFile));
 				
 				featureContainer = getFeatureContainer(feature);
-				featureContainer.addFileToBlocks((IFile) resource, Arrays.asList(block));
-				featureContainer.setTanglingDegree((IFile) resource, 0);
-				featureContainer.incrementNumberOfFileAnnotations();
+				featureContainer.addFileToBlocks(leafFile, Arrays.asList(block));
+				featureContainer.setTanglingDegree(leafFile, 0);
+				
+				folderResources.add(resource);
 			}
 		} catch (CoreException | IOException e) {
-			logger.warn("Error trying to map resource to feature. Affected resource: " + resource.getLocation());
+			logger.warn("Error trying to map resource to feature." + e.getMessage());
 		}
 	}
 	
 	private FeatureContainer getFeatureContainer(Feature feature) {
-		FeatureContainer featureContainer = information.get(feature);
+		FeatureContainer featureContainer = null;
+		if(jobType == JobType.FULL)
+			featureContainer = information.get(feature);
+		else
+			featureContainer = project.getFeatureContainer(feature);
+	
 		if(featureContainer == null) {
 			featureContainer = new FeatureContainer(feature);
-			information.put(feature, featureContainer);
+			if(jobType == JobType.FULL)
+				information.put(feature, featureContainer);
+			else
+				project.addFeature(featureContainer);
 		}
 		return featureContainer;
 	}
