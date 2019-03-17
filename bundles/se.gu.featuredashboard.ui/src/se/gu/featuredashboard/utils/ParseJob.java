@@ -33,6 +33,7 @@ import se.gu.featuredashboard.model.featuremodel.Feature;
 import se.gu.featuredashboard.model.featuremodel.FeatureContainer;
 import se.gu.featuredashboard.model.featuremodel.Project;
 import se.gu.featuredashboard.model.featuremodel.ProjectStore;
+import se.gu.featuredashboard.model.featuremodel.Tuple;
 import se.gu.featuredashboard.model.location.BlockLine;
 import se.gu.featuredashboard.model.location.FeatureAnnotationsLocation;
 import se.gu.featuredashboard.parsing.InFileAnnotationParser;
@@ -112,13 +113,13 @@ public class ParseJob extends Job {
 					&& !project.getOutputFolders().stream().anyMatch(folder -> file.getLocation().toString().contains(folder.toString())))
 				statusToReturn = handleMappingFile(file, monitor);
 			else
-				statusToReturn = handleSingleFile(file, monitor);
+				handleFile(file, monitor);
 		}
 		
 		if(syntaxExceptions.size() > 0) {
 			StringBuilder errorMessage = new StringBuilder();
 			syntaxExceptions.forEach(wrongSyntax -> {
-				errorMessage.append(wrongSyntax.getKey() + "  ---> " + wrongSyntax.getValue());
+				errorMessage.append(wrongSyntax.getLeft() + "  ---> " + wrongSyntax.getRight());
 				errorMessage.append("\n");
 			});	
 			Display.getDefault().asyncExec(() -> {
@@ -192,7 +193,7 @@ public class ParseJob extends Job {
 	}
 	
 	/**
-	 * Called by {@link ParseJob#handleResource(IContainer, IProgressMonitor)} to parse a single file for any annotations
+	 * Called by {@link ParseJob#handleResource(IContainer, IProgressMonitor)} or in {@link ParseJob#run(IProgressMonitor)} directlty to parse a single file for any annotations
 	 * @param resource - the {@link IFile} to parse
 	 * @param monitor - the {@link IProgressMonitor} for this job
 	 * */
@@ -200,58 +201,24 @@ public class ParseJob extends Job {
 		if(monitor.isCanceled())
 			return;
 		
-		List<FeatureAnnotationsLocation> locations = parser.readParseAnnotations(resource.getLocation().toString());
-		Set<Feature> uniqueFeatures = new HashSet<>();
+		List<FeatureContainer> containersImplementedInFile = null;
 		
-		for(FeatureAnnotationsLocation location : locations) {
-			uniqueFeatures.add(location.getFeature());
-			FeatureContainer container = getFeatureContainer(location.getFeature());
-			container.addFileToBlocks(resource, location.getBlocklines());
-		}
+		if(jobType == JobType.SINGLE)
+			containersImplementedInFile = project.getFeatureContainers().stream().filter(c -> c.isImplementedIn(resource)).collect(Collectors.toList());
+			
 		
-		for(Feature feature : uniqueFeatures) {
-			FeatureContainer container = information.get(feature);
-			container.setTanglingDegree(resource, uniqueFeatures.size()-1);
-		}
+		Map<Feature, List<BlockLine>> featureToLines = new HashMap<>();
+		parser.readParseAnnotations(resource.getLocation().toString()).stream().forEach(location -> featureToLines.put(location.getFeature(), location.getBlocklines()));
 		
-	}
-	
-	/**
-	 * When the {@link Builder} for this project runs an AUTO_BUILD we call this job with a 
-	 * single file to update metrics for all associated {@link FeatureContainer}
-	 * @param monitor - the {@link IProgressMonitor} for this job
-	 * @return {link IStatus} to indicate the successfulness of this job
-	 * */
-	private IStatus handleSingleFile(IFile updatedFile, IProgressMonitor monitor) {
-		// Get all FeatureContainers from Project. that has any association with this file. 
-		// 1. If the result contains the same features as we got here, then just update the FeatureContainers with the new BlockLines
-		// 2. If we have less features after parsing the file then what we have here then a reference to that specific feature has been removed in the file and we need to update that feature container accordingly
-		List<FeatureContainer> containersImplementedInFile = project.getFeatureContainers().stream().filter(c -> c.isImplementedIn(updatedFile)).collect(Collectors.toList());
+		int uniqueFeatures = featureToLines.keySet().size();
 		
-		List<FeatureAnnotationsLocation> features = parser.readParseAnnotations(updatedFile.getLocation().toString());
-		Set<Feature> uniqueFeatures = new HashSet<>();
+		featureToLines.entrySet().stream().forEach(entry -> {
+			FeatureContainer featureContainer = getFeatureContainer(entry.getKey());
+			featureContainer.addInFileAnnotations(resource, entry.getValue(), uniqueFeatures-1);
+		});
 		
-		FeatureContainer container = null;
-		
-		for(FeatureAnnotationsLocation location : features) {
-			uniqueFeatures.add(location.getFeature());
-			container = getFeatureContainer(location.getFeature());
-			container.addFileToBlocks(updatedFile, location.getBlocklines());
-		}
-		
-		// If we introduce a new feature then we need to update the tangling degree with all the other features as well
-		if(container != null) {
-			uniqueFeatures.forEach(feature -> {
-				FeatureContainer affectedContainer = getFeatureContainer(feature);
-				affectedContainer.setTanglingDegree(updatedFile, uniqueFeatures.size()-1);
-			});
-		}
-		
-		//See if any featres are missing fron 'containersImplementedInFile'. if they are, they have been removed from this file -> do appropriate changes
-		List<FeatureContainer> missionFeatureContainer = containersImplementedInFile.stream().filter(c -> !uniqueFeatures.contains(c.getFeature())).collect(Collectors.toList());
-		missionFeatureContainer.forEach(c -> project.removeFeatureContainer(c.getFeature()));
-
-		return Status.OK_STATUS;
+		if(jobType == JobType.SINGLE)
+			containersImplementedInFile.stream().filter(c -> !featureToLines.containsKey(c.getFeature())).forEach(c -> project.removeFeatureContainer(c.getFeature()));
 	}
 	
 	/**
@@ -270,7 +237,7 @@ public class ParseJob extends Job {
 			visited.add(mappingFile);
 			
 			IFolder folder = (IFolder) mappingFile.getParent();
-			List<IResource> folderResources = new ArrayList<>();
+			List<Tuple<IResource, Integer>> folderResources = new ArrayList<>();
 			
 			mapping.keySet().forEach(feature -> {
 				List<IResource> resources = mapping.get(feature); 
@@ -295,11 +262,9 @@ public class ParseJob extends Job {
 	 * @param folderResources - a list of resources belonging to the feature in the mapping file
 	 * @param monitor - the {@link IProgressMonitor} for this job
 	 * */
-	private void mapResourceToFeature(Feature feature, IResource resource, List<IResource> folderResources, IProgressMonitor monitor) {
+	private void mapResourceToFeature(Feature feature, IResource resource, List<Tuple<IResource, Integer>> folderResources, IProgressMonitor monitor) {
 		if(monitor.isCanceled())
 			return;
-		
-		FeatureContainer featureContainer = null;
 		
 		try {	
 			visited.add(resource);
@@ -307,18 +272,13 @@ public class ParseJob extends Job {
 				IFolder folder = (IFolder) resource;
 				IResource[] members = folder.members();
 				
-				featureContainer = getFeatureContainer(feature);
-				folderResources.add(folder);
+				folderResources.add(new Tuple<IResource, Integer>(folder, 0));
 				Arrays.stream(members).forEach(member -> mapResourceToFeature(feature, member, folderResources, monitor));
 			} else {
 				IFile leafFile = (IFile) resource;
-				BlockLine block = new BlockLine(1, countLines(leafFile));
+				int lineCount = countLines(leafFile);
 				
-				featureContainer = getFeatureContainer(feature);
-				featureContainer.addFileToBlocks(leafFile, Arrays.asList(block));
-				featureContainer.setTanglingDegree(leafFile, 0);
-				
-				folderResources.add(resource);
+				folderResources.add(new Tuple<IResource, Integer>(leafFile, lineCount));
 			}
 		} catch (CoreException | IOException e) {
 			logger.warn("Error trying to map resource to feature." + e.getMessage());

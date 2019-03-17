@@ -1,12 +1,16 @@
 package se.gu.featuredashboard.model.featuremodel;
 
 import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
@@ -28,17 +32,15 @@ public class FeatureContainer {
 	private Integer folderAnnotations;
 	private Integer fileAnnotations;
 	
-	private Map<IFolder, List<IResource>> annotationMap;
-	
 	private Feature feature;
-	private Map<IFile, Integer> tanglingInfo;
-	private Map<IFile, List<BlockLine>> fileToLines;
+	private Map<IFile, Tuple<List<BlockLine>, Integer>> inFileAnnotations;
+	private Map<IFolder, List<Tuple<IResource, Integer>>> directAnnotations;
 	private DecimalFormat df = new DecimalFormat("#.##");
 	
 	public FeatureContainer(Feature feature) {
 		this.feature = feature;
-		this.fileToLines = new HashMap<>();
-		this.annotationMap = new HashMap<>();
+		this.inFileAnnotations = new HashMap<>();
+		this.directAnnotations = new HashMap<>();
 	}
 	
 	public Feature getFeature() {
@@ -46,58 +48,99 @@ public class FeatureContainer {
 	}
 	
 	public boolean isImplementedIn(IFile file) {
-		return fileToLines.containsKey(file);
+		return inFileAnnotations.containsKey(file);
 	}
 	
-	public Set<IFile> getFiles(){
-		return fileToLines.keySet();
+	public List<IFile> getFiles(){
+		List<IFile> files = new ArrayList<>();
+		files.addAll(inFileAnnotations.keySet());
+		directAnnotations.values().stream().forEach(resourceList -> {
+			resourceList.forEach(resourceTuple -> {
+				if(resourceTuple.getLeft() instanceof IFile)
+					files.add((IFile) resourceTuple.getLeft());
+			});
+		});
+		
+		return files;
 	}
 	
-	public Collection<List<BlockLine>> getBlocks(){	
-		return fileToLines.values();
+	public List<BlockLine> getBlocks(){
+		List<BlockLine> featureBlocks = new ArrayList<>(); 
+		inFileAnnotations.values().stream().map(Tuple::getLeft).forEach(featureBlocks::addAll);
+		return featureBlocks;
 	}
 	
-	public void addFileToBlocks(IFile file, List<BlockLine> annotatedLines) {
-		fileToLines.put(file, annotatedLines);
+	public int getTanglingDegree() {
+		if(tanglingDegree == null)
+			tanglingDegree = inFileAnnotations.values().stream().mapToInt(Tuple::getRight).sum();
+
+		return tanglingDegree;
+	}
+	
+	public void addInFileAnnotations(IFile file, List<BlockLine> annotatedLines, int otherFeatures) {
+		Tuple<List<BlockLine>, Integer> tuple = inFileAnnotations.get(file);
+		if(tuple == null)
+			tuple = new Tuple<List<BlockLine>, Integer>(annotatedLines, otherFeatures);
+		else {
+			tuple.setLeft(annotatedLines);
+			tuple.setRight(otherFeatures);
+		}
+		inFileAnnotations.put(file, tuple);
+		
 		// When we run the builder we will update a certain FeatureContainer and then we need to recalcualte the metrics
 		resetMetrics();
 	}
 	
 	public List<BlockLine> getLines(IFile file){
-		return fileToLines.get(file);
+		if(inFileAnnotations.containsKey(file))
+			return inFileAnnotations.get(file).getLeft();
+		else {
+			IFolder parentFolder = (IFolder) file.getParent();
+			Tuple<IResource, Integer> tupleToFind = directAnnotations.get(parentFolder).stream().filter(tuple -> {
+				IFile fileToFind = (IFile) tuple.getLeft();
+				return file.equals(fileToFind);
+			}).findFirst().orElse(null);
+			if(tupleToFind != null)
+				return Arrays.asList(new BlockLine(1, tupleToFind.getRight()));
+			else
+				return null;
+		}
+		
 	}
 	
 	public int getLinesOfFeatureCode() {
 		if(LOFC == null) {
-			LOFC = 0;
-			for(List<BlockLine> blocks : getBlocks()) {
-				for(BlockLine block : blocks) {
-					if(block.getStartLine() == block.getEndLine()) {
-						LOFC++;
-					}
-					LOFC += Math.abs(block.getStartLine() - block.getEndLine());
-				}
-			}
+			LOFC = getBlocks().stream().mapToInt(block -> {
+				if(block.getStartLine() == block.getEndLine())
+					return 1;
+				else
+					return Math.abs(block.getEndLine()-block.getStartLine());
+			}).sum();
+			LOFC += directAnnotations.values().stream().mapToInt(resources -> {
+				int lines = 0;
+				for(Tuple<IResource, Integer> resource : resources)
+					lines += resource.getRight();
+				return lines;
+			}).sum();
 		}
 		return LOFC;
 	}
 	
-	public void addMappingResource(IFolder folder, List<IResource> resources) {
-		annotationMap.put(folder, resources);
+	public void addMappingResource(IFolder folder, List<Tuple<IResource, Integer>> resources) {
+		directAnnotations.put(folder, resources);
 		resetMetrics();
 	}
 	
 	private void getDirectAnnotationCount() {
 		folderAnnotations = 0;
 		fileAnnotations = 0;
-		for(List<IResource> resources : annotationMap.values()) {
-			/* If you get the error message:
-			 * The type org.eclipse.core.runtime.jobs.ISchedulingRule cannot be resolved. It is indirectly referenced from required .class files 
-			 * for the statement "resources.stream().filter(resource -> resource instanceof IFolder)" ignore it. The error makes no sense and there
-			 * is no reason why it should fail and it does work and doesn't procude an exception or other error. 
-			*/
-			folderAnnotations = (int) resources.stream().filter(resource -> resource instanceof IFolder).count();
-			fileAnnotations = (int) resources.stream().filter(resource -> resource instanceof IFile).count();
+		for(List<Tuple<IResource, Integer>> directAnnotations : directAnnotations.values()) {
+			for(Tuple<IResource, Integer> tuple : directAnnotations) {
+				if(tuple.getLeft() instanceof IFolder)
+					folderAnnotations++;
+				else if(tuple.getLeft() instanceof IFile)
+					fileAnnotations++;
+			}
 		}
 	}
 	
@@ -116,26 +159,11 @@ public class FeatureContainer {
 	public int getScatteringDegree() {
 		if(scatteringDegree == null) {
 			scatteringDegree = 0;
-			for(List<BlockLine> blockLists : getBlocks()) {
-				scatteringDegree += blockLists.size();
-			}
-			// When a file is mentioned in a mapping file, it is added in fileToLines 
-			// with the block, thus we don't need to call getNumberOfFileAnnotations()
+			scatteringDegree += getBlocks().size();
+			scatteringDegree += getNumberOfFileAnnotations();
 			scatteringDegree += getNumberOfFolderAnnotations();
 		}
 		return scatteringDegree;
-	}
-	
-	public void setTanglingDegree(IFile file, int otherFeatures) {
-		if(tanglingInfo == null)
-			tanglingInfo = new HashMap<>();
-		tanglingInfo.put(file, otherFeatures);
-	}
-	
-	public int getTanglingDegree() {
-		if(tanglingDegree == null)
-			tanglingDegree = tanglingInfo.values().stream().mapToInt(Integer::intValue).sum();
-		return tanglingDegree;
 	}
 	
 	public int getMaxND() {
@@ -169,15 +197,13 @@ public class FeatureContainer {
 		minNestingDepth = Integer.MAX_VALUE;
 		totalNestingDepth = 0;
 		
+		// Calculate for inFileAnnotations
 		for(IFile file : getFiles()) {
 			int depth = returnDepth(file);
-			
 			totalNestingDepth += depth;
-			
 			if(depth < minNestingDepth) {
 				minNestingDepth = depth;
 			}
-			
 			if(depth > maxNestingDepth) {
 				maxNestingDepth = depth;
 			}
