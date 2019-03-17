@@ -233,15 +233,13 @@ public class ParseJob extends Job {
 		
 		try {
 			Map<Feature, List<IResource>> mapping = ParseMappingFile.readMappingFile(mappingFile, iProject);
-			
 			visited.add(mappingFile);
-			
 			IFolder folder = (IFolder) mappingFile.getParent();
-			List<Tuple<IResource, Integer>> folderResources = new ArrayList<>();
 			
 			mapping.keySet().forEach(feature -> {
+				List<Tuple<IResource, Integer>> folderResources = new ArrayList<>();
 				List<IResource> resources = mapping.get(feature); 
-				for(IResource resource : resources) { 
+				for(IResource resource : resources) {
 					mapResourceToFeature(feature, resource, folderResources, monitor);
 				}
 				FeatureContainer featureContainer = getFeatureContainer(feature);
