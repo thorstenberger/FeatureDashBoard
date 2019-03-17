@@ -10,6 +10,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 import org.eclipse.core.internal.resources.Folder;
 import org.eclipse.core.resources.IContainer;
@@ -221,11 +223,15 @@ public class ParseJob extends Job {
 	 * @return {link IStatus} to indicate the successfulness of this job
 	 * */
 	private IStatus handleSingleFile(IFile updatedFile, IProgressMonitor monitor) {
+		// Get all FeatureContainers from Project. that has any association with this file. 
+		// 1. If the result contains the same features as we got here, then just update the FeatureContainers with the new BlockLines
+		// 2. If we have less features after parsing the file then what we have here then a reference to that specific feature has been removed in the file and we need to update that feature container accordingly
+		List<FeatureContainer> containersImplementedInFile = project.getFeatureContainers().stream().filter(c -> c.isImplementedIn(updatedFile)).collect(Collectors.toList());
+		
 		List<FeatureAnnotationsLocation> features = parser.readParseAnnotations(updatedFile.getLocation().toString());
 		Set<Feature> uniqueFeatures = new HashSet<>();
 		
 		FeatureContainer container = null;
-		boolean newFeature = false;
 		
 		for(FeatureAnnotationsLocation location : features) {
 			uniqueFeatures.add(location.getFeature());
@@ -235,14 +241,15 @@ public class ParseJob extends Job {
 		
 		// If we introduce a new feature then we need to update the tangling degree with all the other features as well
 		if(container != null) {
-			if(newFeature) {
-				project.getFeatureContainers().forEach(parsedContainers -> {
-					parsedContainers.setTanglingDegree(updatedFile, uniqueFeatures.size()-1);
-				});
-			} else {
-				container.setTanglingDegree(updatedFile, uniqueFeatures.size()-1);
-			}
+			uniqueFeatures.forEach(feature -> {
+				FeatureContainer affectedContainer = getFeatureContainer(feature);
+				affectedContainer.setTanglingDegree(updatedFile, uniqueFeatures.size()-1);
+			});
 		}
+		
+		//See if any featres are missing fron 'containersImplementedInFile'. if they are, they have been removed from this file -> do appropriate changes
+		List<FeatureContainer> missionFeatureContainer = containersImplementedInFile.stream().filter(c -> !uniqueFeatures.contains(c.getFeature())).collect(Collectors.toList());
+		missionFeatureContainer.forEach(c -> project.removeFeatureContainer(c.getFeature()));
 
 		return Status.OK_STATUS;
 	}
@@ -323,7 +330,7 @@ public class ParseJob extends Job {
 		if(jobType == JobType.FULL)
 			featureContainer = information.get(feature);
 		else
-			featureContainer = project.getFeatureContainer(feature);
+			featureContainer = project.getFeatureContaier(feature);
 	
 		if(featureContainer == null) {
 			featureContainer = new FeatureContainer(feature);

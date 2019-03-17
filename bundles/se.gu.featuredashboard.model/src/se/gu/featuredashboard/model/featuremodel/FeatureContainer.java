@@ -45,6 +45,10 @@ public class FeatureContainer {
 		return feature;
 	}
 	
+	public boolean isImplementedIn(IFile file) {
+		return fileToLines.containsKey(file);
+	}
+	
 	public Set<IFile> getFiles(){
 		return fileToLines.keySet();
 	}
@@ -87,6 +91,11 @@ public class FeatureContainer {
 		folderAnnotations = 0;
 		fileAnnotations = 0;
 		for(List<IResource> resources : annotationMap.values()) {
+			/* If you get the error message:
+			 * The type org.eclipse.core.runtime.jobs.ISchedulingRule cannot be resolved. It is indirectly referenced from required .class files 
+			 * for the statement "resources.stream().filter(resource -> resource instanceof IFolder)" ignore it. The error makes no sense and there
+			 * is no reason why it should fail and it does work and doesn't procude an exception or other error. 
+			*/
 			folderAnnotations = (int) resources.stream().filter(resource -> resource instanceof IFolder).count();
 			fileAnnotations = (int) resources.stream().filter(resource -> resource instanceof IFile).count();
 		}
@@ -196,5 +205,5 @@ public class FeatureContainer {
 		folderAnnotations = null;
 		fileAnnotations = null;
 	}
-	
+
 }
