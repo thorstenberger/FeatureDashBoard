@@ -10,10 +10,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
-import org.eclipse.core.internal.resources.Folder;
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
@@ -35,7 +33,6 @@ import se.gu.featuredashboard.model.featuremodel.Project;
 import se.gu.featuredashboard.model.featuremodel.ProjectStore;
 import se.gu.featuredashboard.model.featuremodel.Tuple;
 import se.gu.featuredashboard.model.location.BlockLine;
-import se.gu.featuredashboard.model.location.FeatureAnnotationsLocation;
 import se.gu.featuredashboard.parsing.InFileAnnotationParser;
 import se.gu.featuredashboard.parsing.ParseMappingFile;
 import se.gu.featuredashboard.parsing.SyntaxException;
@@ -238,17 +235,14 @@ public class ParseJob extends Job {
 			return Status.CANCEL_STATUS;
 		
 		try {
-			List<FeatureContainer> containersImplementedInFile = null;
+			List<FeatureContainer> containersMappedTo = null;
+			IFolder folder = (IFolder) mappingFile.getParent();
 			
-//			if(jobType == JobType.SINGLE)
-//				containersImplementedInFile = project.getFeatureContainers().stream().filter(c -> c.isAnnotatedIn(resource)).collect(Collectors.toList());
-			
+			if(jobType == JobType.SINGLE)
+				containersMappedTo = project.getFeatureContainers().stream().filter(c -> c.isMappedIn(folder)).collect(Collectors.toList());
 			
 			Map<Feature, List<IResource>> mapping = ParseMappingFile.readMappingFile(mappingFile, iProject);
 			visited.add(mappingFile);
-			IFolder folder = (IFolder) mappingFile.getParent();
-			
-			// TODO - handle case when a feature is completely removed from a mapping file
 			
 			mapping.keySet().forEach(feature -> {
 				List<Tuple<IResource, Integer>> folderResources = new ArrayList<>();
@@ -259,6 +253,17 @@ public class ParseJob extends Job {
 				FeatureContainer featureContainer = getFeatureContainer(feature);
 				featureContainer.addMappingResource(folder, folderResources);
 			});
+			
+			if(jobType == JobType.SINGLE) {
+				containersMappedTo.stream()
+					.filter(c -> !mapping.containsKey(c.getFeature()))
+						.forEach(c -> {
+							c.removeMapping(folder);
+							if(c.getScatteringDegree() == 0)
+								project.removeFeature(c);
+						});
+					
+			}
 		} catch(SyntaxException e) {
 			syntaxExceptions.add(new Tuple<String, String>(mappingFile.getFullPath().toString(), e.getMessage()));
 		}

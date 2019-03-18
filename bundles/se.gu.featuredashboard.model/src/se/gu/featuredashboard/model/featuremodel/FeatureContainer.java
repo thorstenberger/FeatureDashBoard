@@ -3,20 +3,15 @@ package se.gu.featuredashboard.model.featuremodel;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-import java.util.stream.Collectors;
 
-import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IWorkspace;
 
 import se.gu.featuredashboard.model.location.BlockLine;
 
@@ -51,6 +46,10 @@ public class FeatureContainer {
 		return inFileAnnotations.containsKey(file);
 	}
 	
+	public boolean isMappedIn(IFolder folder) {
+		return directAnnotations.containsKey(folder);
+	}
+	
 	public List<IFile> getFiles(){
 		List<IFile> files = new ArrayList<>();
 		files.addAll(inFileAnnotations.keySet());
@@ -82,6 +81,11 @@ public class FeatureContainer {
 		resetMetrics();
 	}
 	
+	public void removeMapping(IFolder folder) {
+		directAnnotations.remove(folder);
+		resetMetrics();
+	}
+	
 	public void addInFileAnnotations(IFile file, List<BlockLine> annotatedLines, int otherFeatures) {
 		Tuple<List<BlockLine>, Integer> tuple = inFileAnnotations.get(file);
 		if(tuple == null)
@@ -100,17 +104,25 @@ public class FeatureContainer {
 		if(inFileAnnotations.containsKey(file))
 			return inFileAnnotations.get(file).getLeft();
 		else {
-			IFolder parentFolder = (IFolder) file.getParent();
+			IFolder parentFolder = findParentFolder(file);
 			Tuple<IResource, Integer> tupleToFind = directAnnotations.get(parentFolder).stream().filter(tuple -> {
-				IFile fileToFind = (IFile) tuple.getLeft();
-				return file.equals(fileToFind);
-			}).findFirst().orElse(null);
-			if(tupleToFind != null)
-				return Arrays.asList(new BlockLine(1, tupleToFind.getRight()));
-			else
-				return null;
+				if(tuple.getLeft() instanceof IFile)
+					return file.equals((IFile) tuple.getLeft());
+				else
+					return false;
+			}).findFirst().get();
+			return Arrays.asList(new BlockLine(1, tupleToFind.getRight()));
 		}
 		
+	}
+	
+	private IFolder findParentFolder(IResource resource) {
+		if(resource instanceof IWorkspace)
+			return null;
+		else if(directAnnotations.containsKey(resource.getParent()))
+			return (IFolder) resource.getParent();
+		else
+			return findParentFolder(resource.getParent());
 	}
 	
 	public int getLinesOfFeatureCode() {
