@@ -204,9 +204,8 @@ public class ParseJob extends Job {
 		List<FeatureContainer> containersImplementedInFile = null;
 		
 		if(jobType == JobType.SINGLE)
-			containersImplementedInFile = project.getFeatureContainers().stream().filter(c -> c.isImplementedIn(resource)).collect(Collectors.toList());
-			
-		
+			containersImplementedInFile = project.getFeatureContainers().stream().filter(c -> c.isAnnotatedIn(resource)).collect(Collectors.toList());
+					
 		Map<Feature, List<BlockLine>> featureToLines = new HashMap<>();
 		parser.readParseAnnotations(resource.getLocation().toString()).stream().forEach(location -> featureToLines.put(location.getFeature(), location.getBlocklines()));
 		
@@ -239,9 +238,17 @@ public class ParseJob extends Job {
 			return Status.CANCEL_STATUS;
 		
 		try {
+			List<FeatureContainer> containersImplementedInFile = null;
+			
+//			if(jobType == JobType.SINGLE)
+//				containersImplementedInFile = project.getFeatureContainers().stream().filter(c -> c.isAnnotatedIn(resource)).collect(Collectors.toList());
+			
+			
 			Map<Feature, List<IResource>> mapping = ParseMappingFile.readMappingFile(mappingFile, iProject);
 			visited.add(mappingFile);
 			IFolder folder = (IFolder) mappingFile.getParent();
+			
+			// TODO - handle case when a feature is completely removed from a mapping file
 			
 			mapping.keySet().forEach(feature -> {
 				List<Tuple<IResource, Integer>> folderResources = new ArrayList<>();
@@ -271,7 +278,6 @@ public class ParseJob extends Job {
 		if(monitor.isCanceled())
 			return;
 		
-		// TODO - handle case when a feature is completely removed from a mapping file
 		try {	
 			visited.add(resource);
 			if(resource instanceof IContainer) {

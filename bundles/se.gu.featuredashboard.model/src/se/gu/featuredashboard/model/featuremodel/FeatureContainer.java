@@ -47,7 +47,7 @@ public class FeatureContainer {
 		return feature;
 	}
 	
-	public boolean isImplementedIn(IFile file) {
+	public boolean isAnnotatedIn(IFile file) {
 		return inFileAnnotations.containsKey(file);
 	}
 	
@@ -132,7 +132,11 @@ public class FeatureContainer {
 	}
 	
 	public void addMappingResource(IFolder folder, List<Tuple<IResource, Integer>> resources) {
-		directAnnotations.put(folder, resources);
+		List<Tuple<IResource, Integer>> presentResources = directAnnotations.get(folder);
+		if(presentResources != null)
+			presentResources.addAll(resources);
+		else
+			directAnnotations.put(folder, resources);
 		resetMetrics();
 	}
 	
