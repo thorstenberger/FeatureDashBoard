@@ -5,9 +5,9 @@ public class Tuple<L, R> {
 	private L left;
 	private R right;
 	
-	public Tuple(L key, R value) {
-		this.left = key;
-		this.right = value;
+	public Tuple(L left, R right) {
+		this.left = left;
+		this.right = right;
 	}
 	
 	public void setLeft(L left) {

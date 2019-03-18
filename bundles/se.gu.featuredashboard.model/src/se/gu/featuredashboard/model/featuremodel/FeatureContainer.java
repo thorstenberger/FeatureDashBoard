@@ -77,6 +77,11 @@ public class FeatureContainer {
 		return tanglingDegree;
 	}
 	
+	public void removeInAnnotationFile(IFile file) {
+		inFileAnnotations.remove(file);
+		resetMetrics();
+	}
+	
 	public void addInFileAnnotations(IFile file, List<BlockLine> annotatedLines, int otherFeatures) {
 		Tuple<List<BlockLine>, Integer> tuple = inFileAnnotations.get(file);
 		if(tuple == null)

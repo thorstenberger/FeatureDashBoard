@@ -217,8 +217,15 @@ public class ParseJob extends Job {
 			featureContainer.addInFileAnnotations(resource, entry.getValue(), uniqueFeatures-1);
 		});
 		
-		if(jobType == JobType.SINGLE)
-			containersImplementedInFile.stream().filter(c -> !featureToLines.containsKey(c.getFeature())).forEach(c -> project.removeFeatureContainer(c.getFeature()));
+		if(jobType == JobType.SINGLE) {
+			containersImplementedInFile.stream()
+				.filter(c -> !featureToLines.containsKey(c.getFeature()))
+					.forEach(c -> {
+						c.removeInAnnotationFile(resource);
+						if(c.getScatteringDegree() == 0)
+							project.removeFeature(c);
+					});
+		}
 	}
 	
 	/**
@@ -264,6 +271,7 @@ public class ParseJob extends Job {
 		if(monitor.isCanceled())
 			return;
 		
+		// TODO - handle case when a feature is completely removed from a mapping file
 		try {	
 			visited.add(resource);
 			if(resource instanceof IContainer) {
