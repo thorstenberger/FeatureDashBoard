@@ -6,6 +6,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
@@ -29,7 +31,15 @@ public class FeatureContainer {
 	
 	private Feature feature;
 	private Map<IFile, Tuple<List<BlockLine>, Integer>> inFileAnnotations;
-	private Map<IFolder, List<Tuple<IResource, Integer>>> directAnnotations;
+	
+	// (ParentFolder -> (IFile -> List<Tuple<IResource, Integer>>))
+	
+	// IFolder = folder where the specific mapping file is located which maps to an IFile which is a .feature-file or .feature-filder
+	// That file has a list of Folders/Files which are mapped and their specific line number
+	// Create a seperate model to hold this information
+	private Map<IFile, List<Tuple<IResource, Integer>>> directAnnotations;
+	
+	//private Map<IFolder, List<Tuple<IResource, Integer>>> directAnnotations;
 	private DecimalFormat df = new DecimalFormat("#.##");
 	
 	public FeatureContainer(Feature feature) {
@@ -46,13 +56,13 @@ public class FeatureContainer {
 		return inFileAnnotations.containsKey(file);
 	}
 	
-	public boolean isMappedIn(IFolder folder) {
-		return directAnnotations.containsKey(folder);
+	public boolean isMappedIn(IFile file) {
+		return directAnnotations.containsKey(file);
 	}
 	
 	public List<IFile> getFiles(){
 		List<IFile> files = new ArrayList<>();
-		files.addAll(inFileAnnotations.keySet());
+		files.addAll(inFileAnnotations.keySet());		
 		directAnnotations.values().stream().forEach(resourceList -> {
 			resourceList.forEach(resourceTuple -> {
 				if(resourceTuple.getLeft() instanceof IFile)
@@ -81,8 +91,8 @@ public class FeatureContainer {
 		resetMetrics();
 	}
 	
-	public void removeMapping(IFolder folder) {
-		directAnnotations.remove(folder);
+	public void removeMapping(IFile mappingFile) {
+		directAnnotations.remove(mappingFile);
 		resetMetrics();
 	}
 	
@@ -104,25 +114,18 @@ public class FeatureContainer {
 		if(inFileAnnotations.containsKey(file))
 			return inFileAnnotations.get(file).getLeft();
 		else {
-			IFolder parentFolder = findParentFolder(file);
-			Tuple<IResource, Integer> tupleToFind = directAnnotations.get(parentFolder).stream().filter(tuple -> {
-				if(tuple.getLeft() instanceof IFile)
-					return file.equals((IFile) tuple.getLeft());
-				else
+			Tuple<IResource, Integer> tupleToFind = null;
+			for(List<Tuple<IResource, Integer>> resourceList : directAnnotations.values()) {
+				tupleToFind = resourceList.stream().filter(tuple -> {
+					if(tuple.getLeft() instanceof IFile)
+						return tuple.getLeft().equals(file);
 					return false;
-			}).findFirst().get();
+				}).findFirst().orElse(null);	
+				if(tupleToFind != null)
+					break;
+			}
 			return Arrays.asList(new BlockLine(1, tupleToFind.getRight()));
 		}
-		
-	}
-	
-	private IFolder findParentFolder(IResource resource) {
-		if(resource instanceof IWorkspace)
-			return null;
-		else if(directAnnotations.containsKey(resource.getParent()))
-			return (IFolder) resource.getParent();
-		else
-			return findParentFolder(resource.getParent());
 	}
 	
 	public int getLinesOfFeatureCode() {
@@ -143,12 +146,8 @@ public class FeatureContainer {
 		return LOFC;
 	}
 	
-	public void addMappingResource(IFolder folder, List<Tuple<IResource, Integer>> resources) {
-		List<Tuple<IResource, Integer>> presentResources = directAnnotations.get(folder);
-		if(presentResources != null)
-			presentResources.addAll(resources);
-		else
-			directAnnotations.put(folder, resources);
+	public void addMappingResource(IFile mappingFile, List<Tuple<IResource, Integer>> resources) {
+		directAnnotations.put(mappingFile, resources);
 		resetMetrics();
 	}
 	

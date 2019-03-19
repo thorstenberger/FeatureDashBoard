@@ -236,10 +236,9 @@ public class ParseJob extends Job {
 		
 		try {
 			List<FeatureContainer> containersMappedTo = null;
-			IFolder folder = (IFolder) mappingFile.getParent();
 			
 			if(jobType == JobType.SINGLE)
-				containersMappedTo = project.getFeatureContainers().stream().filter(c -> c.isMappedIn(folder)).collect(Collectors.toList());
+				containersMappedTo = project.getFeatureContainers().stream().filter(c -> c.isMappedIn(mappingFile)).collect(Collectors.toList());
 			
 			Map<Feature, List<IResource>> mapping = ParseMappingFile.readMappingFile(mappingFile, iProject);
 			visited.add(mappingFile);
@@ -251,14 +250,14 @@ public class ParseJob extends Job {
 					mapResourceToFeature(feature, resource, folderResources, monitor);
 				}
 				FeatureContainer featureContainer = getFeatureContainer(feature);
-				featureContainer.addMappingResource(folder, folderResources);
+				featureContainer.addMappingResource(mappingFile, folderResources);
 			});
 			
 			if(jobType == JobType.SINGLE) {
 				containersMappedTo.stream()
 					.filter(c -> !mapping.containsKey(c.getFeature()))
 						.forEach(c -> {
-							c.removeMapping(folder);
+							c.removeMapping(mappingFile);
 							if(c.getScatteringDegree() == 0)
 								project.removeFeature(c);
 						});
