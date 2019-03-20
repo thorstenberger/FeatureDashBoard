@@ -2,11 +2,8 @@ package se.gu.featuredashboard.ui.views;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFolder;
@@ -29,6 +26,7 @@ public class FeatureFolderView extends ZestFxUiView {
 
 	private List<Edge> graphEdges;
 	private List<Node> graphNodes;
+	private Map<IContainer, Node> lookup;
 	
 	public FeatureFolderView() {
 		super(Guice.createInjector(Modules.override(new ZestFxModule()).with(new ZestFxUiModule())));
@@ -45,8 +43,7 @@ public class FeatureFolderView extends ZestFxUiView {
 	
 	// We can use the same list as we can get the folder that the file is located in from IFile.getParent()
 	public void inputToView(List<FeatureContainer> featureFileList) {
-		Map<IContainer, Node> lookup = new HashMap<>();
-		
+		lookup = new HashMap<>();
 		graphNodes = new ArrayList<>(); 
 		graphEdges = new ArrayList<>();
 		
@@ -59,7 +56,7 @@ public class FeatureFolderView extends ZestFxUiView {
 					lookup.put(folder, folderNode);
 					graphNodes.add(folderNode); 
 					graphEdges.add(new Edge(folderNode, featureNode));
-					getParentStructure(folder.getParent(), folder, lookup);
+					getParentStructure(folder.getParent(), folder);
 				}
 			});
 			graphNodes.add(featureNode);
@@ -67,7 +64,7 @@ public class FeatureFolderView extends ZestFxUiView {
 		setGraph(GraphContentProvider.getGraph(graphEdges, graphNodes));
 	} 
 	
-	private void getParentStructure(IContainer parent, IContainer child, Map<IContainer, Node> lookup) {
+	private void getParentStructure(IContainer parent, IContainer child) {
 		if(parent != null) {
 			if(lookup.containsKey(parent)) {
 				graphEdges.add(new Edge(lookup.get(parent), lookup.get(child)));	
@@ -77,10 +74,9 @@ public class FeatureFolderView extends ZestFxUiView {
 				graphNodes.add(folderNode);
 				graphEdges.add(new Edge(lookup.get(parent), lookup.get(child)));
 				if(!(parent instanceof IProject)) {
-					getParentStructure(parent.getParent(), parent, lookup);
+					getParentStructure(parent.getParent(), parent);
 				}
 			}
 		}
 	}
-	
 }

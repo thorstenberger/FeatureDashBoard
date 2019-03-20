@@ -6,14 +6,11 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.IWorkspace;
 
 import se.gu.featuredashboard.model.location.BlockLine;
 
@@ -31,15 +28,7 @@ public class FeatureContainer {
 	
 	private Feature feature;
 	private Map<IFile, Tuple<List<BlockLine>, Integer>> inFileAnnotations;
-	
-	// (ParentFolder -> (IFile -> List<Tuple<IResource, Integer>>))
-	
-	// IFolder = folder where the specific mapping file is located which maps to an IFile which is a .feature-file or .feature-filder
-	// That file has a list of Folders/Files which are mapped and their specific line number
-	// Create a seperate model to hold this information
 	private Map<IFile, List<Tuple<IResource, Integer>>> directAnnotations;
-	
-	//private Map<IFolder, List<Tuple<IResource, Integer>>> directAnnotations;
 	private DecimalFormat df = new DecimalFormat("#.##");
 	
 	public FeatureContainer(Feature feature) {
