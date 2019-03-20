@@ -49,27 +49,31 @@ public class FeatureListView extends ViewPart implements IUpdateViewListener {
 			@Override
 			public void checkStateChanged(CheckStateChangedEvent event) {
 				
-				if(table.getCheckedElements().length > 0) {			
-					List<FeatureContainer> featureFileList = new ArrayList<>();
+				Display.getDefault().asyncExec(() -> {
 					
-					Arrays.stream(table.getCheckedElements()).forEach(checkedElement -> {
-						FeatureContainer feature = (FeatureContainer) checkedElement;
-						featureFileList.add(feature);
-					});
-					
-					try {
-						featureFileView = (FeatureFileView) window.getActivePage().showView(FeaturedashboardConstants.FEATUREFILE_VIEW_ID);
-						featureFileView.inputToView(featureFileList);
+					if(table.getCheckedElements().length > 0) {			
+						List<FeatureContainer> featureFileList = new ArrayList<>();
 						
-						featureFolderView = (FeatureFolderView) window.getActivePage().showView(FeaturedashboardConstants.FEATUREFOLDER_VIEW_ID);
-						featureFolderView.inputToView(featureFileList);
+						Arrays.stream(table.getCheckedElements()).forEach(checkedElement -> {
+							FeatureContainer feature = (FeatureContainer) checkedElement;
+							featureFileList.add(feature);
+						});
+						
+						try {
+//							featureFileView = (FeatureFileView) window.getActivePage().showView(FeaturedashboardConstants.FEATUREFILE_VIEW_ID);
+//							featureFileView.inputToView(featureFileList);
+							
+							featureFolderView = (FeatureFolderView) window.getActivePage().showView(FeaturedashboardConstants.FEATUREFOLDER_VIEW_ID);
+							featureFolderView.inputToView(featureFileList);
 
-					} catch (PartInitException e) {
-						e.printStackTrace();
+						} catch (PartInitException e) {
+							e.printStackTrace();
+						}
+						
 					}
 					
-				}
-				
+				});
+							
 			}
 			
 		});

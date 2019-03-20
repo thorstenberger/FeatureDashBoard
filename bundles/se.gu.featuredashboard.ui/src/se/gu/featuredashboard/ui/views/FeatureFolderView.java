@@ -2,8 +2,11 @@ package se.gu.featuredashboard.ui.views;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFolder;
@@ -54,27 +57,28 @@ public class FeatureFolderView extends ZestFxUiView {
 				if(!lookup.containsKey(folder)) {
 					Node folderNode = GraphContentProvider.getNormalNode(folder.getName());
 					lookup.put(folder, folderNode);
-					graphNodes.add(folderNode);
+					graphNodes.add(folderNode); 
+					graphEdges.add(new Edge(folderNode, featureNode));
+					getParentStructure(folder.getParent(), folder, lookup);
 				}
-				graphEdges.add(new Edge(lookup.get(folder), featureNode));
-				getParentStructure(folder.getParent(), folder, lookup);
 			});
 			graphNodes.add(featureNode);
 		}
-		
 		setGraph(GraphContentProvider.getGraph(graphEdges, graphNodes));
-	}
+	} 
 	
 	private void getParentStructure(IContainer parent, IContainer child, Map<IContainer, Node> lookup) {
-		if(parent != null) {				
-			if(!lookup.containsKey(parent)){
+		if(parent != null) {
+			if(lookup.containsKey(parent)) {
+				graphEdges.add(new Edge(lookup.get(parent), lookup.get(child)));	
+			} else {
 				Node folderNode = GraphContentProvider.getNormalNode(parent.getName());
 				lookup.put(parent, folderNode);
 				graphNodes.add(folderNode);
-			}
-			graphEdges.add(new Edge(lookup.get(parent), lookup.get(child)));
-			if(!(parent instanceof IProject)) {
-				getParentStructure(parent.getParent(), parent, lookup);
+				graphEdges.add(new Edge(lookup.get(parent), lookup.get(child)));
+				if(!(parent instanceof IProject)) {
+					getParentStructure(parent.getParent(), parent, lookup);
+				}
 			}
 		}
 	}
