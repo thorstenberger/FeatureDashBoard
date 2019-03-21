@@ -10,6 +10,7 @@ import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.gef.graph.Edge;
 import org.eclipse.gef.graph.Node;
+import org.eclipse.gef.layout.algorithms.TreeLayoutAlgorithm;
 import org.eclipse.gef.zest.fx.ZestFxModule;
 import org.eclipse.gef.zest.fx.ui.ZestFxUiModule;
 import org.eclipse.gef.zest.fx.ui.parts.ZestFxUiView;
@@ -52,7 +53,7 @@ public class FeatureFolderView extends ZestFxUiView {
 			featureFileContainer.getFiles().forEach(file -> {
 				IFolder folder = (IFolder) file.getParent();
 				if(!lookup.containsKey(folder)) {
-					Node folderNode = GraphContentProvider.getNormalNode(folder.getName());
+					Node folderNode = GraphContentProvider.getNode(folder.getName());
 					lookup.put(folder, folderNode);
 					graphNodes.add(folderNode); 
 					graphEdges.add(new Edge(folderNode, featureNode));
@@ -61,7 +62,7 @@ public class FeatureFolderView extends ZestFxUiView {
 			});
 			graphNodes.add(featureNode);
 		}
-		setGraph(GraphContentProvider.getGraph(graphEdges, graphNodes));
+		setGraph(GraphContentProvider.getGraph(graphEdges, graphNodes, new TreeLayoutAlgorithm()));
 	} 
 	
 	private void getParentStructure(IContainer parent, IContainer child) {
@@ -69,7 +70,7 @@ public class FeatureFolderView extends ZestFxUiView {
 			if(lookup.containsKey(parent)) {
 				graphEdges.add(new Edge(lookup.get(parent), lookup.get(child)));	
 			} else {
-				Node folderNode = GraphContentProvider.getNormalNode(parent.getName());
+				Node folderNode = GraphContentProvider.getNode(parent.getName());
 				lookup.put(parent, folderNode);
 				graphNodes.add(folderNode);
 				graphEdges.add(new Edge(lookup.get(parent), lookup.get(child)));

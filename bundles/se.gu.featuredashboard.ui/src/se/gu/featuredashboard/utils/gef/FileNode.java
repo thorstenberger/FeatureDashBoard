@@ -13,6 +13,11 @@ public class FileNode extends Node {
 	private IFile file;
 	private List<BlockLine> annotatedLines;
 	
+	public FileNode(IFile file, List<BlockLine> annotatedLines) {
+		this.file = file;
+		this.annotatedLines = annotatedLines;
+	}
+	
 	public void setFile(IFile file) {
 		this.file = file;
 	}
