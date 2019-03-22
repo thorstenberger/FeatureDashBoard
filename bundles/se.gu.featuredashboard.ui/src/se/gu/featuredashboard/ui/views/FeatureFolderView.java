@@ -66,7 +66,7 @@ public class FeatureFolderView extends ZestFxUiView {
 				} else {
 					CustomEdge e = new CustomEdge(lookup.get(folder), featureNode);
 					if(!graphEdges.contains(e)) {
-						graphEdges.add(new CustomEdge(lookup.get(folder), featureNode));
+						graphEdges.add(e);
 					}				
 				}
 			});
