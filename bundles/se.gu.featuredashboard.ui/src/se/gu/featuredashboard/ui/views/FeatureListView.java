@@ -63,8 +63,8 @@ public class FeatureListView extends ViewPart implements IUpdateViewListener {
 							featureFileView = (FeatureFileView) window.getActivePage().showView(FeaturedashboardConstants.FEATUREFILE_VIEW_ID);
 							featureFileView.inputToView(featureFileList);
 							
-//							featureFolderView = (FeatureFolderView) window.getActivePage().showView(FeaturedashboardConstants.FEATUREFOLDER_VIEW_ID);
-//							featureFolderView.inputToView(featureFileList);
+							featureFolderView = (FeatureFolderView) window.getActivePage().showView(FeaturedashboardConstants.FEATUREFOLDER_VIEW_ID);
+							featureFolderView.inputToView(featureFileList);
 
 						} catch (PartInitException e) {
 							e.printStackTrace();

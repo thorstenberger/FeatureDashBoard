@@ -170,6 +170,11 @@ public class ParseJob extends Job {
 			Arrays.stream(container.members()).filter(resource -> {
 				if(!(resource instanceof IFile))
 					return false;
+				
+				// If it's a file without file extensions
+				if(!resource.getName().contains("."))
+					return false;
+				
 				return resource.getFileExtension().equals(FeaturedashboardConstants.FEATUREFILE_FILE) || resource.getFileExtension().equals(FeaturedashboardConstants.FEATUREFOLDER_FILE);
 			}).forEach(resource -> handleMappingFile((IFile) resource, monitor));
 			

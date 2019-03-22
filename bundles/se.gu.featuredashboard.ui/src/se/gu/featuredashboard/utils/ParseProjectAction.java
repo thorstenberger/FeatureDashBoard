@@ -76,6 +76,9 @@ public class ParseProjectAction extends Action {
 			
 			IProject selectedProject = (IProject)((IAdaptable)firstElement).getAdapter(IProject.class);
 			
+			if(selectedProject == null)
+				return;
+			
 			if(!hasBuilder(selectedProject)) {
 				logger.info("This project doesn't have the builder attached to it. Attaching");
 				addBuilder(selectedProject);
