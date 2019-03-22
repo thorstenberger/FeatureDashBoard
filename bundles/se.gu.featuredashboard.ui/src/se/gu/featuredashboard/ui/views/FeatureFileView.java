@@ -15,7 +15,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.gef.graph.Node;
-import org.eclipse.gef.layout.algorithms.*;
 import org.eclipse.gef.mvc.fx.ui.MvcFxUiModule;
 import org.eclipse.gef.zest.fx.ui.parts.ZestFxUiView;
 
@@ -40,21 +39,18 @@ public class FeatureFileView extends ZestFxUiView {
 		for(FeatureContainer featureFileContainer : featureFileList) {
 			Node featureNode = GraphContentProvider.getFeatureNode(featureFileContainer.getFeature().getFeatureID());
 			
-			List<Node> featureFileNodes = new ArrayList<>();
+			List<Node> nestedGraphNodes = new ArrayList<>();
 			
 			featureFileContainer.getFiles().forEach(file -> {
 				Node fileNode = GraphContentProvider.getFileNode(file.getName(), file.getFullPath().toString(), file, featureFileContainer.getLines(file));
-				featureFileNodes.add(fileNode);
+				nestedGraphNodes.add(fileNode);
 			});	
-				
-			featureNode.setNestedGraph(GraphContentProvider.getGraph(featureFileNodes, new CustomGridLayoutAlgorithm()));
+			
+			featureNode.setNestedGraph(GraphContentProvider.getGraph(nestedGraphNodes, new CustomGridLayoutAlgorithm()));
 			graphNodes.add(featureNode);
 		}
 		
-		if(graphNodes.size() > 1)
-			setGraph(GraphContentProvider.getGraph(graphNodes, new GridLayoutAlgorithm()));
-		else
-			setGraph(GraphContentProvider.getGraph(graphNodes));
+		setGraph(GraphContentProvider.getGraph(graphNodes, new CustomGridLayoutAlgorithm()));
 	}
 
 	@Override

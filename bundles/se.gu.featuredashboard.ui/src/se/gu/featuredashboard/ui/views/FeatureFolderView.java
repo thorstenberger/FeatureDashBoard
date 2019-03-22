@@ -15,7 +15,6 @@ import org.eclipse.gef.graph.Edge;
 import org.eclipse.gef.graph.Node;
 import org.eclipse.gef.layout.algorithms.TreeLayoutAlgorithm;
 import org.eclipse.gef.zest.fx.ZestFxModule;
-import org.eclipse.gef.zest.fx.ZestProperties;
 import org.eclipse.gef.zest.fx.ui.ZestFxUiModule;
 import org.eclipse.gef.zest.fx.ui.parts.ZestFxUiView;
 import org.eclipse.swt.widgets.Composite;

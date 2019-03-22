@@ -107,9 +107,9 @@ public class ParseJob extends Job {
 			statusToReturn = handleProject(monitor);
 		} else {
 			if((file.getFileExtension().equals(FeaturedashboardConstants.FEATUREFILE_FILE) || file.getFileExtension().equals(FeaturedashboardConstants.FEATUREFOLDER_FILE)) 
-					&& !project.getOutputFolders().stream().anyMatch(folder -> file.getLocation().toString().contains(folder.toString())))
+					&& !project.getOutputFolders().stream().anyMatch(folder -> file.getFullPath().toString().contains(folder.toString()))) {
 				statusToReturn = handleMappingFile(file, monitor);
-			else
+			} else
 				handleFile(file, monitor);
 		}
 		
