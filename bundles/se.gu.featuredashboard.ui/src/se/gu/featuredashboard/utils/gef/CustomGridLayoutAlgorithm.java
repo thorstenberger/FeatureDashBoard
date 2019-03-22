@@ -15,8 +15,8 @@ public class CustomGridLayoutAlgorithm implements ILayoutAlgorithm {
 	}
 	
 	private void setPositions(Node[] nodes, Rectangle bounds) {
-		int x = 50;
-		int y = 50;
+		int x = 100;
+		int y = 100;
 		
 		for(int i = 0; i < nodes.length; i++) {	
 			if(x + (int)LayoutProperties.getSize(nodes[i]).getWidth() > bounds.getWidth()) {

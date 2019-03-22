@@ -18,6 +18,7 @@ import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -46,7 +47,6 @@ public class ParseJob extends Job {
 	private Shell shell;
 	private Map<Feature, FeatureContainer> information;
 	private Logger logger = PlatformUI.getWorkbench().getService(org.eclipse.e4.core.services.log.Logger.class);
-	private Set<IResource> visited;
 	private JobType jobType;
 	private List<Tuple<String, String>> syntaxExceptions;
 	
@@ -82,7 +82,6 @@ public class ParseJob extends Job {
 	private void init() {
 		iProject = project.getIProject();
 		information = new HashMap<>();
-		visited = new HashSet<>();
 		syntaxExceptions = new ArrayList<>();
 	}
 	
@@ -106,8 +105,7 @@ public class ParseJob extends Job {
 		if(jobType == JobType.FULL) {
 			statusToReturn = handleProject(monitor);
 		} else {
-			if((file.getFileExtension().equals(FeaturedashboardConstants.FEATUREFILE_FILE) || file.getFileExtension().equals(FeaturedashboardConstants.FEATUREFOLDER_FILE)) 
-					&& !project.getOutputFolders().stream().anyMatch(folder -> file.getFullPath().toString().contains(folder.toString()))) {
+			if(equalsMappingFile(file) && !project.getOutputFolders().stream().map(IPath::toString).anyMatch(file.getFullPath().toString()::contains)) {
 				statusToReturn = handleMappingFile(file, monitor);
 			} else
 				handleFile(file, monitor);
@@ -167,22 +165,11 @@ public class ParseJob extends Job {
 		
 		try {
 			// Handle mapping file first and mark resources as visited, this will prevent us accessing sub-folders twice in the case of .feature-folder
-			Arrays.stream(container.members()).filter(resource -> {
-				if(!(resource instanceof IFile))
-					return false;
-				
-				// If it's a file without file extensions
-				if(!resource.getName().contains("."))
-					return false;
-				
-				return resource.getFileExtension().equals(FeaturedashboardConstants.FEATUREFILE_FILE) || resource.getFileExtension().equals(FeaturedashboardConstants.FEATUREFOLDER_FILE);
-			}).forEach(resource -> handleMappingFile((IFile) resource, monitor));
+			Arrays.stream(container.members()).filter(this::equalsMappingFile).forEach(resource -> handleMappingFile((IFile) resource, monitor));
 			
 			Arrays.stream(container.members()).forEach(member -> {
-				if(!visited.add(member))
-					return;
 				if(member instanceof IContainer) {
-					if(!project.getOutputFolders().stream().anyMatch(path -> member.getFullPath().equals(path)))
+					if(!project.getOutputFolders().stream().map(IPath::toString).anyMatch(member.getFullPath().toString()::contains))
 						handleResource((IContainer) member, monitor);
 				} else if(member instanceof IFile) {
 					handleFile((IFile) member, monitor);
@@ -246,15 +233,18 @@ public class ParseJob extends Job {
 				containersMappedTo = project.getFeatureContainers().stream().filter(c -> c.isMappedIn(mappingFile)).collect(Collectors.toList());
 			
 			Map<Feature, List<IResource>> mapping = ParseMappingFile.readMappingFile(mappingFile, iProject);
-			visited.add(mappingFile);
 			
 			mapping.keySet().forEach(feature -> {
 				List<Tuple<IResource, Integer>> folderResources = new ArrayList<>();
+				
+				if(mappingFile.getFileExtension().equals(FeaturedashboardConstants.VPFOLDER_FILE))
+					folderResources.add(new Tuple<IResource, Integer>(mappingFile.getParent(), 0));
+				
 				List<IResource> resources = mapping.get(feature); 
 				for(IResource resource : resources) {
 					mapResourceToFeature(feature, resource, folderResources, monitor);
 				}
-				FeatureContainer featureContainer = getFeatureContainer(feature);
+				FeatureContainer featureContainer = getFeatureContainer(feature);				
 				featureContainer.addMappingResource(mappingFile, folderResources);
 			});
 			
@@ -288,7 +278,7 @@ public class ParseJob extends Job {
 			return;
 		
 		try {	
-			visited.add(resource);
+			
 			if(resource instanceof IContainer) {
 				IFolder folder = (IFolder) resource;
 				IResource[] members = folder.members();
@@ -321,6 +311,19 @@ public class ParseJob extends Job {
 				project.addFeature(featureContainer);
 		}
 		return featureContainer;
+	}
+	
+	private boolean equalsMappingFile(IResource resource) {
+		if(!(resource instanceof IFile))
+			return false;
+		
+		if(!resource.getName().contains("."))
+			return false;
+		
+		return resource.getFileExtension().equals(FeaturedashboardConstants.FEATUREFILE_FILE) || 
+				resource.getFileExtension().equals(FeaturedashboardConstants.FEATUREFOLDER_FILE) || 
+				resource.getFileExtension().equals(FeaturedashboardConstants.VPFILE_FILE) ||
+				resource.getFileExtension().equals(FeaturedashboardConstants.VPFOLDER_FILE);
 	}
 	
 	/**

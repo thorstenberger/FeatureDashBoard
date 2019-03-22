@@ -55,13 +55,14 @@ public class FeatureFolderView extends ZestFxUiView {
 		for(FeatureContainer featureFileContainer : featureFileList) {
 			Node featureNode = GraphContentProvider.getFeatureNode(featureFileContainer.getFeature().getFeatureID());
 			featureFileContainer.getFiles().forEach(file -> {
-				IFolder folder = (IFolder) file.getParent();
+				IContainer folder = file.getParent();
 				if(!lookup.containsKey(folder)) {
 					Node folderNode = GraphContentProvider.getNode(folder.getName());
 					lookup.put(folder, folderNode);
 					graphNodes.add(folderNode); 
 					graphEdges.add(new CustomEdge(folderNode, featureNode));
-					getParentStructure(folder.getParent(), folder);
+					if(!(folder instanceof IProject))
+						getParentStructure(folder.getParent(), folder);
 				} else {
 					CustomEdge e = new CustomEdge(lookup.get(folder), featureNode);
 					if(!graphEdges.contains(e)) {
@@ -83,9 +84,11 @@ public class FeatureFolderView extends ZestFxUiView {
 				lookup.put(parent, folderNode);
 				graphNodes.add(folderNode);
 				graphEdges.add(new CustomEdge(lookup.get(parent), lookup.get(child)));
-				if(!(parent instanceof IProject)) {
-					getParentStructure(parent.getParent(), parent);
-				}
+				
+				if(parent instanceof IProject)
+					return;
+				
+				getParentStructure(parent.getParent(), parent);
 			}
 		}
 	}

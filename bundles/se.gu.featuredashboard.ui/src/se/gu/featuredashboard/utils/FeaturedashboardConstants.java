@@ -21,6 +21,9 @@ public class FeaturedashboardConstants {
 	// File name associated strings
 	public static final String FEATUREFILE_FILE = "feature-file";
 	public static final String FEATUREFOLDER_FILE = "feature-folder";
+	public static final String VPFILE_FILE = "vp-files";
+	public static final String VPFOLDER_FILE = "vp-folder";
+	
 	public static final String EXPORT_FILENAME = "FeatureMetrics.csv";
 	
 	public static final String SYNTAXERROR_DIALOG_TITLE = "Syntax Errors!";
