@@ -66,7 +66,7 @@ public class Builder extends IncrementalProjectBuilder {
 		Arrays.stream(delta.getAffectedChildren()).forEach(child -> {
 			IResource resource = child.getResource();
 			if(resource instanceof IFile) {
-				ParseJob job = new ParseJob("Parse file", project, (IFile) resource);
+				ParseJob job = new ParseJob("Parse file", project, (IFile) resource, Display.getDefault().getActiveShell());
 				job.addJobChangeListener(jobChangeListener);
 				job.setUser(true);
 				job.schedule();

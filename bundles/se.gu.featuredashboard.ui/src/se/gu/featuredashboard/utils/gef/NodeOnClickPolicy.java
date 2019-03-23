@@ -116,6 +116,7 @@ public class NodeOnClickPolicy extends AbstractPolicy implements IOnClickHandler
 				long diff = System.currentTimeMillis() - firstClick;
 				
 				if(diff < 500) {
+					System.out.println("EXECUTE");
 					getHost().getRoot().getViewer().getDomain().execute(createOperation(), null);
 				} else {
 					firstClick = null;

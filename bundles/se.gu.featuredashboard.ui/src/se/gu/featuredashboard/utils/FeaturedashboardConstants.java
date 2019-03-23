@@ -26,8 +26,8 @@ public class FeaturedashboardConstants {
 	
 	public static final String EXPORT_FILENAME = "FeatureMetrics.csv";
 	
-	public static final String SYNTAXERROR_DIALOG_TITLE = "Syntax Errors!";
-	public static final String SYNTAXERROR_DIALOG_MESSAGE = "Syntax errors when parsing mapping files";
+	public static final String SYNTAXERROR_DIALOG_TITLE = "Parsing Errors!";
+	public static final String SYNTAXERROR_DIALOG_MESSAGE = "Errors occured when parsing resources";
 	
 	// Column names/tooltips for FeatureMetricsView
 	public static final String FEATURETABLE_COLUMN_1_NAME = "Feature";

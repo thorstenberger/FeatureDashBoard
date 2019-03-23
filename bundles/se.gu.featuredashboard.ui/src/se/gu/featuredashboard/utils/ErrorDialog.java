@@ -10,13 +10,13 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 
-public class CustomDialog extends TitleAreaDialog {
+public class ErrorDialog extends TitleAreaDialog {
 
 	private String title;
 	private String message;
 	private String content;
 	
-	protected CustomDialog(Shell parentShell, String title, String message, String content) {
+	protected ErrorDialog(Shell parentShell, String title, String message, String content) {
 		super(parentShell);
 		this.title = title;
 		this.message = message;

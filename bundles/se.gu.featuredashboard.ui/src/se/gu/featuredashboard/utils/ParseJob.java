@@ -6,16 +6,13 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
-import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
@@ -32,6 +29,7 @@ import se.gu.featuredashboard.model.featuremodel.Feature;
 import se.gu.featuredashboard.model.featuremodel.FeatureContainer;
 import se.gu.featuredashboard.model.featuremodel.Project;
 import se.gu.featuredashboard.model.featuremodel.ProjectStore;
+import se.gu.featuredashboard.model.featuremodel.Triple;
 import se.gu.featuredashboard.model.featuremodel.Tuple;
 import se.gu.featuredashboard.model.location.BlockLine;
 import se.gu.featuredashboard.parsing.InFileAnnotationParser;
@@ -42,129 +40,114 @@ public class ParseJob extends Job {
 
 	private Project project;
 	private InFileAnnotationParser parser = new InFileAnnotationParser();
-	private IFile file;
-	private IProject iProject;
+	private IFile fileToParse;
 	private Shell shell;
-	private Map<Feature, FeatureContainer> information;
+	private Map<Feature, FeatureContainer> projectFeatures;
 	private Logger logger = PlatformUI.getWorkbench().getService(org.eclipse.e4.core.services.log.Logger.class);
 	private JobType jobType;
-	private List<Tuple<String, String>> syntaxExceptions;
+	private ErrorDialog errorDialog;
+	private List<Triple<String, String, Integer>> parsingExceptions;
 	
 	private enum JobType {
 		FULL, SINGLE
 	};
 	
-	/**
-	 * @param name - identifier for this {@link Job}
-	 * @param project - the affected {@link Project}
-	 * */
 	public ParseJob(String name, Project project, Shell shell) {
 		super(name);
 		this.project = project;
 		this.shell = shell;
-		init();
+		projectFeatures = new HashMap<>();
+		parsingExceptions = new ArrayList<>();
 		jobType = JobType.FULL;
 	}
 	
-	/**
-	 * @param name - identifier for this {@link Job}
-	 * @param project - the affected {@link Project}
-	 * @param file - the {@link IFile} that has been updated and should be parsed
-	 * */
-	public ParseJob(String name, Project project, IFile file) {
+	public ParseJob(String name, Project project, IFile file, Shell shell) {
 		super(name);
 		this.project = project;
-		this.file = file;
-		init();
+		this.fileToParse = file;
+		this.shell = shell;
+		projectFeatures = new HashMap<>();
+		parsingExceptions = new ArrayList<>();
 		jobType = JobType.SINGLE;
 	}
 
-	private void init() {
-		iProject = project.getIProject();
-		information = new HashMap<>();
-		syntaxExceptions = new ArrayList<>();
-	}
-	
-	/**
-	 * When .schedule is called on {@link Job} this method will be executed and starting the job.
-	 * Calls either {@link ParseJob#handleResource(IContainer, IProgressMonitor)} when we should parse an entire Project or
-	 * {@link ParseJob#handleSingleFile(IProgressMonitor)} when a single file has been updated
-	 * @param monitor - the {@link IProgressMonitor} for this job
-	 * @return {link IStatus} to indicate the successfulness of this job
-	 * */
 	@Override
 	protected IStatus run(IProgressMonitor monitor) {
 			
-		logger.info("Run ParseJob");
+		logger.info("Start parsing " + project.getID() + " for annotations");
 		
-		IStatus statusToReturn = Status.OK_STATUS;
-		
-		if(project == null)
-			return Status.CANCEL_STATUS;
-		
-		if(jobType == JobType.FULL) {
-			statusToReturn = handleProject(monitor);
-		} else {
-			if(equalsMappingFile(file) && !project.getOutputFolders().stream().map(IPath::toString).anyMatch(file.getFullPath().toString()::contains)) {
-				statusToReturn = handleMappingFile(file, monitor);
-			} else
-				handleFile(file, monitor);
-		}
-		
-		if(syntaxExceptions.size() > 0) {
-			StringBuilder errorMessage = new StringBuilder();
-			syntaxExceptions.forEach(wrongSyntax -> {
-				errorMessage.append(wrongSyntax.getLeft() + "  ---> " + wrongSyntax.getRight());
-				errorMessage.append("\n");
-			});	
-			Display.getDefault().asyncExec(() -> {
-				CustomDialog dialog = new CustomDialog(shell, 
-													   FeaturedashboardConstants.SYNTAXERROR_DIALOG_TITLE, 
-													   FeaturedashboardConstants.SYNTAXERROR_DIALOG_MESSAGE, 
-													   errorMessage.toString());
-				dialog.create();
-				dialog.open();
-			});
-		}
-		
-		if(statusToReturn != Status.CANCEL_STATUS && !monitor.isCanceled()) {
-			ProjectStore.setActiveProject(project);
+		if(project == null) {
 			monitor.done();
-		}
-		
-		return statusToReturn;
-	}
-
-	/**
-	 * Wrapper function for {@link ParseJob#handleResource(IContainer, IProgressMonitor)} and calls it with an {@link IProject} to go through
-	 * @param monitor - the {@link IProgressMonitor} for this job
-	 * @return {link IStatus} to indicate the successfulness of this job 
-	 * */
-	private IStatus handleProject(IProgressMonitor monitor) {
-		
-		handleResource(iProject, monitor);
-		
-		if(monitor.isCanceled()) {
 			return Status.CANCEL_STATUS;
-		}
-		
-		project.addFeatures(information.values());
-		
-		return Status.OK_STATUS;
-	}
-	
-	/**
-	 * Recursive function called by {@link ParseJob#handleProject(IProgressMonitor)} to go through all the resources in a specific {@link IProject}
-	 * @param container - the {@link IContainer} we are currently in
-	 * @param monitor - the {@link IProgressMonitor} for this job
-	 * */
-	private void handleResource(IContainer container, IProgressMonitor monitor) {
-		if(monitor.isCanceled()) {
-			return;
 		}
 		
 		try {
-			// Handle mapping file first and mark resources as visited, this will prevent us accessing sub-folders twice in the case of .feature-folder
+			if(jobType == JobType.FULL) {
+				handleResource(project.getIProject(), monitor);
+				project.addFeatures(projectFeatures.values());
+			} else {
+				if(fileToParse == null) {
+					monitor.done();
+					return Status.CANCEL_STATUS;
+				}
+				
+				if(equalsMappingFile(fileToParse) && !project.getOutputFolders().stream().map(IPath::toString).anyMatch(fileToParse.getFullPath().toString()::contains))
+					handleMappingFile(fileToParse, monitor);
+				else
+					handleFile(fileToParse, monitor);
+			}
+			
+			if(parsingExceptions.size() > 0) {
+				
+				StringBuilder errorMessage = new StringBuilder();
+				
+				parsingExceptions.forEach(wrongSyntax -> {
+					if(wrongSyntax.getRight() == null)
+						errorMessage.append(wrongSyntax.getLeft() + "  ---> " + wrongSyntax.getCentre());
+					else
+						errorMessage.append(wrongSyntax.getLeft() + "  ---> " + wrongSyntax.getCentre() + " at line number: " + wrongSyntax.getRight());
+					errorMessage.append("\n");
+				});
+				
+				Display.getDefault().asyncExec(() -> {
+					errorDialog = new ErrorDialog(shell, FeaturedashboardConstants.SYNTAXERROR_DIALOG_TITLE, FeaturedashboardConstants.SYNTAXERROR_DIALOG_MESSAGE, errorMessage.toString());
+					errorDialog.create();
+					errorDialog.open();
+				});
+			}
+			
+			monitor.done();
+			
+			if(monitor.isCanceled()) {
+				System.out.println("monitor was canceled");
+				if(jobType == JobType.FULL) {
+					ProjectStore.removeProject(project);
+				}
+					
+				return Status.CANCEL_STATUS;
+			}
+			else
+				return Status.OK_STATUS;
+			
+		} catch(RuntimeException e) {
+			// So that we can remove the project from the ProjectStore, otherwise the user has to close the IDE to re-parse the project
+			logger.warn("Runtime exception occured: " + e.getMessage());
+			
+			monitor.done();
+			
+			if(jobType == JobType.FULL)
+				ProjectStore.removeProject(project);
+			
+			return Status.CANCEL_STATUS;
+		}
+		 
+	}
+	
+	private void handleResource(IContainer container, IProgressMonitor monitor) {
+		if(monitor.isCanceled())
+			return;
+		
+		try {
 			Arrays.stream(container.members()).filter(this::equalsMappingFile).forEach(resource -> handleMappingFile((IFile) resource, monitor));
 			
 			Arrays.stream(container.members()).forEach(member -> {
@@ -175,17 +158,12 @@ public class ParseJob extends Job {
 					handleFile((IFile) member, monitor);
 				}
 			});
-		} catch (CoreException e) {
+		} catch(CoreException e) {
+			parsingExceptions.add(new Triple<String, String, Integer>(container.getFullPath().toString(), e.getMessage(), null));
 			monitor.setCanceled(true);
-			e.printStackTrace();
 		}
 	}
 	
-	/**
-	 * Called by {@link ParseJob#handleResource(IContainer, IProgressMonitor)} or in {@link ParseJob#run(IProgressMonitor)} directlty to parse a single file for any annotations
-	 * @param resource - the {@link IFile} to parse
-	 * @param monitor - the {@link IProgressMonitor} for this job
-	 * */
 	private void handleFile(IFile resource, IProgressMonitor monitor) {
 		if(monitor.isCanceled())
 			return;
@@ -216,15 +194,9 @@ public class ParseJob extends Job {
 		}
 	}
 	
-	/**
-	 * Called by {@link ParseJob#handleResource(IContainer, IProgressMonitor)} when a .feature-file or .feature-folder is detected.
-	 * This method then calls {@link ParseMappingFile#readMappingFile(IFile, IProject)} to get the feature and its associated file(s)/folder(s)
-	 * @param resource - the mapping file as an {@link IFile}
-	 * @param monitor - the {@link IProgressMonitor} for this job  
-	 * */
-	private IStatus handleMappingFile(IFile mappingFile, IProgressMonitor monitor) {
+	private void handleMappingFile(IFile mappingFile, IProgressMonitor monitor) {
 		if(monitor.isCanceled())
-			return Status.CANCEL_STATUS;
+			return;
 		
 		try {
 			List<FeatureContainer> containersMappedTo = null;
@@ -232,7 +204,7 @@ public class ParseJob extends Job {
 			if(jobType == JobType.SINGLE)
 				containersMappedTo = project.getFeatureContainers().stream().filter(c -> c.isMappedIn(mappingFile)).collect(Collectors.toList());
 			
-			Map<Feature, List<IResource>> mapping = ParseMappingFile.readMappingFile(mappingFile, iProject);
+			Map<Feature, List<IResource>> mapping = ParseMappingFile.readMappingFile(mappingFile, project.getIProject());
 			
 			mapping.keySet().forEach(feature -> {
 				List<Tuple<IResource, Integer>> folderResources = new ArrayList<>();
@@ -259,26 +231,15 @@ public class ParseJob extends Job {
 					
 			}
 		} catch(SyntaxException e) {
-			syntaxExceptions.add(new Tuple<String, String>(mappingFile.getFullPath().toString(), e.getMessage()));
+			parsingExceptions.add(new Triple<String, String, Integer>(mappingFile.getFullPath().toString(), e.getMessage(), e.getLineNumber()));
 		}
-		
-		return Status.OK_STATUS;
 	}
 	
-	/**
-	 * Called by {@link ParseJob#handleMappingFile(IFile, IProgressMonitor)} to recursively associate a specfic {@link FeatureContainer} with a resource
-	 * @param featureContainer - the {@link FeatureContainer} that contains the specific feature
-	 * @param resource - the current {@link IResource} we are looking at
-	 * @param parentFolder - the folder that the mapping file is contained in
-	 * @param folderResources - a list of resources belonging to the feature in the mapping file
-	 * @param monitor - the {@link IProgressMonitor} for this job
-	 * */
 	private void mapResourceToFeature(Feature feature, IResource resource, List<Tuple<IResource, Integer>> folderResources, IProgressMonitor monitor) {
 		if(monitor.isCanceled())
 			return;
 		
-		try {	
-			
+		try {
 			if(resource instanceof IContainer) {
 				IFolder folder = (IFolder) resource;
 				IResource[] members = folder.members();
@@ -292,21 +253,22 @@ public class ParseJob extends Job {
 				folderResources.add(new Tuple<IResource, Integer>(leafFile, lineCount));
 			}
 		} catch (CoreException | IOException e) {
-			logger.warn("Error trying to map resource to feature." + e.getMessage());
+			parsingExceptions.add(new Triple<String, String, Integer>(resource.getFullPath().toString(), "Error trying to map resource to feature. " + e.getMessage(), null));
+			monitor.setCanceled(true);
 		}
 	}
 	
 	private FeatureContainer getFeatureContainer(Feature feature) {
 		FeatureContainer featureContainer = null;
 		if(jobType == JobType.FULL)
-			featureContainer = information.get(feature);
+			featureContainer = projectFeatures.get(feature);
 		else
 			featureContainer = project.getFeatureContaier(feature);
 	
 		if(featureContainer == null) {
 			featureContainer = new FeatureContainer(feature);
 			if(jobType == JobType.FULL)
-				information.put(feature, featureContainer);
+				projectFeatures.put(feature, featureContainer);
 			else
 				project.addFeature(featureContainer);
 		}
@@ -326,10 +288,6 @@ public class ParseJob extends Job {
 				resource.getFileExtension().equals(FeaturedashboardConstants.VPFOLDER_FILE);
 	}
 	
-	/**
-	 * Used by {@link ParseJob#mapResourceToFeature(FeatureContainer, IResource)} to efficiently get the number of lines for a file
-	 * @param file - the {@link IFile} to read 
-	 * */
 	private int countLines(IFile file) throws IOException, CoreException {
 		int count = 0;
 		try (InputStream is = new BufferedInputStream(file.getContents())){

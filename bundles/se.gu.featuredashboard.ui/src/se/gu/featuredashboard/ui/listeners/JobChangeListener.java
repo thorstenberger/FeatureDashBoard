@@ -34,7 +34,7 @@ public class JobChangeListener implements IJobChangeListener {
 
 	@Override
 	public void done(IJobChangeEvent event) {
-		logger.info("Parsing job is done");	
+		logger.info("Finished parsing project");	
 		IStatus status = (IStatus) event.getResult();
 		if(status.getCode() == Status.OK_STATUS.getCode()) {
 			listeners.forEach(listener -> {

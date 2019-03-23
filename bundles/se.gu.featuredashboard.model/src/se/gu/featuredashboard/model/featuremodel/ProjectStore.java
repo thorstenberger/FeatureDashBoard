@@ -32,6 +32,10 @@ public class ProjectStore {
 		parsedProjects.remove(location);
 	}
 	
+	public static void removeProject(Project project) {
+		parsedProjects.remove(project.getLocation());
+	}
+	
 	public static boolean isProjectParsed(IPath location) {
 		return parsedProjects.containsKey(location);
 	}

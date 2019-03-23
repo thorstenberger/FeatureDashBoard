@@ -2,18 +2,24 @@ package se.gu.featuredashboard.model.featuremodel;
 
 import java.util.Objects;
 
-public class Tuple<L, R> {
+public class Triple<L, C, R> {
 
 	private L left;
+	private C centre;
 	private R right;
 	
-	public Tuple(L left, R right) {
+	public Triple(L left, C centre, R right) {
 		this.left = left;
+		this.centre = centre;
 		this.right = right;
 	}
 	
 	public L getLeft() {
 		return left;
+	}
+	
+	public C getCentre() {
+		return centre;
 	}
 	
 	public R getRight() {
@@ -22,7 +28,7 @@ public class Tuple<L, R> {
 	
 	@Override
 	public int hashCode() {
-		return Objects.hash(left, right);
+		return Objects.hash(left, centre, right);
 	}
 	
 	@Override
@@ -30,17 +36,19 @@ public class Tuple<L, R> {
 		if(o == null)
 			return false;
 		
-		if(!(o instanceof Tuple))
+		if(!(o instanceof Triple))
 			return false;
 		
-		Tuple<?, ?> t = (Tuple<?, ?>) o;
+		Triple<?, ?, ?> t = (Triple<?, ?, ?>) o;
 		
 		if(this == t)
 			return true;
 		
 		return this.hashCode() == t.hashCode() &&
 				this.getLeft().equals(t.getLeft()) &&
+				this.getCentre().equals(this.getCentre()) &&
 				this.getRight().equals(t.getRight());
 		
 	}
+	
 }

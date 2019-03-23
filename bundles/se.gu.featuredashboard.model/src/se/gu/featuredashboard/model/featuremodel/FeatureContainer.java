@@ -86,15 +86,7 @@ public class FeatureContainer {
 	}
 	
 	public void addInFileAnnotations(IFile file, List<BlockLine> annotatedLines, int otherFeatures) {
-		Tuple<List<BlockLine>, Integer> tuple = inFileAnnotations.get(file);
-		if(tuple == null)
-			tuple = new Tuple<List<BlockLine>, Integer>(annotatedLines, otherFeatures);
-		else {
-			tuple.setLeft(annotatedLines);
-			tuple.setRight(otherFeatures);
-		}
-		inFileAnnotations.put(file, tuple);
-		
+		inFileAnnotations.put(file, new Tuple<List<BlockLine>, Integer>(annotatedLines, otherFeatures));
 		// When we run the builder we will update a certain FeatureContainer and then we need to recalcualte the metrics
 		resetMetrics();
 	}
