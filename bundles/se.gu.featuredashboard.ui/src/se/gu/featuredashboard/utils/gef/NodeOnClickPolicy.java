@@ -106,29 +106,29 @@ public class NodeOnClickPolicy extends AbstractPolicy implements IOnClickHandler
 	
 	@Override
 	public void click(MouseEvent e) {
-		
+		// Handle double-clicks
 		try {
-			if(e.getClickCount() > 2) {
+			if(e.getClickCount() > 2)
 				return;
-			}
-			// Handle double-clicks
-			if(isRunning) {
+			
+			if(firstClick != null) {
 				long diff = System.currentTimeMillis() - firstClick;
-				
-				if(diff < 500) {
-					System.out.println("EXECUTE");
-					getHost().getRoot().getViewer().getDomain().execute(createOperation(), null);
-				} else {
-					firstClick = null;
+				if(diff > FeaturedashboardConstants.DOUBLECLICK_DURATION)
 					isRunning = false;
-				}
+			}
+			
+			if(isRunning) {
+				long diff = System.currentTimeMillis() - firstClick;	
+				if(diff < FeaturedashboardConstants.DOUBLECLICK_DURATION)
+					getHost().getRoot().getViewer().getDomain().execute(createOperation(), null);
+				firstClick = null;
+				isRunning = false;
 			} else {
 				firstClick = new Long(System.currentTimeMillis());
 				isRunning = true;
 			}
 		} catch (ExecutionException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
+			logger.warn("Failed to start node click operation. " + e1.getMessage() );
 		}
 	}
 
