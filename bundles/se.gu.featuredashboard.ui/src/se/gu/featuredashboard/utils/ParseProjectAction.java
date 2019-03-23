@@ -94,12 +94,13 @@ public class ParseProjectAction extends Action {
 					ICProject cProject = CoreModel.getDefault().create(selectedProject);
 					Arrays.stream(cProject.getOutputEntries()).map(IOutputEntry::getPath).forEach(project::setOutputFolder);
 				}
-				ProjectStore.addProject(project.getLocation(), project);
+				
+				ProjectStore.addProject(project);
 				
 				parseProjectJob = new ParseJob("Parse project", project, shell);
 				parseProjectJob.addJobChangeListener(new JobChangeListener(viewsToUpdate));
 				parseProjectJob.setUser(true);
-				parseProjectJob.schedule();	 
+				parseProjectJob.schedule();
 			} else {
 				logger.info("This project has already been parsed. Updating views");
 				ProjectStore.setActiveProject(selectedProject.getLocation());

@@ -11,33 +11,33 @@ public class ProjectStore {
 	private static Map<IPath, Project> parsedProjects = new HashMap<>();
 	private static Project activeProject;
 	
-	public static void addProject(IPath absoluteLocation, Project parsedProject) {
-		parsedProjects.put(absoluteLocation, parsedProject);
-		activeProject = parsedProject;
+	public static void addProject(Project project) {
+		parsedProjects.put(project.getLocation(), project);
+		activeProject = project;
 	}
 	
 	public static void setActiveProject(Project project) {
 		activeProject = project;
 	}
 	
-	public static void setActiveProject(IPath absoluteLocation) {
-		activeProject = parsedProjects.get(absoluteLocation);
+	public static void setActiveProject(IPath location) {
+		activeProject = parsedProjects.get(location);
 	}
 	
 	public static Project getActiveProject() {
 		return activeProject;
 	}
 	
-	public static void removeProject(IPath absoluteLocation) {
-		parsedProjects.remove(absoluteLocation);
+	public static void removeProject(IPath location) {
+		parsedProjects.remove(location);
 	}
 	
-	public static boolean isProjectParsed(IPath absoluteLocation) {
-		return parsedProjects.containsKey(absoluteLocation);
+	public static boolean isProjectParsed(IPath location) {
+		return parsedProjects.containsKey(location);
 	}
 	
-	public static Project getProject(IPath absoluteLocation) {
-		return parsedProjects.get(absoluteLocation);
+	public static Project getProject(IPath location) {
+		return parsedProjects.get(location);
 	}
 	
 	public static Collection<Project> getAll(){
