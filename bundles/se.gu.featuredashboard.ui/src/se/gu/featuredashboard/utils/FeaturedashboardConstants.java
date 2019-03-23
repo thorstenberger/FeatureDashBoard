@@ -79,6 +79,8 @@ public class FeaturedashboardConstants {
 	public static final String PROJECTTABLE_COLUMN_6_NAME = "Avg Scattering Degree";
 	public static final String PROJECTTABLE_COLUMN_6_TOOLTIP = "Average scattering degree";
 	
+	public static final int FEATURELISTTABLE_SORT_COLUMN = 99;
+	
 	public static final String PROJECTTABLE_ID = "PROJECT_TABLE";
 
 	// When selecting something that isn't a project in package/project explorer

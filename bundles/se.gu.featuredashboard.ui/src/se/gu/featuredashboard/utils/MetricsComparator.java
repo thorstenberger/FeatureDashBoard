@@ -50,7 +50,7 @@ public class MetricsComparator extends ViewerComparator {
 		if(obj1 instanceof FeatureContainer && obj2 instanceof FeatureContainer) {
 			FeatureContainer feature1 = (FeatureContainer) obj1;
 			FeatureContainer feature2 = (FeatureContainer) obj2;
-	
+			
 			switch (column) {
 				case 1:
 					result = compareStrings(feature1.getFeature().getFeatureID(), feature2.getFeature().getFeatureID());
@@ -79,6 +79,8 @@ public class MetricsComparator extends ViewerComparator {
 				case 9:
 					result = Integer.compare(feature1.getMinND(), feature2.getMinND());
 					break;
+				case FeaturedashboardConstants.FEATURELISTTABLE_SORT_COLUMN:
+					result = compareStrings(feature1.getFeature().getFeatureID(), feature2.getFeature().getFeatureID());
 			}
 		} else if(obj1 instanceof Project && obj2 instanceof Project) {
 			Project p1 = (Project) obj1;
