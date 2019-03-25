@@ -1,15 +1,23 @@
 	package se.gu.featuredashboard.ui.views;
 
 import org.eclipse.jface.viewers.ArrayContentProvider;
+import org.eclipse.jface.viewers.DoubleClickEvent;
+import org.eclipse.jface.viewers.IDoubleClickListener;
+import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.MouseEvent;
+import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
+import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 
+import se.gu.featuredashboard.model.featuremodel.Project;
 import se.gu.featuredashboard.model.featuremodel.ProjectStore;
 import se.gu.featuredashboard.ui.listeners.TableSelectionListener;
 import se.gu.featuredashboard.ui.providers.MetricsTableLabelProvider;
@@ -27,6 +35,32 @@ public class ProjectMetricsView extends ViewPart implements IUpdateViewListener 
 		projectViewer = new TableViewer(parent, SWT.NONE);
 		projectViewer.setContentProvider(ArrayContentProvider.getInstance());
 		projectViewer.setLabelProvider(new MetricsTableLabelProvider());
+		
+		projectViewer.addDoubleClickListener(new IDoubleClickListener() {
+
+			@Override
+			public void doubleClick(DoubleClickEvent event) {
+				IStructuredSelection selection = (IStructuredSelection) event.getSelection();
+				if(selection == null)
+					return;
+				
+				Object selectedElement = selection.getFirstElement();
+				if(!(selectedElement instanceof Project))
+					return;
+				
+				Project project = (Project) selectedElement; 
+				ProjectStore.setActiveProject(project);		
+				
+				IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
+				
+				FeatureListView featureListView = (FeatureListView) page.findView(FeaturedashboardConstants.FEATURELIST_VIEW_ID);
+				featureListView.updateView();
+				
+				FeatureMetricsView featureMetricsView = (FeatureMetricsView) page.findView(FeaturedashboardConstants.FEATUREMETRICS_VIEW_ID);
+				featureMetricsView.updateView();
+			}
+			
+		});
 		
 		MetricsComparator comparator = new MetricsComparator();
 		projectViewer.setComparator(comparator);
