@@ -21,8 +21,10 @@ import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.texteditor.ITextEditor;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
+import org.eclipse.swt.widgets.Display;
 
 import javafx.scene.Node;
 import javafx.scene.input.MouseEvent;
@@ -34,6 +36,9 @@ public class NodeOnClickPolicy extends AbstractPolicy implements IOnClickHandler
 	private boolean isRunning = false;
 	private Long firstClick;
 	private Logger logger = PlatformUI.getWorkbench().getService(org.eclipse.e4.core.services.log.Logger.class);
+	
+	public static final String ERRORDIALOG_HEADER = "Error!";
+	public static final String ERRORDIALOG_MESSAGE = "Couldn't add highlights to code. Add new line at the end of the file and try again.";
 	
 	public class OnClickOperation extends AbstractOperation implements ITransactionalOperation {
 
@@ -75,17 +80,28 @@ public class NodeOnClickPolicy extends AbstractPolicy implements IOnClickHandler
 					file.deleteMarkers(FeaturedashboardConstants.FEATURE_MARKER_ID, true, IResource.DEPTH_INFINITE);
 					
 					for(BlockLine block : n.getAnnotatedLines()) {
-						IMarker marker = file.createMarker(FeaturedashboardConstants.FEATURE_MARKER_ID);
-						if((block.getStartLine()-block.getEndLine()) == 0) {
-							marker.setAttribute(IMarker.CHAR_START, document.getLineOffset(block.getStartLine()));
-							marker.setAttribute(IMarker.CHAR_END, document.getLineOffset(block.getEndLine()+1));
-						} else {
-							marker.setAttribute(IMarker.CHAR_START, document.getLineOffset(block.getStartLine()));
-							marker.setAttribute(IMarker.CHAR_END, document.getLineOffset(block.getEndLine()));
-						}	
+						int lineStartOffset;
+						int lineEndOffset;
+						
+						try {
+							lineStartOffset = document.getLineOffset(block.getStartLine());
+							
+							if((block.getStartLine()-block.getEndLine()) == 0)
+								lineEndOffset = document.getLineOffset(block.getEndLine()+1);
+							else
+								lineEndOffset = document.getLineOffset(block.getEndLine());
+							
+							IMarker marker = file.createMarker(FeaturedashboardConstants.FEATURE_MARKER_ID);
+							marker.setAttribute(IMarker.CHAR_START, lineStartOffset);
+							marker.setAttribute(IMarker.CHAR_END, lineEndOffset);
+							
+						} catch(BadLocationException e) {
+							// Only a problem If the entire file should be highligted and there is no new-line at the end of the file
+							MessageDialog.openError(Display.getDefault().getActiveShell(), ERRORDIALOG_HEADER, ERRORDIALOG_MESSAGE);
+						}
 					}
-				} catch (CoreException | BadLocationException e) {
-					logger.warn(e.getMessage());
+				} catch (CoreException e) {
+					logger.warn("Error while trying to display the specific file in the editor. " + e.getMessage());
 				}
 			}
 			return Status.OK_STATUS;
