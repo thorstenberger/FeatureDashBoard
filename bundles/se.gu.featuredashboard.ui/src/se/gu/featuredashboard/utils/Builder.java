@@ -36,8 +36,6 @@ public class Builder extends IncrementalProjectBuilder {
 		if(kind == AUTO_BUILD) {
 			logger.info("Featuredashboard builder autobuild");
 			startParseJob(iProject, delta);
-		} else if(kind == INCREMENTAL_BUILD) {
-			logger.info("Featuredashboard builder incremental build");
 		}
 		
 		return null;

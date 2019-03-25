@@ -217,11 +217,8 @@ public class ParseJob extends Job {
 				
 				List<IResource> resources = mapping.get(feature);
 				
-				for(IResource resource : resources) {
-					System.out.println("Resource: " + resource.getName());
-					
+				for(IResource resource : resources)
 					mapResourceToFeature(feature, resource, folderResources, monitor);
-				}
 				
 				FeatureContainer featureContainer = getFeatureContainer(feature);				
 				featureContainer.addMappingResource(mappingFile, folderResources);
