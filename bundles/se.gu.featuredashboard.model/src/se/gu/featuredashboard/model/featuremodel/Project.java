@@ -94,16 +94,22 @@ public class Project {
 	}
 	
 	public String getAvgLoFC() {
+		if(getNumberOfFeatures() == 0)
+			return df.format(0);
 		return df.format((double)this.getTotalLoFC()/(double)getNumberOfFeatures());
 	}
 	
 	public String getAverageSD() {
 		int totalNestingDegree = featureContainers.stream().mapToInt(FeatureContainer::getScatteringDegree).sum();
+		if(getNumberOfFeatures() == 0)
+			return df.format(0);
 		return df.format((double)totalNestingDegree/(double)getNumberOfFeatures());
 	}
 	
 	public String getAverageND() {
 		int totalDepth = featureContainers.stream().mapToInt(FeatureContainer::getTotalND).sum();
+		if(getNumberOfFeatures() == 0)
+			return df.format(0);
 		return df.format((double)totalDepth/(double)getNumberOfFeatures());
 	}
 	

@@ -129,6 +129,7 @@ public class FeatureContainer {
 	
 	public void addMappingResource(IFile mappingFile, List<Tuple<IResource, Integer>> resources) {
 		directAnnotations.put(mappingFile, resources);
+		System.out.println("FileS: " + directAnnotations.keySet().size());
 		resetMetrics();
 	}
 	

@@ -21,6 +21,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.e4.core.services.log.Logger;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
@@ -73,7 +74,6 @@ public class ParseJob extends Job {
 
 	@Override
 	protected IStatus run(IProgressMonitor monitor) {
-			
 		logger.info("Start parsing " + project.getID() + " for annotations");
 		
 		if(project == null) {
@@ -90,7 +90,6 @@ public class ParseJob extends Job {
 					monitor.done();
 					return Status.CANCEL_STATUS;
 				}
-				
 				if(equalsMappingFile(fileToParse) && !project.getOutputFolders().stream().map(IPath::toString).anyMatch(fileToParse.getFullPath().toString()::contains))
 					handleMappingFile(fileToParse, monitor);
 				else
@@ -132,6 +131,10 @@ public class ParseJob extends Job {
 		} catch(RuntimeException e) {
 			// So that we can remove the project from the ProjectStore, otherwise the user has to close the IDE to re-parse the project
 			logger.warn("Runtime exception occured: " + e.getMessage());
+			
+			Display.getDefault().asyncExec(() -> {
+				MessageDialog.openError(shell, "Error!", "Runtime error while parsing project: " + e.getMessage());
+			});
 			
 			monitor.done();
 			
@@ -206,16 +209,20 @@ public class ParseJob extends Job {
 			
 			Map<Feature, List<IResource>> mapping = ParseMappingFile.readMappingFile(mappingFile, project.getIProject());
 			
-			mapping.keySet().forEach(feature -> {
+			mapping.keySet().forEach(feature -> {				
 				List<Tuple<IResource, Integer>> folderResources = new ArrayList<>();
 				
 				if(mappingFile.getFileExtension().equals(FeaturedashboardConstants.VPFOLDER_FILE))
 					folderResources.add(new Tuple<IResource, Integer>(mappingFile.getParent(), 0));
 				
-				List<IResource> resources = mapping.get(feature); 
+				List<IResource> resources = mapping.get(feature);
+				
 				for(IResource resource : resources) {
+					System.out.println("Resource: " + resource.getName());
+					
 					mapResourceToFeature(feature, resource, folderResources, monitor);
 				}
+				
 				FeatureContainer featureContainer = getFeatureContainer(feature);				
 				featureContainer.addMappingResource(mappingFile, folderResources);
 			});
@@ -228,8 +235,8 @@ public class ParseJob extends Job {
 							if(c.getScatteringDegree() == 0)
 								project.removeFeature(c);
 						});
-					
 			}
+			
 		} catch(SyntaxException e) {
 			parsingExceptions.add(new Triple<String, String, Integer>(mappingFile.getFullPath().toString(), e.getMessage(), e.getLineNumber()));
 		}

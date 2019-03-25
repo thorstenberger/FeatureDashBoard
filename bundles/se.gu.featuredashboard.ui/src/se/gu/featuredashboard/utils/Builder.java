@@ -34,7 +34,10 @@ public class Builder extends IncrementalProjectBuilder {
 		IResourceDelta delta = getDelta(iProject);
 		
 		if(kind == AUTO_BUILD) {
+			logger.info("Featuredashboard builder autobuild");
 			startParseJob(iProject, delta);
+		} else if(kind == INCREMENTAL_BUILD) {
+			logger.info("Featuredashboard builder incremental build");
 		}
 		
 		return null;
@@ -44,20 +47,20 @@ public class Builder extends IncrementalProjectBuilder {
 		Display.getDefault().asyncExec(() -> {
 			IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
 			
+			// Views that should listen when the parsing job is done
 			FeatureListView featureListView = (FeatureListView) page.findView(FeaturedashboardConstants.FEATURELIST_VIEW_ID);
 			FeatureMetricsView featureMetricsView = (FeatureMetricsView) page.findView(FeaturedashboardConstants.FEATUREMETRICS_VIEW_ID);
 			ProjectMetricsView projectMetricsView = (ProjectMetricsView) page.findView(FeaturedashboardConstants.PROJECTMETRICS_VIEW_ID);
 			
 			JobChangeListener jobChangeListener = new JobChangeListener(Arrays.asList(featureListView, featureMetricsView, projectMetricsView));
 			
-			Arrays.stream(delta.getAffectedChildren()).forEach(child -> {
-				Project project = ProjectStore.getProject(iProject.getLocation());
-				// Means that a builder is attached in a previous session but we haven't parsed the project in this session
-				if(project == null)
-					return;
-				
-				findAffectedChildren(ProjectStore.getProject(iProject.getLocation()), child, jobChangeListener);
-			});
+			Project project = ProjectStore.getProject(iProject.getLocation());
+			
+			// Means that a builder is attached in a previous session but we haven't parsed the project in this session
+			if(project == null)
+				return;
+			
+			findAffectedChildren(project, delta, jobChangeListener);
 			
 		});
 	}

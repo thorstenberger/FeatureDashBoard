@@ -85,7 +85,7 @@ public class NodeOnClickPolicy extends AbstractPolicy implements IOnClickHandler
 						}	
 					}
 				} catch (CoreException | BadLocationException e) {
-					logger.error(e.getMessage());
+					logger.warn(e.getMessage());
 				}
 			}
 			return Status.OK_STATUS;

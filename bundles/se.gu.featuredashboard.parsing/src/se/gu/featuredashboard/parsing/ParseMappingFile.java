@@ -44,7 +44,6 @@ public class ParseMappingFile {
 				return parseVPFileMappingFile(reader, featureFile, project);
 			else if(featureFile.getFileExtension().equals(VPFOLDER_FILE))
 				return parseVPFolderMappingFile(reader, featureFile);
-			
 			return parseFeatureMappingFile(reader, featureFile, project);
 		} catch(IOException | CoreException e) {
 			throw new SyntaxException(e.getMessage());
@@ -58,7 +57,7 @@ public class ParseMappingFile {
 		String line = null;
 		
 		while((line = reader.readLine()) != null) {
-			featureFiles.put(new Feature(line.replace(WHITESPACE_REGEX, "")), Arrays.stream(featureFile.getParent().members()).filter(resource -> resource instanceof IFile).collect(Collectors.toList()));
+			featureFiles.put(new Feature(line.replaceAll(WHITESPACE_REGEX, "")), Arrays.asList(featureFile.getParent().members()));
 		}
 		
 		return featureFiles;
@@ -66,7 +65,6 @@ public class ParseMappingFile {
 	
 	private static Map<Feature, List<IResource>> parseVPFileMappingFile(BufferedReader reader, IFile featureFile, IProject project) throws SyntaxException, IOException {
 		Map<Feature, List<IResource>> featureFiles = new HashMap<>();
-		Set<Feature> featuresInFile = new HashSet<>();
 		
 		String currentLine = null;
 		String nextLine = null;
@@ -88,7 +86,7 @@ public class ParseMappingFile {
 			String[] resources = currentLine.split(" ");
 			Feature feature = new Feature(nextLine.replaceAll(WHITESPACE_REGEX, ""));
 			
-			if(!featuresInFile.add(feature))
+			if(featureFiles.containsKey(feature))
 				throw new SyntaxException(ERRORMESSAGE_DUPLICATED_FEATURE, lineCounter);
 			
 			featureFiles.put(feature, getResources(Arrays.asList(resources), lineCounter, featureFile, project));
@@ -99,7 +97,6 @@ public class ParseMappingFile {
 	
 	private static Map<Feature, List<IResource>> parseFeatureMappingFile(BufferedReader reader, IFile featureFile, IProject project) throws SyntaxException, IOException {
 		Map<Feature, List<IResource>> featureFiles = new HashMap<>();
-		Set<Feature> featuresInFile = new HashSet<>();
 		
 		String line = null;
 
@@ -124,7 +121,7 @@ public class ParseMappingFile {
 
 			Feature feature = new Feature(featureString);
 
-			if(!featuresInFile.add(feature))
+			if(featureFiles.containsKey(feature))
 				throw new SyntaxException(ERRORMESSAGE_DUPLICATED_FEATURE, lineCounter);
 
 			String mappingElements[] = lineElements[1].split(",");
@@ -149,7 +146,7 @@ public class ParseMappingFile {
 			
 			String newResourceLocation = featureFilePath.substring(0, (featureFilePath.length() - mappingFile.getName().length())) + lineElement;
 			
-			if(mappingFile.getFileExtension().equals(FEATUREFILE_FILE) || mappingFile.getFileExtension().equals(VPFILE_FILE) || mappingFile.getFileExtension().equals(VPFOLDER_FILE))
+			if(mappingFile.getFileExtension().equals(FEATUREFILE_FILE) || mappingFile.getFileExtension().equals(VPFILE_FILE))
 				resources.add(project.getWorkspace().getRoot().getFile(new Path(newResourceLocation)));
 			else
 				resources.add(project.getWorkspace().getRoot().getFolder(new Path(newResourceLocation)));

@@ -148,9 +148,9 @@ public class InFileAnnotationParser {
 			inputList = stream.collect(Collectors.toList());
 
 		} catch (UncheckedIOException e) {
-			e.printStackTrace();
+			//e.printStackTrace();
 		} catch (IOException e) {
-			e.printStackTrace();
+			//e.printStackTrace();
 		}
 
 		ArrayList<Integer> annotatedLines;
