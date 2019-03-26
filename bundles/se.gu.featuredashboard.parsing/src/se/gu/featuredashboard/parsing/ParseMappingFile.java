@@ -3,14 +3,13 @@ package se.gu.featuredashboard.parsing;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
@@ -38,6 +37,9 @@ public class ParseMappingFile {
 	private ParseMappingFile() {}
 	
 	public static Map<Feature, List<IResource>> readMappingFile(IFile featureFile, IProject project) throws SyntaxException {	
+		
+		if(!Files.exists(Paths.get(featureFile.getLocation().toString())))
+			return new HashMap<>();
 		
 		try(BufferedReader reader = new BufferedReader(new InputStreamReader(featureFile.getContents()))) {
 			if(featureFile.getFileExtension().equals(VPFILE_FILE))
@@ -107,7 +109,7 @@ public class ParseMappingFile {
 			lineCounter++;
 			
 			if(line.chars().filter(ch -> ch == ':').count() != 1)
-				throw new SyntaxException(ERRORMESSAGE_COLONS, lineCounter); 
+				throw new SyntaxException(ERRORMESSAGE_COLONS, lineCounter);
 
 			String[] lineElements = line.replaceAll(WHITESPACE_REGEX, "").split(":");
 
