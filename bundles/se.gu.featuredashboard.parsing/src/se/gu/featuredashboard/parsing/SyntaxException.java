@@ -3,7 +3,7 @@ package se.gu.featuredashboard.parsing;
 public class SyntaxException extends Exception {
 	
 	private static final long serialVersionUID = 1L;
-	private int lineNumber;
+	private Integer lineNumber;
 	
 	public SyntaxException(String message) {
 		super(message);
@@ -14,7 +14,7 @@ public class SyntaxException extends Exception {
 		this.lineNumber = lineNumber;
 	}
 	
-	public int getLineNumber() {
+	public Integer getLineNumber() {
 		return lineNumber;
 	}
 

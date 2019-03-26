@@ -19,7 +19,7 @@ public class CustomGridLayoutAlgorithm implements ILayoutAlgorithm {
 		int y = 100;
 		
 		for(int i = 0; i < nodes.length; i++) {	
-			if(x + (int)LayoutProperties.getSize(nodes[i]).getWidth() > bounds.getWidth()) {
+			if(x + (int)LayoutProperties.getSize(nodes[i]).getWidth() > bounds.getWidth() + 600) {
 				x = 100;
 				y += (int)LayoutProperties.getSize(nodes[i]).getHeight() + 40;
 			}
