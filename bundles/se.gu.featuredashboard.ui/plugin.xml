@@ -90,21 +90,22 @@
 			name="Regex Patterns">
        </page>
 	</extension>
-   
-	<extension
-		point="org.eclipse.ui.views">
-		<category
-			name="FeatureDashboard"
-			id="se.gu.featuredashboard.ui.views">
-		</category>
-		<view
-			name="Main View"
+	
+	    <extension
+         point="org.eclipse.ui.views">
+      <category
+            name="FeatureDashboard"
+            id="se.gu.featuredashboard.ui.views">
+      </category>
+      <view
+            name="Feature Dashboard View"
             icon="icons/featureDashboard_icon.png"
             category="se.gu.featuredashboard.ui.views"
-            class="se.gu.featuredashboard.ui.views.MainView"
-            id="se.gu.featuredashboard.ui.views.MainView">
-		</view>
-	</extension>
+            class="se.gu.featuredashboard.ui.views.FeatureDashboardView"
+            id="se.gu.featuredashboard.ui.views.FeatureDashboardView">
+      </view>
+            
+      </extension>
       
 	<extension
 		point="org.eclipse.ui.views">

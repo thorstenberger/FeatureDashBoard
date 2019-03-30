@@ -177,7 +177,7 @@ public class ParseJob extends Job {
 			containersImplementedInFile = project.getFeatureContainers().stream().filter(c -> c.isAnnotatedIn(resource)).collect(Collectors.toList());
 					
 		Map<Feature, List<BlockLine>> featureToLines = new HashMap<>();
-		parser.readParseAnnotations(resource.getLocation().toString()).stream().forEach(location -> featureToLines.put(location.getFeature(), location.getBlocklines()));
+		parser.readParseAnnotations(new ArrayList<IFile>(Arrays.asList(resource))).stream().forEach(location -> featureToLines.put(location.getFeature(), location.getBlocklines()));
 		
 		int uniqueFeatures = featureToLines.keySet().size();
 		

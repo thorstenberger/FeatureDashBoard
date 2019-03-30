@@ -4,13 +4,22 @@ import java.util.Objects;
 
 public class BlockLine {
 
-	private int startLine = 0;
-	private int endLine = 0;
+	private final int startLine;
+	private final int endLine;
 
+	public BlockLine(BlockLine b) {
+		this.startLine = b.startLine;
+		this.endLine = b.endLine;
+	}
+	
 	public BlockLine(int startLine, int endLine) {
 		if (startLine <= endLine && startLine > 0) {
 			this.startLine = startLine;
 			this.endLine = endLine;
+		}
+		else {
+			this.startLine = 0;
+			this.endLine =0;
 		}
 	}
 
@@ -22,10 +31,21 @@ public class BlockLine {
 		return endLine;
 	}
 
-	public boolean isInitializedBlock() {
+	public boolean isValid() {
 		if (startLine > 0)
 			return true;
 		return false;
+	}
+
+	public boolean isSignleLine() {
+		if(startLine == endLine)
+			return true;
+		return false;
+	}
+	
+	@Override
+	public String toString(){
+		return "("+startLine+","+endLine+")";
 	}
 
 	@Override
