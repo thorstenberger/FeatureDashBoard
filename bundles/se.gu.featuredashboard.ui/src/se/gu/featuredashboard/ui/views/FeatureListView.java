@@ -23,11 +23,11 @@ import se.gu.featuredashboard.model.featuremodel.Project;
 import se.gu.featuredashboard.model.featuremodel.ProjectStore;
 import se.gu.featuredashboard.ui.providers.FeatureTableLabelProvider;
 import se.gu.featuredashboard.utils.FeaturedashboardConstants;
-import se.gu.featuredashboard.utils.IUpdateViewListener;
+import se.gu.featuredashboard.utils.IUpdateInformationListener;
 import se.gu.featuredashboard.utils.MetricsComparator;
 import se.gu.featuredashboard.utils.ParseProjectAction;
 
-public class FeatureListView extends ViewPart implements IUpdateViewListener {
+public class FeatureListView extends ViewPart implements IUpdateInformationListener {
 	
 	private CheckboxTableViewer tableViewer;
 	private IWorkbenchWindow window;
@@ -99,7 +99,7 @@ public class FeatureListView extends ViewPart implements IUpdateViewListener {
 		sortTableAction.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(ISharedImages.IMG_TOOL_UP));
 		addActionToView(sortTableAction);
 		
-		updateView();
+		updateData();
 	}
 	
 	private void addActionToView(Action action) {
@@ -112,7 +112,7 @@ public class FeatureListView extends ViewPart implements IUpdateViewListener {
 	}
 
 	@Override
-	public void updateView() {
+	public void updateData() {
 		Display.getDefault().asyncExec(() -> {
 			Project activeProject = ProjectStore.getActiveProject();
 			if(activeProject != null)

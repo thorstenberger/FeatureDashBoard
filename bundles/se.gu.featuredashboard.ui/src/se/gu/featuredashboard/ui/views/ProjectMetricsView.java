@@ -22,10 +22,10 @@ import se.gu.featuredashboard.model.featuremodel.ProjectStore;
 import se.gu.featuredashboard.ui.listeners.TableSelectionListener;
 import se.gu.featuredashboard.ui.providers.MetricsTableLabelProvider;
 import se.gu.featuredashboard.utils.FeaturedashboardConstants;
-import se.gu.featuredashboard.utils.IUpdateViewListener;
+import se.gu.featuredashboard.utils.IUpdateInformationListener;
 import se.gu.featuredashboard.utils.MetricsComparator;
 
-public class ProjectMetricsView extends ViewPart implements IUpdateViewListener {
+public class ProjectMetricsView extends ViewPart implements IUpdateInformationListener {
 	
 	private TableViewer projectViewer;
 	private Table projectTable;
@@ -57,11 +57,11 @@ public class ProjectMetricsView extends ViewPart implements IUpdateViewListener 
 				
 				FeatureListView featureListView = (FeatureListView) page.findView(FeaturedashboardConstants.FEATURELIST_VIEW_ID);
 				if(featureListView != null)
-					featureListView.updateView();
+					featureListView.updateData();
 				
 				FeatureMetricsView featureMetricsView = (FeatureMetricsView) page.findView(FeaturedashboardConstants.FEATUREMETRICS_VIEW_ID);
 				if(featureMetricsView != null)
-					featureMetricsView.updateView();
+					featureMetricsView.updateData();
 			}
 			
 		});
@@ -113,7 +113,7 @@ public class ProjectMetricsView extends ViewPart implements IUpdateViewListener 
 		projectTable.setHeaderVisible(true);
 		projectTable.setLinesVisible(true);
 		
-		updateView();
+		updateData();
 	}
 
 	@Override
@@ -122,7 +122,7 @@ public class ProjectMetricsView extends ViewPart implements IUpdateViewListener 
 		
 	}
 	
-	public void updateView() {
+	public void updateData() {
 		Display.getDefault().asyncExec(() -> {
 			projectViewer.setInput(ProjectStore.getAll().toArray());
 		});

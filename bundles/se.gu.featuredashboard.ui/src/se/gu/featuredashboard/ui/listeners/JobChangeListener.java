@@ -9,14 +9,14 @@ import org.eclipse.core.runtime.jobs.IJobChangeListener;
 import org.eclipse.e4.core.services.log.Logger;
 import org.eclipse.ui.PlatformUI;
 
-import se.gu.featuredashboard.utils.IUpdateViewListener;
+import se.gu.featuredashboard.utils.IUpdateInformationListener;
 
 public class JobChangeListener implements IJobChangeListener {
 
-	private List<IUpdateViewListener> listeners;
+	private List<IUpdateInformationListener> listeners;
 	private Logger logger = PlatformUI.getWorkbench().getService(org.eclipse.e4.core.services.log.Logger.class);
 	
-	public JobChangeListener(List<IUpdateViewListener> listeners) {
+	public JobChangeListener(List<IUpdateInformationListener> listeners) {
 		this.listeners = listeners;
 	}
 	
@@ -39,7 +39,7 @@ public class JobChangeListener implements IJobChangeListener {
 		if(status.getCode() == Status.OK_STATUS.getCode()) {
 			listeners.forEach(listener -> {
 				if(listener != null)
-					listener.updateView();
+					listener.updateData();
 			});
 		}
 	}

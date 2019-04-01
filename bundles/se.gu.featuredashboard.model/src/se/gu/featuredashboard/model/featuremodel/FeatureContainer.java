@@ -1,5 +1,6 @@
 package se.gu.featuredashboard.model.featuremodel;
 
+import java.io.Serializable;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -14,7 +15,9 @@ import org.eclipse.core.resources.IResource;
 
 import se.gu.featuredashboard.model.location.BlockLine;
 
-public class FeatureContainer {
+public class FeatureContainer implements Serializable {
+	
+	private static final long serialVersionUID = 1L;
 	
 	private Integer maxNestingDepth;
 	private Integer minNestingDepth;

@@ -18,6 +18,8 @@ public class FeaturedashboardConstants {
 	public static final String FEATURE_MARKER_ID = "se.gu.featuredashboard.ui.AnnotationMarker";
 	public static final String REMOVEMARKERS_COMMAND_ID = "se.gu.featuredashboard.ui.commands.RemoveMarkers";
 	
+	public static final String FEATUREDASHBOARD_OUTPUT_PATH = ".featuredashboard";
+	
 	// File name associated strings
 	public static final String FEATUREFILE_FILE = "feature-file";
 	public static final String FEATUREFOLDER_FILE = "feature-folder";

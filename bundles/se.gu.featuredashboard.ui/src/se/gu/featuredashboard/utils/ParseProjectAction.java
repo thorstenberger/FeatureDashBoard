@@ -51,8 +51,9 @@ public class ParseProjectAction extends Action {
 		FeatureListView featureListView = (FeatureListView) page.findView(FeaturedashboardConstants.FEATURELIST_VIEW_ID);
 		FeatureMetricsView featureMetricsView = (FeatureMetricsView) page.findView(FeaturedashboardConstants.FEATUREMETRICS_VIEW_ID);
 		ProjectMetricsView projectMetricsView = (ProjectMetricsView) page.findView(FeaturedashboardConstants.PROJECTMETRICS_VIEW_ID);
+		ObjectToFileWriter objectWriter = ObjectToFileWriter.getInstance();
 		
-		List<IUpdateViewListener> viewsToUpdate = Arrays.asList(featureListView, featureMetricsView, projectMetricsView);
+		List<IUpdateInformationListener> listeners = new ArrayList<>(Arrays.asList(featureListView, featureMetricsView, projectMetricsView));
 		
 		try {
 			String explorerOfChoice = FeaturedashboardConstants.PROJECT_EXPLORER;
@@ -97,16 +98,18 @@ public class ParseProjectAction extends Action {
 				
 				ProjectStore.addProject(project);
 				
+				listeners.add(objectWriter);
+				
 				parseProjectJob = new ParseJob("Parse project", project, shell);
-				parseProjectJob.addJobChangeListener(new JobChangeListener(viewsToUpdate));
+				parseProjectJob.addJobChangeListener(new JobChangeListener(listeners));
 				parseProjectJob.setUser(true);
 				parseProjectJob.schedule();
 			} else {
 				logger.info("This project has already been parsed. Updating views");
 				ProjectStore.setActiveProject(selectedProject.getLocation());
-				viewsToUpdate.forEach(view -> {
+				listeners.forEach(view -> {
 					if(view != null)
-						view.updateView();
+						view.updateData();
 				});
 			}
 		} catch(ClassCastException | CoreException e) {
