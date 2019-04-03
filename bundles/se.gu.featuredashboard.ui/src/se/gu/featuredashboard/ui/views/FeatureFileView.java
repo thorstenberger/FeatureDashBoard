@@ -8,6 +8,7 @@ import com.google.inject.util.Modules;
 
 import se.gu.featuredashboard.model.featuremodel.FeatureContainer;
 import se.gu.featuredashboard.ui.providers.GraphContentProvider;
+import se.gu.featuredashboard.utils.FeaturedashboardConstants;
 import se.gu.featuredashboard.utils.gef.CustomGridLayoutAlgorithm;
 import se.gu.featuredashboard.utils.gef.CustomZestFxModule;
 
@@ -46,11 +47,11 @@ public class FeatureFileView extends ZestFxUiView {
 				nestedGraphNodes.add(fileNode);
 			});	
 			
-			featureNode.setNestedGraph(GraphContentProvider.getGraph(nestedGraphNodes, new CustomGridLayoutAlgorithm()));
+			featureNode.setNestedGraph(GraphContentProvider.getGraph(FeaturedashboardConstants.NESTEDGRAPH_ID, nestedGraphNodes, new CustomGridLayoutAlgorithm(40, 40)));
 			graphNodes.add(featureNode);
 		}
 		
-		setGraph(GraphContentProvider.getGraph(graphNodes, new CustomGridLayoutAlgorithm()));
+		setGraph(GraphContentProvider.getGraph(FeaturedashboardConstants.FEATUREFILE_VIEW_ID, graphNodes, new CustomGridLayoutAlgorithm(80, 40)));
 	}
 
 	@Override

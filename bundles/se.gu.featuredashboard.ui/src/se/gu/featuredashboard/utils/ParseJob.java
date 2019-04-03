@@ -187,13 +187,19 @@ public class ParseJob extends Job {
 		});
 		
 		if(jobType == JobType.SINGLE) {
-			containersImplementedInFile.stream()
-				.filter(c -> !featureToLines.containsKey(c.getFeature()))
-					.forEach(c -> {
-						c.removeInAnnotationFile(resource);
-						if(c.getScatteringDegree() == 0)
-							project.removeFeature(c);
-					});
+			ObjectToFileHandler handler = ObjectToFileHandler.getInstance();
+			
+			for(FeatureContainer fc : containersImplementedInFile) {
+				if(!featureToLines.containsKey(fc.getFeature())) {
+					fc.removeInAnnotationFile(resource);
+					if(fc.getScatteringDegree() == 0) {
+						project.removeFeature(fc);
+						handler.removeFile(fc);
+						continue;
+					}
+				}
+				handler.writeObjectToFile(fc);
+			}
 		}
 	}
 	
@@ -274,7 +280,7 @@ public class ParseJob extends Job {
 			if(jobType == JobType.FULL)
 				projectFeatures.put(feature, featureContainer);
 			else
-				project.addFeature(featureContainer);
+				project.addFeatureContainer(featureContainer);
 		}
 		return featureContainer;
 	}

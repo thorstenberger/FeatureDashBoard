@@ -10,9 +10,11 @@ import java.util.stream.Collectors;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.gef.geometry.planar.Dimension;
 import org.eclipse.gef.graph.Edge;
 import org.eclipse.gef.graph.Node;
 import org.eclipse.gef.layout.algorithms.TreeLayoutAlgorithm;
+import org.eclipse.gef.mvc.fx.ui.MvcFxUiModule;
 import org.eclipse.gef.zest.fx.ZestFxModule;
 import org.eclipse.gef.zest.fx.ui.ZestFxUiModule;
 import org.eclipse.gef.zest.fx.ui.parts.ZestFxUiView;
@@ -25,15 +27,18 @@ import com.google.inject.util.Modules;
 import se.gu.featuredashboard.model.featuremodel.FeatureContainer;
 import se.gu.featuredashboard.ui.providers.GraphContentProvider;
 import se.gu.featuredashboard.utils.CustomEdge;
+import se.gu.featuredashboard.utils.FeaturedashboardConstants;
+import se.gu.featuredashboard.utils.gef.CustomZestFxModule;
 
 public class FeatureFolderView extends ZestFxUiView {
 
 	private Set<CustomEdge> graphEdges;
 	private List<Node> graphNodes;
 	private Map<IContainer, Node> lookup;
+	private TreeLayoutAlgorithm layoutAlgorithm = new TreeLayoutAlgorithm(TreeLayoutAlgorithm.TOP_DOWN, FeaturedashboardConstants.NODE_SPACING);
 	
 	public FeatureFolderView() {
-		super(Guice.createInjector(Modules.override(new ZestFxModule()).with(new ZestFxUiModule())));
+		super(Guice.createInjector(Modules.override(new MvcFxUiModule()).with(new CustomZestFxModule())));
 	}
 	
 	public FeatureFolderView(Injector injector) {
@@ -71,7 +76,8 @@ public class FeatureFolderView extends ZestFxUiView {
 			});
 			graphNodes.add(featureNode);
 		}
-		setGraph(GraphContentProvider.getGraph(graphEdges.stream().map(customEdge -> (Edge) customEdge).collect(Collectors.toList()), graphNodes, new TreeLayoutAlgorithm()));
+		
+		setGraph(GraphContentProvider.getGraph(FeaturedashboardConstants.FEATUREFOLDER_VIEW_ID, graphEdges.stream().map(customEdge -> (Edge) customEdge).collect(Collectors.toList()), graphNodes, layoutAlgorithm));
 	} 
 	
 	private void getParentStructure(IContainer parent, IContainer child) {

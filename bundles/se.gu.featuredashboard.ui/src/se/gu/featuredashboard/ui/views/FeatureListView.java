@@ -32,9 +32,6 @@ public class FeatureListView extends ViewPart implements IUpdateInformationListe
 	private CheckboxTableViewer tableViewer;
 	private IWorkbenchWindow window;
 	
-	private FeatureFileView featureFileView;
-	private FeatureFolderView featureFolderView;
-	
 	private ParseProjectAction parseProject;
 	private Action sortTableAction;
 	
@@ -63,19 +60,18 @@ public class FeatureListView extends ViewPart implements IUpdateInformationListe
 							FeatureContainer feature = (FeatureContainer) checkedElement;
 							featureFileList.add(feature);
 						});
-					}
-						
-					try {
-						featureFileView = (FeatureFileView) window.getActivePage().showView(FeaturedashboardConstants.FEATUREFILE_VIEW_ID);
+					}			
+					FeatureFileView featureFileView = (FeatureFileView) window.getActivePage().findView(FeaturedashboardConstants.FEATUREFILE_VIEW_ID);
+					if(featureFileView != null)
 						featureFileView.inputToView(featureFileList);
-						
-						featureFolderView = (FeatureFolderView) window.getActivePage().showView(FeaturedashboardConstants.FEATUREFOLDER_VIEW_ID);
-						featureFolderView.inputToView(featureFileList);
-
-					} catch (PartInitException e) {
-						e.printStackTrace();
-					}
 					
+					FeatureFolderView featureFolderView = (FeatureFolderView) window.getActivePage().findView(FeaturedashboardConstants.FEATUREFOLDER_VIEW_ID);
+					if(featureFolderView != null)
+						featureFolderView.inputToView(featureFileList);
+					
+					HistoryView historyView = (HistoryView) window.getActivePage().findView(FeaturedashboardConstants.HISTORY_VIEW_ID);
+					if(historyView != null)
+						historyView.inputToView(featureFileList);
 				});
 							
 			}

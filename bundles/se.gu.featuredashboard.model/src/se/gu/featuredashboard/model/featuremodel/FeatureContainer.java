@@ -15,9 +15,7 @@ import org.eclipse.core.resources.IResource;
 
 import se.gu.featuredashboard.model.location.BlockLine;
 
-public class FeatureContainer implements Serializable {
-	
-	private static final long serialVersionUID = 1L;
+public class FeatureContainer {
 	
 	private Integer maxNestingDepth;
 	private Integer minNestingDepth;
@@ -235,5 +233,9 @@ public class FeatureContainer implements Serializable {
 		folderAnnotations = null;
 		fileAnnotations = null;
 	}
-
+	
+	public WritableFeatureContainer getWritableObject() {
+		return new WritableFeatureContainer(getFeature(), getLinesOfFeatureCode(), getScatteringDegree(), getTanglingDegree(), getNumberOfFileAnnotations(), getNumberOfFolderAnnotations(), getMaxND(), getMinND(), getAvgND());
+	}
+	
 }

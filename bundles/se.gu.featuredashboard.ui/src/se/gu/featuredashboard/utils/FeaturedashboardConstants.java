@@ -1,5 +1,7 @@
 package se.gu.featuredashboard.utils;
 
+import org.eclipse.gef.geometry.planar.Dimension;
+
 public class FeaturedashboardConstants {
 
 	// Parse action in FeatureListView
@@ -7,6 +9,7 @@ public class FeaturedashboardConstants {
 	public static final String ACTION_TOOLTOP_TEXT = "Parses the selected project in the Project/Package Exlorer";
 	
 	// ID's
+	public static final String HISTORY_VIEW_ID = "se.gu.featuredashboard.ui.views.HistoryView";
 	public static final String FEATUREFOLDER_VIEW_ID = "se.gu.featuredashboard.ui.views.FeatureFolderView";
 	public static final String FEATUREFILE_VIEW_ID = "se.gu.featuredashboard.ui.views.FeatureFileView";
 	public static final String FEATURELIST_VIEW_ID = "se.gu.featuredashboard.ui.views.FeatureListView";
@@ -18,7 +21,13 @@ public class FeaturedashboardConstants {
 	public static final String FEATURE_MARKER_ID = "se.gu.featuredashboard.ui.AnnotationMarker";
 	public static final String REMOVEMARKERS_COMMAND_ID = "se.gu.featuredashboard.ui.commands.RemoveMarkers";
 	
-	public static final String FEATUREDASHBOARD_OUTPUT_PATH = ".featuredashboard";
+	public static final String FEATUREDASHBOARD_FOLDER_PATH = ".featuredashboard";
+	
+	public static final Dimension NODE_SIZE = new Dimension(75, 25);
+	public static final Dimension NODE_SPACING = new Dimension(NODE_SIZE.width+30, NODE_SIZE.height+30);
+	
+	public static final String GRAPH_ID_KEY = "GRAPH_ID";
+	public static final String NESTEDGRAPH_ID = "GRAPH_ID";
 	
 	// File name associated strings
 	public static final String FEATUREFILE_FILE = "feature-file";

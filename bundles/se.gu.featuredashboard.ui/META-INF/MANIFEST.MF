@@ -28,6 +28,8 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.jface.text,
  org.eclipse.jdt.core,
  org.eclipse.cdt.core,
- se.gu.featuredashboard.core;bundle-version="1.0.0"
+ org.eclipse.draw2d,
+ org.eclipse.nebula.visualization.xygraph,
+ org.eclipse.nebula.visualization.widgets
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Export-Package: se.gu.featuredashboard.utils

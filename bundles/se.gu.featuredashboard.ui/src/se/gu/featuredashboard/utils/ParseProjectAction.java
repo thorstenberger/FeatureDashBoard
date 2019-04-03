@@ -51,7 +51,7 @@ public class ParseProjectAction extends Action {
 		FeatureListView featureListView = (FeatureListView) page.findView(FeaturedashboardConstants.FEATURELIST_VIEW_ID);
 		FeatureMetricsView featureMetricsView = (FeatureMetricsView) page.findView(FeaturedashboardConstants.FEATUREMETRICS_VIEW_ID);
 		ProjectMetricsView projectMetricsView = (ProjectMetricsView) page.findView(FeaturedashboardConstants.PROJECTMETRICS_VIEW_ID);
-		ObjectToFileWriter objectWriter = ObjectToFileWriter.getInstance();
+		ObjectToFileHandler objectWriter = ObjectToFileHandler.getInstance();
 		
 		List<IUpdateInformationListener> listeners = new ArrayList<>(Arrays.asList(featureListView, featureMetricsView, projectMetricsView));
 		
@@ -87,6 +87,7 @@ public class ParseProjectAction extends Action {
 			
 			if(!ProjectStore.isProjectParsed(selectedProject.getLocation())) {
 				Project project = new Project(selectedProject, selectedProject.getName(), selectedProject.getLocation());
+				ProjectStore.addProject(project);
 				
 				if(selectedProject.hasNature(JavaCore.NATURE_ID)) {
 					IJavaProject javaProject = JavaCore.create(selectedProject);
@@ -95,8 +96,6 @@ public class ParseProjectAction extends Action {
 					ICProject cProject = CoreModel.getDefault().create(selectedProject);
 					Arrays.stream(cProject.getOutputEntries()).map(IOutputEntry::getPath).forEach(project::setOutputFolder);
 				}
-				
-				ProjectStore.addProject(project);
 				
 				listeners.add(objectWriter);
 				

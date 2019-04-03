@@ -3,7 +3,10 @@ package se.gu.featuredashboard.model.featuremodel;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
@@ -13,7 +16,7 @@ public class Project {
 	private int numberOfFeatures = 0;
 	
 	private IProject project;
-	private List<FeatureContainer> featureContainers;
+	private Map<Feature, FeatureContainer> featureContainers;
 	private String ID;
 	private IPath absoluteLocation;
 	private List<IPath> outputFolders;
@@ -23,7 +26,7 @@ public class Project {
 		this.project = project;
 		this.ID = ID;
 		this.absoluteLocation = absoluteLocation;
-		featureContainers = new ArrayList<>();
+		featureContainers = new HashMap<>();
 		outputFolders = new ArrayList<>();
 	}
 	
@@ -32,41 +35,31 @@ public class Project {
 	}
 	
 	public FeatureContainer getFeatureContaier(Feature feature) {
-		for(FeatureContainer container : featureContainers) {
-			if(container.getFeature().equals(feature))
-				return container;
-		}
-		return null;
+		return featureContainers.get(feature);
 	}
 	
 	public void removeFeatureContainer(Feature feature) {
-		int indexOf = -1;
-		for(int i = 0; i < featureContainers.size(); i++) {
-			if(featureContainers.get(i).getFeature().equals(feature)) {
-				indexOf = i;
-				break;
-			}
-		}
-		if(indexOf != -1)
-			featureContainers.remove(indexOf);
+		featureContainers.remove(feature);
 	}
 	
 	public List<FeatureContainer> getFeatureContainers(){
-		return featureContainers;
+		return featureContainers.values().stream().collect(Collectors.toList());
 	}
 	
 	public void addFeatures(Collection<FeatureContainer> newFeatureContainers) {
-		featureContainers.addAll(newFeatureContainers);
+		newFeatureContainers.forEach(container -> {
+			featureContainers.put(container.getFeature(), container);
+		});
 		numberOfFeatures += featureContainers.size();
 	}
 	
-	public void addFeature(FeatureContainer container) {
-		featureContainers.add(container);
+	public void addFeatureContainer(FeatureContainer container) {
+		featureContainers.put(container.getFeature(), container);
 		numberOfFeatures++;
 	}
 	
 	public void removeFeature(FeatureContainer container) {
-		featureContainers.remove(container);
+		featureContainers.remove(container.getFeature());
 	}
 	
 	public IPath getLocation() {
@@ -90,7 +83,7 @@ public class Project {
 	}
 	
 	public int getTotalLoFC() {
-		return featureContainers.stream().mapToInt(FeatureContainer::getLinesOfFeatureCode).sum();
+		return featureContainers.values().stream().mapToInt(FeatureContainer::getLinesOfFeatureCode).sum();
 	}
 	
 	public String getAvgLoFC() {
@@ -100,14 +93,14 @@ public class Project {
 	}
 	
 	public String getAverageSD() {
-		int totalNestingDegree = featureContainers.stream().mapToInt(FeatureContainer::getScatteringDegree).sum();
+		int totalNestingDegree = featureContainers.values().stream().mapToInt(FeatureContainer::getScatteringDegree).sum();
 		if(getNumberOfFeatures() == 0)
 			return df.format(0);
 		return df.format((double)totalNestingDegree/(double)getNumberOfFeatures());
 	}
 	
 	public String getAverageND() {
-		int totalDepth = featureContainers.stream().mapToInt(FeatureContainer::getTotalND).sum();
+		int totalDepth = featureContainers.values().stream().mapToInt(FeatureContainer::getTotalND).sum();
 		if(getNumberOfFeatures() == 0)
 			return df.format(0);
 		return df.format((double)totalDepth/(double)getNumberOfFeatures());
@@ -129,7 +122,7 @@ public class Project {
 		
 		return this.absoluteLocation.equals(p.getLocation()) 
 				&& this.ID.equals(p.getID()) 
-				&& this.project == p.getIProject();
+				&& this.project.equals(p.getIProject());
 		
 	}
 	
