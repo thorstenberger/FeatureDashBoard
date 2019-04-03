@@ -29,6 +29,7 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.jdt.core,
  org.eclipse.cdt.core,
  org.eclipse.draw2d,
+ se.gu.featuredashboard.core,
  org.eclipse.nebula.visualization.xygraph,
  org.eclipse.nebula.visualization.widgets
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8

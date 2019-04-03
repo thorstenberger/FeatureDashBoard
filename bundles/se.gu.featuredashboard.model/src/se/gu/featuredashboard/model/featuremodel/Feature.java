@@ -6,7 +6,6 @@ import java.util.Objects;
 public class Feature {
 	private final String featureID;
 	private ArrayList<Feature> subFeatures = new ArrayList<>();
-	private ArrayList<Feature> subFeatures = new ArrayList<>();
 
 	public Feature(String featureID) {
 		this.featureID = featureID;
