@@ -83,7 +83,7 @@ public class Project {
 	}
 	
 	public int getTotalLoFC() {
-		return featureContainers.values().stream().mapToInt(FeatureContainer::getLinesOfFeatureCode).sum();
+		return featureContainers.values().stream().mapToInt(FeatureContainer::getLOFC).sum();
 	}
 	
 	public String getAvgLoFC() {

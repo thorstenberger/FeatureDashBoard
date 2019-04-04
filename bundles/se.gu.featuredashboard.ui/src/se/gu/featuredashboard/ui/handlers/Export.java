@@ -41,7 +41,7 @@ public class Export extends ResourceHandler {
 			
 			for(FeatureContainer featureContainer : project.getFeatureContainers()) {
 				writer.write(String.format("%s,%d,%d,%d,%d,%d,%d,%s,%d", featureContainer.getFeature().getFeatureID(),
-						 												 featureContainer.getLinesOfFeatureCode(),
+						 												 featureContainer.getLOFC(),
 						 												 featureContainer.getNumberOfFileAnnotations(),
 						 												 featureContainer.getNumberOfFolderAnnotations(),
 						 												 featureContainer.getTanglingDegree(),

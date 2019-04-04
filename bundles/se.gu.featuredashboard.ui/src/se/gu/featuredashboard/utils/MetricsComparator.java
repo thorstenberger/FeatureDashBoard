@@ -56,7 +56,7 @@ public class MetricsComparator extends ViewerComparator {
 					result = compareStrings(feature1.getFeature().getFeatureID(), feature2.getFeature().getFeatureID());
 					break;
 				case 2:
-					result = Integer.compare(feature1.getLinesOfFeatureCode(), feature2.getLinesOfFeatureCode());
+					result = Integer.compare(feature1.getLOFC(), feature2.getLOFC());
 					break;
 				case 3:
 					result = Integer.compare(feature1.getNumberOfFileAnnotations(), feature2.getNumberOfFileAnnotations());

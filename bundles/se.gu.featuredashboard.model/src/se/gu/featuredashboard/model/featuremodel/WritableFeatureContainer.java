@@ -6,7 +6,7 @@ public class WritableFeatureContainer implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 	
-	private Feature feature;
+	private String feature;
 	private int LOFC;
 	private int scatteringDegree;
 	private int tanglingDegree;
@@ -16,7 +16,7 @@ public class WritableFeatureContainer implements Serializable {
 	private int minND;
 	private String avgND;
 	
-	public WritableFeatureContainer(Feature feature, int LOFC, int scatteringDegree, int tanglingDegree, int fileAnnotations, int folderAnnotations, int maxND, int minND, String avgND) {
+	public WritableFeatureContainer(String feature, int LOFC, int scatteringDegree, int tanglingDegree, int fileAnnotations, int folderAnnotations, int maxND, int minND, String avgND) {
 		this.feature = feature;
 		this.LOFC = LOFC;
 		this.scatteringDegree = scatteringDegree;
@@ -27,11 +27,11 @@ public class WritableFeatureContainer implements Serializable {
 		this.minND = minND;
 		this.avgND = avgND;
 	}
-	
-	public Feature getFeature() {
+
+	public String getFeature() {
 		return feature;
 	}
-
+	
 	public int getLOFC() {
 		return LOFC;
 	}
@@ -44,11 +44,11 @@ public class WritableFeatureContainer implements Serializable {
 		return tanglingDegree;
 	}
 
-	public int getFileAnnotations() {
+	public int getNumberOfFileAnnotations() {
 		return fileAnnotations;
 	}
 
-	public int getFolderAnnotations() {
+	public int getNumberOfFolderAnnotations() {
 		return folderAnnotations;
 	}
 

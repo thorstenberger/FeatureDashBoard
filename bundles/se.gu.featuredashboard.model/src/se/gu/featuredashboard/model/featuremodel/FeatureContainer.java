@@ -110,7 +110,7 @@ public class FeatureContainer {
 		}
 	}
 	
-	public int getLinesOfFeatureCode() {
+	public int getLOFC() {
 		if(LOFC == null) {
 			LOFC = getBlocks().stream().mapToInt(block -> {
 				if(block.getStartLine() == block.getEndLine())
@@ -235,7 +235,7 @@ public class FeatureContainer {
 	}
 	
 	public WritableFeatureContainer getWritableObject() {
-		return new WritableFeatureContainer(getFeature(), getLinesOfFeatureCode(), getScatteringDegree(), getTanglingDegree(), getNumberOfFileAnnotations(), getNumberOfFolderAnnotations(), getMaxND(), getMinND(), getAvgND());
+		return new WritableFeatureContainer(getFeature().getFeatureID(), getLOFC(), getScatteringDegree(), getTanglingDegree(), getNumberOfFileAnnotations(), getNumberOfFolderAnnotations(), getMaxND(), getMinND(), getAvgND());
 	}
 	
 }
