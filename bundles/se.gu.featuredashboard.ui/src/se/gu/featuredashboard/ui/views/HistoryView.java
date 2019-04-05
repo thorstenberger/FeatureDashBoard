@@ -102,8 +102,6 @@ public class HistoryView extends ViewPart {
 						graph.removeTrace(activeTraces.remove(metric).getLeft());
 					else {
 						Tuple<Trace, double[]> traceInfo = allTraces.get(metric);
-						System.out.println("Metric: " + metric);
-						Arrays.stream(traceInfo.getRight()).forEach(System.out::println);
 						activeTraces.put(metric, traceInfo);
 						graph.addTrace(traceInfo.getLeft());
 					}
