@@ -17,6 +17,8 @@ public class Project {
 	
 	private IProject project;
 	private Map<Feature, FeatureContainer> featureContainers;
+	private List<Feature> rootFeatures;
+	private List<Feature> featuresInModel;
 	private String ID;
 	private IPath absoluteLocation;
 	private List<IPath> outputFolders;
@@ -28,13 +30,44 @@ public class Project {
 		this.absoluteLocation = absoluteLocation;
 		featureContainers = new HashMap<>();
 		outputFolders = new ArrayList<>();
+		rootFeatures = new ArrayList<>();
+		featuresInModel = new ArrayList<>();
 	}
 	
 	public IProject getIProject() {
 		return project;
 	}
 	
-	public FeatureContainer getFeatureContaier(Feature feature) {
+	public void setRootFeatures(List<Feature> rootFeatures) {
+		this.rootFeatures.forEach(feature -> {
+			if(featureContainers.get(feature).getScatteringDegree() == 0)
+				removeFeatureContainer(feature);
+			else
+				featureContainers.get(feature).setFeature(new Feature(feature.getFeatureID()));
+		});
+		
+		this.rootFeatures = rootFeatures;
+	}
+	
+	public void setFeatureModel(List<Feature> featuresInModel) {
+		this.featuresInModel.forEach(feature -> {
+			if(featureContainers.get(feature).getScatteringDegree() == 0)
+				removeFeatureContainer(feature);
+			else
+				featureContainers.get(feature).setFeature(new Feature(feature.getFeatureID()));
+		});
+		this.featuresInModel = featuresInModel;
+	}
+	
+	public List<Feature> getFeaturesInModel(){
+		return featuresInModel;
+	}
+	
+	public List<Feature> getRootFeatures(){
+		return rootFeatures;
+	}
+	
+	public FeatureContainer getFeatureContainer(Feature feature) {
 		return featureContainers.get(feature);
 	}
 	

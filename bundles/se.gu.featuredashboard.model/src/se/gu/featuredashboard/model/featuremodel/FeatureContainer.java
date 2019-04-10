@@ -38,6 +38,10 @@ public class FeatureContainer {
 		this.directAnnotations = new HashMap<>();
 	}
 	
+	public void setFeature(Feature feature) {
+		this.feature = feature;
+	}
+	
 	public Feature getFeature() {
 		return feature;
 	}

@@ -57,6 +57,8 @@ public class FeatureFolderView extends ZestFxUiView {
 		graphEdges = new HashSet<>();
 		
 		for(FeatureContainer featureFileContainer : featureFileList) {
+			if(featureFileContainer.getFiles().isEmpty())
+				continue;
 			Node featureNode = GraphContentProvider.getFeatureNode(featureFileContainer.getFeature().getFeatureID());
 			featureFileContainer.getFiles().forEach(file -> {
 				IContainer folder = file.getParent();

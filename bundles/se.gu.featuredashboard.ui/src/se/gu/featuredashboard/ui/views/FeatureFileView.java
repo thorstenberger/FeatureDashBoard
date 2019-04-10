@@ -38,6 +38,9 @@ public class FeatureFileView extends ZestFxUiView {
 		List<Node> graphNodes = new ArrayList<>();
 		
 		for(FeatureContainer featureFileContainer : featureFileList) {
+			if(featureFileContainer.getFiles().isEmpty())
+				continue;
+			
 			Node featureNode = GraphContentProvider.getFeatureNode(featureFileContainer.getFeature().getFeatureID());
 			
 			List<Node> nestedGraphNodes = new ArrayList<>();

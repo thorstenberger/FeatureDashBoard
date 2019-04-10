@@ -89,7 +89,7 @@ public class NodeOnClickPolicy extends AbstractPolicy implements IOnClickHandler
 							if((block.getStartLine()-block.getEndLine()) == 0)
 								lineEndOffset = document.getLineOffset(block.getEndLine()+1);
 							else
-								lineEndOffset = document.getLineOffset(block.getEndLine());
+								lineEndOffset = document.getLineOffset(block.getEndLine()-1);
 							
 							IMarker marker = file.createMarker(FeaturedashboardConstants.FEATURE_MARKER_ID);
 							marker.setAttribute(IMarker.CHAR_START, lineStartOffset);

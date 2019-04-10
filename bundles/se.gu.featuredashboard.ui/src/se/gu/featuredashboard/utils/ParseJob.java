@@ -28,11 +28,13 @@ import org.eclipse.ui.PlatformUI;
 
 import se.gu.featuredashboard.model.featuremodel.Feature;
 import se.gu.featuredashboard.model.featuremodel.FeatureContainer;
+import se.gu.featuredashboard.model.featuremodel.FeatureModelHierarchy;
 import se.gu.featuredashboard.model.featuremodel.Project;
 import se.gu.featuredashboard.model.featuremodel.ProjectStore;
 import se.gu.featuredashboard.model.featuremodel.Triple;
 import se.gu.featuredashboard.model.featuremodel.Tuple;
 import se.gu.featuredashboard.model.location.BlockLine;
+import se.gu.featuredashboard.parsing.ClaferFileParser;
 import se.gu.featuredashboard.parsing.InFileAnnotationParser;
 import se.gu.featuredashboard.parsing.ParseMappingFile;
 import se.gu.featuredashboard.parsing.SyntaxException;
@@ -92,7 +94,9 @@ public class ParseJob extends Job {
 				}
 				if(equalsMappingFile(fileToParse) && !project.getOutputFolders().stream().map(IPath::toString).anyMatch(fileToParse.getFullPath().toString()::contains))
 					handleMappingFile(fileToParse, monitor);
-				else
+//				else if(fileToParse.getName().contains(".cfr"))
+//					handleFeatureModel(fileToParse, monitor);
+				else 
 					handleFile(fileToParse, monitor);
 			}
 			
@@ -151,6 +155,7 @@ public class ParseJob extends Job {
 			return;
 		
 		try {
+			
 			Arrays.stream(container.members()).filter(this::equalsMappingFile).forEach(resource -> handleMappingFile((IFile) resource, monitor));
 			
 			Arrays.stream(container.members()).forEach(member -> {
@@ -158,13 +163,43 @@ public class ParseJob extends Job {
 					if(!project.getOutputFolders().stream().map(IPath::toString).anyMatch(member.getFullPath().toString()::contains))
 						handleResource((IContainer) member, monitor);
 				} else if(member instanceof IFile) {
-					handleFile((IFile) member, monitor);
+					IFile file = (IFile) member;
+					if(file.getName().contains(".cfr"))
+						handleFeatureModel(file, monitor);
+					handleFile(file, monitor);
 				}
 			});
 		} catch(CoreException e) {
 			parsingExceptions.add(new Triple<String, String, Integer>(container.getFullPath().toString(), e.getMessage(), null));
 			monitor.setCanceled(true);
 		}
+	}
+	
+	private void handleFeatureModel(IFile file, IProgressMonitor monitor) {
+		ClaferFileParser parser = new ClaferFileParser(file);
+		FeatureModelHierarchy featureModelHierarchy = parser.readParse();
+		
+		project.setRootFeatures(featureModelHierarchy.getRootFeatures());
+		project.setFeatureModel(featureModelHierarchy.getAllFeatures());
+		
+		for(Feature feature : featureModelHierarchy.getAllFeatures()) {
+			FeatureContainer featureContainer = null;
+			if(jobType == JobType.FULL) {
+				featureContainer = projectFeatures.get(feature);
+			} else {
+				featureContainer = project.getFeatureContainer(feature);
+			}
+			
+			if(featureContainer == null) {
+				featureContainer = new FeatureContainer(feature);
+				if(jobType == JobType.FULL)
+					projectFeatures.put(feature, featureContainer);
+				else
+					project.addFeatureContainer(featureContainer);
+			} else {
+				featureContainer.setFeature(feature);
+			}
+		}	
 	}
 	
 	private void handleFile(IFile resource, IProgressMonitor monitor) {
@@ -273,7 +308,7 @@ public class ParseJob extends Job {
 		if(jobType == JobType.FULL)
 			featureContainer = projectFeatures.get(feature);
 		else
-			featureContainer = project.getFeatureContaier(feature);
+			featureContainer = project.getFeatureContainer(feature);
 	
 		if(featureContainer == null) {
 			featureContainer = new FeatureContainer(feature);
