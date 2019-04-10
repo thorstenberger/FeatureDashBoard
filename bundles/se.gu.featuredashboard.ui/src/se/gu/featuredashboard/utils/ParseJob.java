@@ -187,18 +187,18 @@ public class ParseJob extends Job {
 		});
 		
 		if(jobType == JobType.SINGLE) {
-			ObjectToFileHandler handler = ObjectToFileHandler.getInstance();
+			//ObjectToFileHandler handler = ObjectToFileHandler.getInstance();
 			
 			for(FeatureContainer fc : containersImplementedInFile) {
 				if(!featureToLines.containsKey(fc.getFeature())) {
 					fc.removeInAnnotationFile(resource);
 					if(fc.getScatteringDegree() == 0) {
 						project.removeFeature(fc);
-						handler.removeFile(fc);
+						//handler.removeFile(fc);
 						continue;
 					}
 				}
-				handler.writeObjectToFile(fc);
+				//handler.writeObjectToFile(fc);
 			}
 		}
 	}

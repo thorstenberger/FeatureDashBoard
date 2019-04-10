@@ -97,7 +97,7 @@ public class ParseProjectAction extends Action {
 					Arrays.stream(cProject.getOutputEntries()).map(IOutputEntry::getPath).forEach(project::setOutputFolder);
 				}
 				
-				listeners.add(objectWriter);
+				//listeners.add(objectWriter);
 				
 				parseProjectJob = new ParseJob("Parse project", project, shell);
 				parseProjectJob.addJobChangeListener(new JobChangeListener(listeners));
