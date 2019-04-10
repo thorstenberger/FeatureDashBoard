@@ -297,5 +297,18 @@
             id="se.gu.featuredashboard.ui.views.HistoryView">
 		</view>
 	</extension>
+	
+ 	<extension
+		id="product"
+		point="org.eclipse.core.runtime.products">
+		<product
+			application="org.eclipse.ui.ide.workbench"
+			name="FeaturedashboardProduct">
+			<property
+				name="appName"
+				value="FeaturedashboardProduct">
+			</property>
+		</product>
+	</extension>
     
 </plugin>

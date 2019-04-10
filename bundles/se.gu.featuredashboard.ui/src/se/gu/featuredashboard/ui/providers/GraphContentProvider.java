@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.gef.geometry.planar.Dimension;
+import org.eclipse.gef.geometry.planar.Point;
 import org.eclipse.gef.graph.Edge;
 import org.eclipse.gef.graph.Graph;
 import org.eclipse.gef.graph.Node;
@@ -30,9 +31,7 @@ public class GraphContentProvider {
 		
 		ZestProperties.setLabel(featureNode, nodeLabel);
 		ZestProperties.setTooltip(featureNode, "Double-click to node to see files");
-		ZestProperties.setLabelCssStyle(featureNode, "-fx-font-size:12;-fx-fill:white;");
 		ZestProperties.setShapeCssStyle(featureNode, "-fx-fill:green;");
-		ZestProperties.setSize(featureNode, FeaturedashboardConstants.NODE_SIZE);
 		
 		return featureNode;
 	}
@@ -43,6 +42,7 @@ public class GraphContentProvider {
 		ZestProperties.setLabelCssStyle(node, "-fx-font-size:12;-fx-fill:white;");
 		ZestProperties.setLabel(node, nodeLabel);
 		ZestProperties.setSize(node, FeaturedashboardConstants.NODE_SIZE);
+		ZestProperties.setPosition(node, new Point(100, 100));
 		
 		return node;
 	}
@@ -54,6 +54,7 @@ public class GraphContentProvider {
 		ZestProperties.setLabelCssStyle(fileNode, "-fx-font-size:12;-fx-fill:white;");
 		ZestProperties.setTooltip(fileNode, tooltip);
 		ZestProperties.setSize(fileNode, new Dimension(100, 50));
+		ZestProperties.setPosition(fileNode, new Point(100, 100));
 		
 		return fileNode;
 	}

@@ -58,7 +58,7 @@ public class MetricsTableLabelProvider implements ITableLabelProvider {
 				case 6:
 					return Integer.toString(featureContainer.getMaxND());
 				case 7:
-					return featureContainer.getAvgND();
+					return Double.toString(featureContainer.getAvgND());
 				case 8:
 					return Integer.toString(featureContainer.getMinND());
 				default:

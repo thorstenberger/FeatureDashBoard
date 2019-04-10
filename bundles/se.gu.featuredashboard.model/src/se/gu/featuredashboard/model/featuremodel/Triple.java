@@ -18,7 +18,7 @@ public class Triple<L, C, R> {
 		return left;
 	}
 	
-	public C getCentre() {
+	public C getCenter() {
 		return centre;
 	}
 	
@@ -46,7 +46,7 @@ public class Triple<L, C, R> {
 		
 		return this.hashCode() == t.hashCode() &&
 				this.getLeft().equals(t.getLeft()) &&
-				this.getCentre().equals(this.getCentre()) &&
+				this.getCenter().equals(this.getCenter()) &&
 				this.getRight().equals(t.getRight());
 		
 	}

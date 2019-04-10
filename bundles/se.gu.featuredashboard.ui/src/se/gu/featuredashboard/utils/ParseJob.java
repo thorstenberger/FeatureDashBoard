@@ -94,8 +94,8 @@ public class ParseJob extends Job {
 				}
 				if(equalsMappingFile(fileToParse) && !project.getOutputFolders().stream().map(IPath::toString).anyMatch(fileToParse.getFullPath().toString()::contains))
 					handleMappingFile(fileToParse, monitor);
-//				else if(fileToParse.getName().contains(".cfr"))
-//					handleFeatureModel(fileToParse, monitor);
+				else if(fileToParse.getName().contains(".cfr"))
+					handleFeatureModel(fileToParse, monitor);
 				else 
 					handleFile(fileToParse, monitor);
 			}
@@ -106,9 +106,9 @@ public class ParseJob extends Job {
 				
 				parsingExceptions.forEach(wrongSyntax -> {
 					if(wrongSyntax.getRight() == null)
-						errorMessage.append(wrongSyntax.getLeft() + "  ---> " + wrongSyntax.getCentre());
+						errorMessage.append(wrongSyntax.getLeft() + "  ---> " + wrongSyntax.getCenter());
 					else
-						errorMessage.append(wrongSyntax.getLeft() + "  ---> " + wrongSyntax.getCentre() + " at line number: " + wrongSyntax.getRight());
+						errorMessage.append(wrongSyntax.getLeft() + "  ---> " + wrongSyntax.getCenter() + " at line number: " + wrongSyntax.getRight());
 					errorMessage.append("\n");
 				});
 				
@@ -135,6 +135,8 @@ public class ParseJob extends Job {
 		} catch(RuntimeException e) {
 			// So that we can remove the project from the ProjectStore, otherwise the user has to close the IDE to re-parse the project
 			logger.warn("Runtime exception occured: " + e.getMessage());
+			
+			e.printStackTrace();
 			
 			Display.getDefault().asyncExec(() -> {
 				MessageDialog.openError(shell, "Error!", "Runtime error while parsing project: " + e.getMessage());
@@ -226,7 +228,7 @@ public class ParseJob extends Job {
 			
 			for(FeatureContainer fc : containersImplementedInFile) {
 				if(!featureToLines.containsKey(fc.getFeature())) {
-					fc.removeInAnnotationFile(resource);
+					fc.removeFile(resource);
 					if(fc.getScatteringDegree() == 0) {
 						project.removeFeature(fc);
 						//handler.removeFile(fc);
@@ -269,7 +271,7 @@ public class ParseJob extends Job {
 				containersMappedTo.stream()
 					.filter(c -> !mapping.containsKey(c.getFeature()))
 						.forEach(c -> {
-							c.removeMapping(mappingFile);
+							c.removeFile(mappingFile);
 							if(c.getScatteringDegree() == 0)
 								project.removeFeature(c);
 						});

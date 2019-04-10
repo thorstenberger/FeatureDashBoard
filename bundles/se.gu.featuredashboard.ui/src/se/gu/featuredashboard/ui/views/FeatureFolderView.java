@@ -28,6 +28,7 @@ import se.gu.featuredashboard.model.featuremodel.FeatureContainer;
 import se.gu.featuredashboard.ui.providers.GraphContentProvider;
 import se.gu.featuredashboard.utils.CustomEdge;
 import se.gu.featuredashboard.utils.FeaturedashboardConstants;
+import se.gu.featuredashboard.utils.SelectionHandler;
 import se.gu.featuredashboard.utils.gef.CustomZestFxModule;
 
 public class FeatureFolderView extends ZestFxUiView {
@@ -48,6 +49,8 @@ public class FeatureFolderView extends ZestFxUiView {
 	@Override
 	public void createPartControl(Composite parent) {
 		super.createPartControl(parent);
+		
+		inputToView(SelectionHandler.getSelection());
 	}
 	
 	// We can use the same list as we can get the folder that the file is located in from IFile.getParent()

@@ -45,6 +45,11 @@ public class Feature {
 		//adding the same newFeature not a copy of that used in constructing feature model
 		subFeatures.add(newFeature);		
 	}
+	
+	@Override
+	public Feature clone() {
+		return new Feature(this.featureID);
+	}
 
 	@Override
 	public boolean equals(Object aFeature) {

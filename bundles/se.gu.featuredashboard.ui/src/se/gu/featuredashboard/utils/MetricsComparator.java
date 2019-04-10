@@ -74,7 +74,7 @@ public class MetricsComparator extends ViewerComparator {
 					result = Integer.compare(feature1.getMaxND(), feature2.getMaxND());
 					break;
 				case 8:
-					result = Double.compare(Double.parseDouble(feature1.getAvgND()), Double.parseDouble(feature2.getAvgND()));
+					result = Double.compare(feature1.getAvgND(), feature2.getAvgND());
 					break;
 				case 9:
 					result = Integer.compare(feature1.getMinND(), feature2.getMinND());

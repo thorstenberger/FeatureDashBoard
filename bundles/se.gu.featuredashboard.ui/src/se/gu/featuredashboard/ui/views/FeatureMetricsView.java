@@ -47,6 +47,7 @@ public class FeatureMetricsView extends ViewPart implements IUpdateInformationLi
 		column.setText(FeaturedashboardConstants.FEATURETABLE_COLUMN_2_NAME);
 		column.setToolTipText(FeaturedashboardConstants.FEATURETABLE_COLUMN_2_TOOLTIP);
 		column.addSelectionListener(tableSelectionListener);
+		column.setWidth(75);
 		
 		column = new TableColumn(featureTable, SWT.LEFT);
 		column.setText(FeaturedashboardConstants.FEATURETABLE_COLUMN_3_NAME);
@@ -84,7 +85,7 @@ public class FeatureMetricsView extends ViewPart implements IUpdateInformationLi
 		column.addSelectionListener(tableSelectionListener);
 		
 		// Pack the columns
-	    for (int i = 1, n = featureTable.getColumnCount(); i < n; i++) {
+	    for (int i = 2, n = featureTable.getColumnCount(); i < n; i++) {
 	      featureTable.getColumn(i).pack();
 	    }
 

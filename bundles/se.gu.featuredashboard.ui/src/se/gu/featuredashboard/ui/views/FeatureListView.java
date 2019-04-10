@@ -36,6 +36,7 @@ import se.gu.featuredashboard.utils.FeaturedashboardConstants;
 import se.gu.featuredashboard.utils.IUpdateInformationListener;
 import se.gu.featuredashboard.utils.MetricsComparator;
 import se.gu.featuredashboard.utils.ParseProjectAction;
+import se.gu.featuredashboard.utils.SelectionHandler;
 
 public class FeatureListView extends ViewPart implements IUpdateInformationListener {
 	
@@ -73,6 +74,8 @@ public class FeatureListView extends ViewPart implements IUpdateInformationListe
 						});
 					}
 					
+					SelectionHandler.setSelection(featureFileList);
+					
 					FeatureFileView featureFileView = (FeatureFileView) window.getActivePage().findView(FeaturedashboardConstants.FEATUREFILE_VIEW_ID);
 					if(featureFileView != null)
 						featureFileView.inputToView(featureFileList);
@@ -81,9 +84,10 @@ public class FeatureListView extends ViewPart implements IUpdateInformationListe
 					if(featureFolderView != null)
 						featureFolderView.inputToView(featureFileList);
 
-					HistoryView historyView = (HistoryView) window.getActivePage().findView(FeaturedashboardConstants.HISTORY_VIEW_ID);
-					if(historyView != null)
-						historyView.inputToView(featureFileList);
+					// Work in progress
+//					HistoryView historyView = (HistoryView) window.getActivePage().findView(FeaturedashboardConstants.HISTORY_VIEW_ID);
+//					if(historyView != null)
+//						historyView.inputToView(featureFileList);
 				});
 			}
 			
@@ -136,14 +140,14 @@ public class FeatureListView extends ViewPart implements IUpdateInformationListe
 		
 		@Override
 		public Object[] getElements(Object inputElement) {
-			System.out.println("GET ELEMENTS");
-			
 			activeProject = (Project) inputElement;
 			
 			List<FeatureContainer> list = new ArrayList<>();
 			
 			for(Feature feature : activeProject.getRootFeatures()) {
-				list.add(activeProject.getFeatureContainer(feature));
+				FeatureContainer fc = activeProject.getFeatureContainer(feature);
+				if(fc != null)
+					list.add(fc);
 			}
 			
 			list.addAll(activeProject.getFeatureContainers().stream().filter(featureContainer -> {
@@ -158,8 +162,8 @@ public class FeatureListView extends ViewPart implements IUpdateInformationListe
 			FeatureContainer parent = (FeatureContainer) parentElement;
 			List<FeatureContainer> children = new ArrayList<>();
 			for(Feature feature : parent.getFeature().getSubFeatures()) {
-				FeatureContainer featureContainer = activeProject.getFeatureContainer(feature);
-				if(featureContainer != null)
+				FeatureContainer fc = activeProject.getFeatureContainer(feature);
+				if(fc != null)
 					children.add(activeProject.getFeatureContainer(feature));
 			}
 			
@@ -172,8 +176,7 @@ public class FeatureListView extends ViewPart implements IUpdateInformationListe
 			for(Feature feature : activeProject.getRootFeatures()) {
 				if(feature.getSubFeatures().contains(child.getFeature())) {
 					return activeProject.getFeatureContainer(feature);
-				}
-					
+				}		
 			}
 			
 			return null;

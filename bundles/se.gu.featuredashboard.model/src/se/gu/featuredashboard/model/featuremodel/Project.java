@@ -51,10 +51,12 @@ public class Project {
 	
 	public void setFeatureModel(List<Feature> featuresInModel) {
 		this.featuresInModel.forEach(feature -> {
-			if(featureContainers.get(feature).getScatteringDegree() == 0)
-				removeFeatureContainer(feature);
-			else
-				featureContainers.get(feature).setFeature(new Feature(feature.getFeatureID()));
+			if(featureContainers.containsKey(feature)) {
+				if(featureContainers.get(feature).getScatteringDegree() == 0)
+					removeFeatureContainer(feature);
+				else
+					featureContainers.get(feature).setFeature(new Feature(feature.getFeatureID()));
+			}
 		});
 		this.featuresInModel = featuresInModel;
 	}
@@ -137,6 +139,19 @@ public class Project {
 		if(getNumberOfFeatures() == 0)
 			return df.format(0);
 		return df.format((double)totalDepth/(double)getNumberOfFeatures());
+	}
+
+	public Project clone() {
+		Project p = new Project(this.project, this.ID, this.absoluteLocation);
+
+		p.featureContainers = new HashMap<>();
+		this.featureContainers.values().forEach(featureContainer -> {
+			p.featureContainers.put(featureContainer.getFeature(), featureContainer.clone());
+		});
+
+		p.outputFolders = this.getOutputFolders();
+
+		return p;
 	}
 	
 	@Override

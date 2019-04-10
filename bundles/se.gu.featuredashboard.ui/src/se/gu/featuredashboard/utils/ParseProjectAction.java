@@ -51,7 +51,6 @@ public class ParseProjectAction extends Action {
 		FeatureListView featureListView = (FeatureListView) page.findView(FeaturedashboardConstants.FEATURELIST_VIEW_ID);
 		FeatureMetricsView featureMetricsView = (FeatureMetricsView) page.findView(FeaturedashboardConstants.FEATUREMETRICS_VIEW_ID);
 		ProjectMetricsView projectMetricsView = (ProjectMetricsView) page.findView(FeaturedashboardConstants.PROJECTMETRICS_VIEW_ID);
-		ObjectToFileHandler objectWriter = ObjectToFileHandler.getInstance();
 		
 		List<IUpdateInformationListener> listeners = new ArrayList<>(Arrays.asList(featureListView, featureMetricsView, projectMetricsView));
 		

@@ -80,13 +80,9 @@ public class FeatureContainer {
 		return tanglingDegree;
 	}
 	
-	public void removeInAnnotationFile(IFile file) {
+	public void removeFile(IFile file) {
 		inFileAnnotations.remove(file);
-		resetMetrics();
-	}
-	
-	public void removeMapping(IFile mappingFile) {
-		directAnnotations.remove(mappingFile);
+		directAnnotations.remove(file);
 		resetMetrics();
 	}
 	
@@ -190,10 +186,10 @@ public class FeatureContainer {
 		return totalNestingDepth;
 	}
 	
-	public String getAvgND() {
+	public double getAvgND() {
 		if(avgNestingDepth == null)
 			calculateNestingInfo();
-		return avgNestingDepth;
+		return Double.parseDouble(avgNestingDepth);
 	}
 	
 	// Calculate all info at the same time
@@ -238,8 +234,17 @@ public class FeatureContainer {
 		fileAnnotations = null;
 	}
 	
-	public WritableFeatureContainer getWritableObject() {
-		return new WritableFeatureContainer(getFeature().getFeatureID(), getLOFC(), getScatteringDegree(), getTanglingDegree(), getNumberOfFileAnnotations(), getNumberOfFolderAnnotations(), getMaxND(), getMinND(), getAvgND());
+	@Override
+	public FeatureContainer clone() {
+		FeatureContainer fc = new FeatureContainer(this.getFeature().clone());
+
+		fc.inFileAnnotations = new HashMap<>();
+		fc.inFileAnnotations.putAll(this.inFileAnnotations);
+
+		fc.directAnnotations = new HashMap<>();
+		fc.directAnnotations.putAll(this.directAnnotations);
+
+		return fc;
 	}
 	
 }
