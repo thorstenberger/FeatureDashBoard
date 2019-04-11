@@ -9,4 +9,4 @@ Require-Bundle: se.gu.featuredashboard.model,
  org.junit,
  org.eclipse.core.runtime,
  org.eclipse.core.resources,
- se.gu.featuredashboard.core;bundle-version="1.0.0"
+ se.gu.featuredashboard.core

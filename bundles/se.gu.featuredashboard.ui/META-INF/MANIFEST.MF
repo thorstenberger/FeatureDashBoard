@@ -19,6 +19,7 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.gef.common,
  se.gu.featuredashboard.model,
  se.gu.featuredashboard.parsing,
+ se.gu.featuredashboard.core,
  org.eclipse.core.filesystem,
  org.eclipse.ui.ide,
  org.eclipse.ui.editors,
@@ -28,9 +29,7 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.jdt.core,
  org.eclipse.cdt.core,
  org.eclipse.draw2d,
- se.gu.featuredashboard.core,
  org.eclipse.nebula.visualization.xygraph,
- org.eclipse.nebula.visualization.widgets,
- org.eclipse.capra.core
+ org.eclipse.nebula.visualization.widgets
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Export-Package: se.gu.featuredashboard.utils
