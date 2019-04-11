@@ -11,7 +11,7 @@
 
    <requires>
       <import plugin="org.eclipse.core.resources"/>
-      <import plugin="org.eclipse.core.jobs" version="3.10.200" match="greaterOrEqual"/>
+      <import plugin="org.eclipse.core.jobs"/>
       <import plugin="org.eclipse.core.runtime"/>
       <import plugin="org.eclipse.ui"/>
       <import plugin="org.eclipse.jface"/>
@@ -36,9 +36,8 @@
       <import plugin="org.eclipse.draw2d"/>
       <import plugin="org.eclipse.nebula.visualization.xygraph"/>
       <import plugin="org.eclipse.nebula.visualization.widgets"/>
-      <import plugin="se.gu.featuredashboard.model" version="0.1.0" match="greaterOrEqual"/>
-      <import plugin="org.eclipse.core.runtime" version="3.12.0" match="greaterOrEqual"/>
-      <import plugin="org.eclipse.capra.core"/>
+      <import plugin="org.eclipse.e4.ui.workbench.swt"/>
+      <import plugin="se.gu.featuredashboard.model"/>
    </requires>
 
    <plugin
