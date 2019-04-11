@@ -29,8 +29,9 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.jdt.core,
  org.eclipse.cdt.core,
  se.gu.featuredashboard.core,
- org.eclipse.capra.ui;bundle-version="0.7.0",
- org.eclipse.capra.ui
+ org.eclipse.capra.ui,
+ org.eclipse.draw2d,
+ org.eclipse.nebula.visualization.xygraph
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Export-Package: se.gu.featuredashboard.utils
 Import-Package: se.gu.featuredashboard.core
