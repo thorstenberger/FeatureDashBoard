@@ -12,6 +12,8 @@
 	<properties>
 		<tycho.version>0.25.0</tycho.version>
 		<tycho-extras-version>0.21.0</tycho-extras-version>
+		
+		<project.version>0.1.0</project.version>
 
 		<build-helper.version>1.9.1</build-helper.version>
 		<org.jboss.tools.tycho-plugins.version>0.23.2</org.jboss.tools.tycho-plugins.version>
@@ -52,7 +54,11 @@
 			<url>${eclipse-oxygen-repo.url}</url>
 			<layout>p2</layout>
 		</repository>
-
+		<repository>
+			<id>eclipse-nebula</id>
+			<url>http://download.eclipse.org/nebula/releases/latest</url>
+			<layout>p2</layout>
+		</repository>
 	</repositories>
 
 	<build>
@@ -86,16 +92,6 @@
 				<configuration>
 					<environments>
 						<environment>
-							<os>linux</os>
-							<ws>gtk</ws>
-							<arch>x86</arch>
-						</environment>
-						<environment>
-							<os>linux</os>
-							<ws>gtk</ws>
-							<arch>x86_64</arch>
-						</environment>
-						<environment>
 							<os>win32</os>
 							<ws>win32</ws>
 							<arch>x86</arch>
@@ -103,11 +99,6 @@
 						<environment>
 							<os>win32</os>
 							<ws>win32</ws>
-							<arch>x86_64</arch>
-						</environment>
-						<environment>
-							<os>macosx</os>
-							<ws>cocoa</ws>
 							<arch>x86_64</arch>
 						</environment>
 					</environments>
@@ -118,10 +109,11 @@
 
 	<modules>
 		<module>../../bundles/se.gu.featuredashboard.model</module>
+		<module>../../bundles/se.gu.featuredashboard.core</module>
 		<module>../../bundles/se.gu.featuredashboard.parsing</module>
  		<module>../../bundles/se.gu.featuredashboard.ui</module>
 		<module>../../bundles/se.gu.featuredashboard.testsuite</module>
-		
 		<module>../../features/se.gu.featuredashboard.feature</module>
+		<module>../../releng/se.gu.featuredashboard.product</module>
 	</modules>
 </project>

@@ -2,9 +2,9 @@
 <project>
     <modelVersion>4.0.0</modelVersion>
     <groupId>se.gu.featuredashboard</groupId>
-    <artifactId>se.gu.featuredashboard.testsuite</artifactId>
+    <artifactId>se.gu.featuredashboard.core</artifactId>
     <version>0.1.0-SNAPSHOT</version>
-    <packaging>eclipse-test-plugin</packaging>
+    <packaging>eclipse-plugin</packaging>
 
     <parent>
     	<relativePath>../../releng/se.gu.featuredashboard.build/pom.xml</relativePath>
