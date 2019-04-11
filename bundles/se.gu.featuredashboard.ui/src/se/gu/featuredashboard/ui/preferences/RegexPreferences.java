@@ -82,6 +82,7 @@ public class RegexPreferences extends PreferencePage implements IWorkbenchPrefer
 		grpSingleLineAnnotation.setLayout(gridLayout);
 		
 		lstSingleLineAnnotation = new List(grpSingleLineAnnotation, SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL);
+		lstSingleLineAnnotation.setToolTipText("feature id must be in a bracket '[]'");
 		gridData = new GridData(GridData.FILL, GridData.FILL,true, true); 
 		gridData.horizontalSpan = 2;
 		lstSingleLineAnnotation.setLayoutData(gridData);
@@ -173,6 +174,7 @@ public class RegexPreferences extends PreferencePage implements IWorkbenchPrefer
 		gridData.horizontalAlignment = GridData.FILL; 
 		gridData.horizontalSpan = 2;
 	    table.setLayoutData(gridData);
+	    table.setToolTipText("feature id must be in a bracket '[]'");
 	    table.setLinesVisible(false);
 	    table.setHeaderVisible(true);
 	    table.addSelectionListener(new SelectionListener() {		

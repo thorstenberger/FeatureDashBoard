@@ -31,7 +31,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import se.gu.featuredashboard.core.FeatureLocationDashboard;
+import se.gu.featuredashboard.core.ProjectData_FeatureLocationDashboard;
 import se.gu.featuredashboard.model.featuremodel.Feature;
 import se.gu.featuredashboard.model.location.BlockLine;
 import se.gu.featuredashboard.model.location.FeatureLocation;
@@ -134,8 +134,8 @@ public class InFileAnnotationParser_Test {
 		ArrayList<FeatureLocation> locations = parser.readParseAnnotations(new ArrayList<IFile>(Arrays.asList(TESTFILE_NOANNOTATION)));
 		assertEquals("File with no annotation inside", 0, locations.size());
 
-		FeatureLocationDashboard fd = new FeatureLocationDashboard();
-		fd.clearAllTraces();
+		ProjectData_FeatureLocationDashboard fd = new ProjectData_FeatureLocationDashboard();
+		fd.clearAll();
 		fd.addTraces( parser.readParseAnnotations( new ArrayList<IFile>(Arrays.asList(TESTFILE_C_CODE))  ));
 		
 		List<Object> allFeatures = Arrays.asList(c_code_feature1, c_code_feature2, c_code_fileUpload,c_code_fileProcessing);
@@ -177,8 +177,8 @@ public class InFileAnnotationParser_Test {
 		ArrayList<IFile> addresses = new ArrayList<>();
 		addresses.add(TESTFILE_C_CODE);
 		addresses.add(TESTFILE_JS_CODE);
-		FeatureLocationDashboard fd = new FeatureLocationDashboard();
-		fd.clearAllTraces();
+		ProjectData_FeatureLocationDashboard fd = new ProjectData_FeatureLocationDashboard();
+		fd.clearAll();
 		fd.addTraces( parser.readParseAnnotations(addresses) );
 
 		List<Object> allFeatures2 = Arrays.asList(c_code_feature1, c_code_feature2, c_code_fileUpload,c_code_fileProcessing,

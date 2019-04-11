@@ -23,9 +23,9 @@ public class InFileAnnotationParser {
 	
 	private StringBuilder parsingMessage = new StringBuilder("");
 
-	public static final String DEFAULT_LINE_ANNOTATION_REGEX = "\\p{Space}*//&line\\[.+\\]\\p{Space}*";
-	public static final String DEFAULT_BEGIN_ANNOTATION_REGEX = "\\p{Space}*//&begin\\[.+\\]\\p{Space}*";
-	public static final String DEFAULT_END_ANNOTATION_REGEX = "\\p{Space}*//&end\\[.+\\]\\p{Space}*";
+	public static final String DEFAULT_LINE_ANNOTATION_REGEX = ".*&line\\[.+\\].*";
+	public static final String DEFAULT_BEGIN_ANNOTATION_REGEX = ".*&begin\\[.+\\].*";
+	public static final String DEFAULT_END_ANNOTATION_REGEX = ".*&end\\[.+\\].*";
 
 	// regex string must include feature ID within '[' and ']' braces
 	private List<String> regex_lineAnnotations = new ArrayList<>(Arrays.asList(DEFAULT_LINE_ANNOTATION_REGEX));

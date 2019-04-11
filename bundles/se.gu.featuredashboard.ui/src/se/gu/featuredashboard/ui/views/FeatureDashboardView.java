@@ -1,11 +1,17 @@
 package se.gu.featuredashboard.ui.views;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.net.URL;
 import java.text.Collator;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.Locale;
 
+import org.eclipse.capra.ui.views.SelectionView;
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
@@ -34,14 +40,25 @@ import org.eclipse.jface.viewers.DelegatingStyledCellLabelProvider.IStyledLabelP
 import org.eclipse.jface.viewers.ICheckStateListener;
 import org.eclipse.jface.viewers.IColorProvider;
 import org.eclipse.jface.viewers.ILabelProviderListener;
+import org.eclipse.jface.viewers.ISelection;
+import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.LabelProvider;
+import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.StyledString;
+import org.eclipse.jface.viewers.TreeSelection;
+import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.TreeViewerColumn;
+import org.eclipse.jface.viewers.Viewer;
+import org.eclipse.jface.viewers.ViewerFilter;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
+import org.eclipse.swt.events.FocusEvent;
+import org.eclipse.swt.events.FocusListener;
+import org.eclipse.swt.events.KeyEvent;
+import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -52,13 +69,16 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Menu;
+import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.ISelectionService;
@@ -71,6 +91,8 @@ import org.eclipse.ui.part.ViewPart;
 import org.eclipse.ui.texteditor.ITextEditor;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.FrameworkUtil;
+import org.eclipse.ui.dialogs.FilteredTree;
+import org.eclipse.ui.dialogs.PatternFilter;
 
 import se.gu.featuredashboard.model.featuremodel.Feature;
 import se.gu.featuredashboard.model.location.FeatureLocation;
@@ -78,7 +100,7 @@ import se.gu.featuredashboard.ui.viewscontroller.FeatureDashboardViewController;
 
 public class FeatureDashboardView extends ViewPart {
 
-	private FeatureDashboardViewController controller;
+	private FeatureDashboardViewController controller = FeatureDashboardViewController.getInstance();
 		
 	CheckboxTreeViewer tvFeatureModel;
 	CheckboxTreeViewer tvResources;
@@ -94,6 +116,8 @@ public class FeatureDashboardView extends ViewPart {
 	Label lblTracesTabInfo;
 
 	private java.util.List<Feature> featuresNotInFeatureModel = new ArrayList<Feature>();
+	private java.util.List<Feature> allCheckedFeatures = new ArrayList<Feature>();
+	private java.util.List<IResource> allCheckedResources = new ArrayList<IResource>();
 	private java.util.List<IResource> notExistentResources = new ArrayList<IResource>();
 
 	@Override
@@ -120,8 +144,6 @@ public class FeatureDashboardView extends ViewPart {
 	
 	@Override
 	public void createPartControl(Composite parent) {
-		controller = new FeatureDashboardViewController(null);
-
 		ctfMain = new CTabFolder(parent, SWT.BORDER |SWT.BOTTOM);
 	    ctfMain.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
 	    ctfMain.setSimple(false);
@@ -139,7 +161,7 @@ public class FeatureDashboardView extends ViewPart {
 	    ctiTraces= new CTabItem(ctfMain, SWT.CLOSE);
 	    ctiTraces.setText("Traces");
 	    ctiTraces.setShowClose(false);
-    
+	    
 	    setFeatureModelTab();
 	    setResourcesTab();
 	    setTracesTab();
@@ -178,7 +200,6 @@ public class FeatureDashboardView extends ViewPart {
 		selectAllFeatures.setImageDescriptor(createImageDescriptor("icons/selectAllFeatures_icon.png"));
 		selectAllFeatures.setToolTipText("select all features");
 		bars.getToolBarManager().add(selectAllFeatures);
-		
 		
 		
 	    Action deselectAllFeatures = new Action() {
@@ -230,7 +251,42 @@ public class FeatureDashboardView extends ViewPart {
 		deselectAllResources.setToolTipText("deselect all resources");
 		bars.getToolBarManager().add(deselectAllResources);
 		
-	    
+		Action exportTracesCSV = new Action() {
+			@Override
+			public void run() {	
+				ctfMain.setSelection(2);	//selecting traces tab updates the table
+				if(tblTraces.getItemCount()==0)
+					return;
+				
+				FileDialog dlg = new FileDialog(Display.getCurrent().getActiveShell(), SWT.SAVE);
+				dlg.setFileName(getCurrentProject().getName()+"_Traces.csv");
+				String savingFileName = dlg.open();
+				if (savingFileName != null) {
+					try {
+						BufferedWriter writer = new BufferedWriter(new FileWriter(savingFileName, false));
+						TableItem[] items = tblTraces.getItems();
+						writer.write("FeatureName, ResourceProjectRelativeAddress, Line(s)");
+						writer.newLine();
+						for(TableItem item:items) {
+							writer.write(String.format("%s,%s,%s",
+									item.getText(0),
+									item.getText(1),
+									item.getText(2)));
+							writer.newLine();
+						}
+						writer.close();    
+						
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}  
+				}
+			}
+		};
+		exportTracesCSV.setImageDescriptor(createImageDescriptor("icons/CSV_Traces_icon.png"));
+		exportTracesCSV.setToolTipText("export traces as CSV format");
+		bars.getToolBarManager().add(exportTracesCSV);
+		
 	    Action refreshProject = new Action() {
 	    	@Override
 			public void run() {
@@ -243,14 +299,14 @@ public class FeatureDashboardView extends ViewPart {
 	    	}
 		};
 		refreshProject.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(ISharedImages.IMG_ELCL_SYNCED));
-		refreshProject.setToolTipText("refresh the view for the selected project");
+		refreshProject.setToolTipText("refresh importing the selected project");
 		bars.getToolBarManager().add(refreshProject);
-	    
-		
+	    	
 	}
 	
 	private void setFeatureModelTab() {
 		CTabItem parent = ctiFeatureModel;
+		
 		Group grpFeatureModel = new Group(parent.getParent(), SWT.NONE);
 		parent.setControl(grpFeatureModel);
 		
@@ -258,9 +314,48 @@ public class FeatureDashboardView extends ViewPart {
 		grpFeatureModel.setLayoutData(gridData);
 		GridLayout gridLayout = new GridLayout(1, false);
 		grpFeatureModel.setLayout(gridLayout);
-				
-		tvFeatureModel = new CheckboxTreeViewer(grpFeatureModel, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
+		
+		FeatureFilter filter = new FeatureFilter();	
+		
+		Text txtFeatureFilter = new Text(grpFeatureModel, SWT.NONE);
+		txtFeatureFilter.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		txtFeatureFilter.setText("filter features here");
+		txtFeatureFilter.setForeground(Display.getCurrent().getSystemColor(SWT.COLOR_GRAY));
+		txtFeatureFilter.addFocusListener(new FocusListener() {	
+			@Override
+			public void focusLost(FocusEvent e) {
+            	if(txtFeatureFilter.getText().isEmpty()){
+            		txtFeatureFilter.setText("filter features here");
+            		txtFeatureFilter.setForeground(Display.getCurrent().getSystemColor(SWT.COLOR_GRAY));
+            	}				
+			}
+			
+			@Override
+			public void focusGained(FocusEvent e) {
+				if(txtFeatureFilter.getText().equals("filter features here")) {
+					txtFeatureFilter.setText("");
+					txtFeatureFilter.setForeground(Display.getCurrent().getSystemColor(SWT.COLOR_BLACK));	
+				}
+			}
+		});
+		
+		txtFeatureFilter.addKeyListener(new KeyListener() {
+            @Override
+            public void keyPressed(KeyEvent e) {}
+
+            @Override
+            public void keyReleased(KeyEvent e) {
+            	filter.setSearchText(txtFeatureFilter.getText());
+            	tvFeatureModel.refresh();  	
+            	tvFeatureModel.setCheckedElements(allCheckedFeatures.toArray());
+            }
+        });
+	
+
+		tvFeatureModel = new CheckboxTreeViewer(grpFeatureModel, SWT.H_SCROLL | SWT.V_SCROLL);
 		tvFeatureModel.getTree().setLayoutData(new GridData(GridData.FILL_BOTH));
+
+		tvFeatureModel.addFilter(filter);
 		TreeViewerColumn mainColumn = new TreeViewerColumn(tvFeatureModel, SWT.NONE);
 		mainColumn.getColumn().setText("Name");
 		mainColumn.getColumn().setWidth(300);
@@ -276,18 +371,41 @@ public class FeatureDashboardView extends ViewPart {
 			@Override
 			public void checkStateChanged(CheckStateChangedEvent event) {
 				if (event.getChecked()) {
-					tvFeatureModel.setSubtreeChecked(event.getElement(), true);
+					Feature checkedFeature = (Feature) event.getElement();
+					allCheckedFeatures.add(checkedFeature);
+					tvFeatureModel.setSubtreeChecked(checkedFeature, true);
+					allCheckedFeatures.addAll(checkedFeature.getSubTreeElements());
+				}
+				else {
+					allCheckedFeatures.remove((Feature)event.getElement());
 				}
 			}
 		});
-	
+		
 		lblFeatureModelTabInfo = new Label(grpFeatureModel, SWT.LEFT);
 		gridData = new GridData();
 		gridData.widthHint= 1000;
 		lblFeatureModelTabInfo.setLayoutData(gridData);
 		lblFeatureModelTabInfo.setText("No project is selected.");
 		updateFeatureModelTab();
-
+		
+		Menu menuFeatureModelCapra = new Menu(tvFeatureModel.getControl());
+		MenuItem itemCapra = new MenuItem(menuFeatureModelCapra, SWT.CASCADE);
+		itemCapra.setText("Capra Traceability");
+		
+		Menu menuAddToSelection = new Menu(menuFeatureModelCapra);
+		MenuItem itemAddToSelection = new MenuItem(menuAddToSelection, SWT.NONE);
+		itemAddToSelection.setText("Add to Selection");	
+		itemAddToSelection.addListener(SWT.Selection, new Listener() {
+            public void handleEvent(Event e) {
+				Feature feature = (Feature) tvFeatureModel.getStructuredSelection().getFirstElement();
+				SelectionView.getOpenedView().dropToSelection(feature);
+            }
+          });
+		itemCapra.setMenu(menuAddToSelection);
+		
+		tvFeatureModel.getControl().setMenu(menuFeatureModelCapra);
+		
 	}
 	
 	private void updateFeatureModelTab() {	
@@ -342,8 +460,48 @@ public class FeatureDashboardView extends ViewPart {
 		GridLayout gridLayout = new GridLayout(1, false);
 		grpResources.setLayout(gridLayout);
 		
+		ResourceFilter filter = new ResourceFilter();	
+		
+		Text txtResourceFilter = new Text(grpResources, SWT.NONE);
+		txtResourceFilter.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		String filterInitialText = "filter resources here";
+		txtResourceFilter.setText(filterInitialText);
+		txtResourceFilter.setForeground(Display.getCurrent().getSystemColor(SWT.COLOR_GRAY));
+		txtResourceFilter.addFocusListener(new FocusListener() {	
+			@Override
+			public void focusLost(FocusEvent e) {
+            	if(txtResourceFilter.getText().isEmpty()){
+            		txtResourceFilter.setText(filterInitialText);
+            		txtResourceFilter.setForeground(Display.getCurrent().getSystemColor(SWT.COLOR_GRAY));
+            	}				
+			}
+			
+			@Override
+			public void focusGained(FocusEvent e) {
+				if(txtResourceFilter.getText().equals(filterInitialText)) {
+					txtResourceFilter.setText("");
+					txtResourceFilter.setForeground(Display.getCurrent().getSystemColor(SWT.COLOR_BLACK));	
+				}
+			}
+		});
+		
+		txtResourceFilter.addKeyListener(new KeyListener() {
+            @Override
+            public void keyPressed(KeyEvent e) {}
+
+            @Override
+            public void keyReleased(KeyEvent e) {
+            	filter.setSearchText(txtResourceFilter.getText());
+            	tvResources.refresh();  	
+            	tvResources.setCheckedElements(allCheckedResources.toArray());
+            }
+        });
+		
 		tvResources = new CheckboxTreeViewer(grpResources, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
         tvResources.getTree().setLayoutData(new GridData(GridData.FILL_BOTH));
+        
+        tvResources.addFilter(filter);
+        
 		TreeViewerColumn mainColumn = new TreeViewerColumn(tvResources, SWT.NONE);
 		mainColumn.getColumn().setText("Name");
 		mainColumn.getColumn().setWidth(300);
@@ -359,7 +517,14 @@ public class FeatureDashboardView extends ViewPart {
 			@Override
 			public void checkStateChanged(CheckStateChangedEvent event) {
 				if (event.getChecked()) {
-					tvResources.setSubtreeChecked(event.getElement(), true);
+					IResource checkedResource = (IResource) event.getElement();
+					allCheckedResources.add(checkedResource);
+					tvResources.setSubtreeChecked(checkedResource, true);
+					allCheckedResources.addAll(getSubTreeElements(checkedResource));
+				}
+
+				else {
+					allCheckedResources.remove((IResource)event.getElement());
 				}
 			}
 		});
@@ -372,6 +537,26 @@ public class FeatureDashboardView extends ViewPart {
 		
 		updateResourcesTab();
 
+	}
+	
+	private ArrayList<IResource> getSubTreeElements(IResource resource){
+		ArrayList<IResource> subTreeElemets = new ArrayList<IResource>();
+		if(resource instanceof IFile || !resource.exists()) 
+			return subTreeElemets;
+		if(resource instanceof IContainer) {
+			try {
+				for(IResource subResource: ((IContainer)resource).members()) {
+					subTreeElemets.add(subResource);
+					if(subResource instanceof IContainer)
+						subTreeElemets.addAll(getSubTreeElements(subResource));			
+				}
+			} catch (CoreException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			return subTreeElemets;
+		}
+		return subTreeElemets;
 	}
 	
 	private void updateResourcesTab() {
@@ -655,14 +840,22 @@ public class FeatureDashboardView extends ViewPart {
 
 	public class FeatureModelContentProvider implements ITreeContentProvider {
 
-		private final java.util.List<Feature> featureInFeatureModel;
+		private final java.util.List<Feature> featuresInFeatureModel;
 		private final java.util.List<Feature> rootFeatuesOfFeatureModel;
 		
-		public FeatureModelContentProvider(java.util.List<Feature> featureInFeatureModel, 
+		public FeatureModelContentProvider(java.util.List<Feature> featuresInFeatureModel, 
 										   java.util.List<Feature> rootFeatuesOfFeatureModel,
 										   java.util.List<Feature> featuresNotInFeatureModel){
-			this.featureInFeatureModel = featureInFeatureModel;
+			this.featuresInFeatureModel = featuresInFeatureModel;
+			this.featuresInFeatureModel.forEach(feature->{
+				feature.setFeatureModelFile(controller.getFeatureModel());
+				feature.setProject(controller.getProject());
+			});
 			this.rootFeatuesOfFeatureModel = rootFeatuesOfFeatureModel;
+			this.rootFeatuesOfFeatureModel.forEach(feature->{
+				feature.setFeatureModelFile(controller.getFeatureModel());
+				feature.setProject(controller.getProject());
+			});
 		}
 		
 		@Override
@@ -674,13 +867,18 @@ public class FeatureDashboardView extends ViewPart {
 
 		@Override
 		public Object[] getChildren(Object parentElement) {
-			return ((Feature) parentElement).getSubFeatures()
-					.toArray(new Feature[((Feature) parentElement).getSubFeatures().size()]);
+			List<Feature> features = ((Feature) parentElement).getSubFeatures();
+			features.forEach(feature->{
+				feature.setFeatureModelFile(controller.getFeatureModel());
+				feature.setProject(controller.getProject());
+			});
+			
+			return features.toArray(new Feature[((Feature) parentElement).getSubFeatures().size()]);
 		}
 
 		@Override
 		public Object getParent(Object element) {
-			for (Feature feature : featureInFeatureModel) {
+			for (Feature feature : featuresInFeatureModel) {
 				if (feature.getSubFeatures().contains(element))
 					return feature;
 			}
@@ -767,6 +965,12 @@ public class FeatureDashboardView extends ViewPart {
 			return null;
 		}
 
+		@Override
+		public String getText(Object element) {
+			Feature featureID = (Feature) element;
+			return featureID.getFeatureID();
+		}
+		
 	}
 	
 	public class ResourcesContentProvider implements ITreeContentProvider{
@@ -887,6 +1091,55 @@ public class FeatureDashboardView extends ViewPart {
 			return null;
 		}
 	
+	}
+	
+	public class FeatureFilter extends ViewerFilter {
+
+	    private String searchString = ".*";
+		
+		public void setSearchText(String s) {
+		        // ensure that the value can be used for matching
+		        this.searchString = ".*" + s + ".*";
+		}
+
+		public boolean select(final Viewer viewer, final Object parentElement, final Object element) {
+			if (element instanceof Feature) { // Assume your tree node is of type NameNode
+				Feature feature = (Feature) element;
+				if(feature.getFeatureID().matches(searchString))
+					return true;
+				for(Feature subFeature: feature.getSubFeatures()) {
+					if(select(viewer,parentElement,subFeature)) 
+						return true;		
+				}
+			}
+
+			return false;
+		}
+	}
+	
+	public class ResourceFilter extends ViewerFilter {
+
+	    private String searchString = ".*";
+		
+		public void setSearchText(String s) {
+		        // ensure that the value can be used for matching
+		        this.searchString = ".*" + s + ".*";
+		}
+
+		public boolean select(final Viewer viewer, final Object parentElement, final Object element) {
+			if (element instanceof IResource) { // Assume your tree node is of type NameNode
+				IResource resource = (IResource) element;
+				if(resource.getName().matches(searchString))
+					return true;
+				ArrayList<IResource> subResources = getSubTreeElements(resource);
+				for(IResource subResource:subResources ) {
+					if(select(viewer,parentElement,subResource)) 
+						return true;		
+				}
+			}
+
+			return false;
+		}
 	}
 	
 }

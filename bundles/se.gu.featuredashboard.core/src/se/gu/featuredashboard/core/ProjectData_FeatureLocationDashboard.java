@@ -1,19 +1,20 @@
 package se.gu.featuredashboard.core;
 
-
 import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 
 import se.gu.featuredashboard.model.featuremodel.Feature;
 import se.gu.featuredashboard.model.featuremodel.FeatureModelHierarchy;
 import se.gu.featuredashboard.model.location.FeatureLocation;
 
-public class FeatureLocationDashboard {
-
+public class ProjectData_FeatureLocationDashboard {
+	
+	private IProject project;
 	private List<FeatureLocation> traces = new ArrayList<>();
 	private FeatureModelHierarchy featureModelHierarchy = new FeatureModelHierarchy();
 
@@ -21,8 +22,16 @@ public class FeatureLocationDashboard {
 	private List<Feature> featuresNotInFeatureModel = new ArrayList<Feature>();
 	private List<Feature> featuresOfFeatureModel =  new ArrayList<Feature>();
 	
-	// **************************Traces*******************************
+
+	public void setProject(IProject project) {
+		this.project = project;
+	}
 	
+	public IProject getProject() {
+		return project;
+	}
+	
+	// **************************Traces*******************************
 	public void addTraces(List<FeatureLocation> newLocations) {
 		if(newLocations == null)
 			return;
@@ -132,4 +141,10 @@ public class FeatureLocationDashboard {
 		return featuresOfFeatureModel;
 	}
 	
+	public void clearAll() {
+		featureModelHierarchy = new FeatureModelHierarchy();
+		traces.clear();
+		notExistentResources.clear();
+		featuresNotInFeatureModel.clear();		
+	}
 }

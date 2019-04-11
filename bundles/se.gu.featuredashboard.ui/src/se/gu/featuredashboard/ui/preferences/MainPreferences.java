@@ -36,7 +36,8 @@ public class MainPreferences extends PreferencePage implements IWorkbenchPrefere
 	Button btnRemoveOutput;
 	Button btnAddOutput;
 	
-	private static final java.util.List<String> DEFAULT_EXTENSIONS = ProjectParser.DEFAULT_ANNOTATED_FILES_EXTENSIONS;
+	private static final java.util.List<String> DEFAULT_EXCLUDED_EXTENSIONS = ProjectParser.DEFAULT_EXCLUDED_ANNOTATED_FILES_EXTENSIONS;
+	private static final java.util.List<String> DEFAULT_EXCLUDED_FOLDERS = ProjectParser.DEFAULT_EXCLUDED_FOLDERS_OF_ANNOTATED_FILES;
 	
 	@Override
 	public void init(IWorkbench workbench) {
@@ -46,8 +47,11 @@ public class MainPreferences extends PreferencePage implements IWorkbenchPrefere
 		if(!sub1.get("initialized", "default").equals("yes")){
 			sub1.put("initialized", "yes");
 			
-			for(int i=0;i<DEFAULT_EXTENSIONS.size();i++) {
-				sub1.put("Extension"+i, DEFAULT_EXTENSIONS.get(i));
+			for(int i=0;i<DEFAULT_EXCLUDED_EXTENSIONS.size();i++) {
+				sub1.put("Extension"+i, DEFAULT_EXCLUDED_EXTENSIONS.get(i));
+			}
+			for(int i=0;i<DEFAULT_EXCLUDED_FOLDERS.size();i++) {
+				sub1.put("Output"+i, DEFAULT_EXCLUDED_FOLDERS.get(i));
 			}
 		}
 	}
@@ -58,7 +62,7 @@ public class MainPreferences extends PreferencePage implements IWorkbenchPrefere
 		parent.setLayout(gridLayout);
 		
 		Group grpExtensions = new Group(parent, SWT.NONE);	
-		grpExtensions.setText("Annotated Files Extensions:");
+		grpExtensions.setText("Excluded Annotated File Extensions:");
 		GridData gridData = new GridData(GridData.FILL, GridData.FILL,true, true);
 		grpExtensions.setLayoutData(gridData);		
 		gridLayout = new GridLayout(3, false);
@@ -104,7 +108,7 @@ public class MainPreferences extends PreferencePage implements IWorkbenchPrefere
 		
 		
 		Label lblExtension = new Label(grpExtensions, SWT.NONE);
-		lblExtension.setText("Extension:");
+		lblExtension.setText("New Excluded File Extension:");
 		
 		Text txtExtension = new Text(grpExtensions, SWT.BORDER);
 		gridData = new GridData(GridData.FILL, GridData.CENTER,true, false); 
@@ -145,7 +149,7 @@ public class MainPreferences extends PreferencePage implements IWorkbenchPrefere
 		
 		
 		Group grpOutputs = new Group(parent, SWT.NONE);	
-		grpOutputs.setText("Output Folders and Files:");
+		grpOutputs.setText("Excluded Folders With Annotated Files (Project Relative Path):");
 		gridData = new GridData(GridData.FILL, GridData.FILL,true, true);
 		grpOutputs.setLayoutData(gridData);		
 		gridLayout = new GridLayout(3, false);
@@ -193,7 +197,7 @@ public class MainPreferences extends PreferencePage implements IWorkbenchPrefere
 		
 		
 		Label lblOutput = new Label(grpOutputs, SWT.NONE);
-		lblOutput.setText("Output Related-to-Project:");
+		lblOutput.setText("New Excluded Folder:");
 		
 		Text txtOutput = new Text(grpOutputs, SWT.BORDER);
 		gridData = new GridData(GridData.FILL, GridData.CENTER,true, false); 
@@ -267,8 +271,11 @@ public class MainPreferences extends PreferencePage implements IWorkbenchPrefere
 	protected void performDefaults() {
 		lstExtensions.removeAll();
 		lstExtensions.setTopIndex(0);
-		DEFAULT_EXTENSIONS.forEach(extension->{
+		DEFAULT_EXCLUDED_EXTENSIONS.forEach(extension->{
 			lstExtensions.add(extension);
+		});
+		DEFAULT_EXCLUDED_FOLDERS.forEach(folder->{
+			lstOutputs.add(folder);
 		});
 	}
 	
@@ -304,4 +311,5 @@ public class MainPreferences extends PreferencePage implements IWorkbenchPrefere
 		
 		
 	}
+
 }

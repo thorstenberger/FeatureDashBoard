@@ -5,12 +5,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.preferences.ConfigurationScope;
 import org.osgi.service.prefs.Preferences;
 
-import se.gu.featuredashboard.core.FeatureLocationDashboard;
+import se.gu.featuredashboard.core.ProjectData_FeatureLocationDashboard;
+import se.gu.featuredashboard.core.WorkspaceData_FeatureLocationDashboard;
 import se.gu.featuredashboard.model.featuremodel.Feature;
 import se.gu.featuredashboard.model.location.FeatureLocation;
 import se.gu.featuredashboard.parsing.ClaferFileParser;
@@ -20,27 +22,41 @@ import se.gu.featuredashboard.parsing.ProjectParser;
 
 public class FeatureDashboardViewController {
 
+	private static FeatureDashboardViewController INSTANCE;
+	public static FeatureDashboardViewController getInstance() {		
+		if (INSTANCE == null) {
+			synchronized (FeatureDashboardViewController.class) {
+				if (INSTANCE == null) {
+					INSTANCE = new FeatureDashboardViewController();
+				}
+			}
+		}
+		return INSTANCE;
+	}
+	
 	private IProject project;
 	
 	private String parsingMessages="";
 	
-	private FeatureLocationDashboard data = new FeatureLocationDashboard();
-
+	private ProjectData_FeatureLocationDashboard selectedProjectData = new ProjectData_FeatureLocationDashboard();
+	
 	private ProjectParser projectParser;
 	private InFileAnnotationParser annotationParser;
 	private FeatureFileFolderParser featureFileFolderParser;
 	private ClaferFileParser claferParser;
 
-	public FeatureDashboardViewController(IProject project){
-		this.project = project;
+	private FeatureDashboardViewController(){
 
-		projectParser = new ProjectParser(project, getAnnotatedFilesExtensions_ofPreferences());
+		projectParser = new ProjectParser(project, 
+				getExcludedAnnotatedFilesExtensions_ofPreferences(),
+				getExcludedFoldersOfAnnotatedFiles_ofPreferences());
+		
 		annotationParser = new InFileAnnotationParser();
 		setRegex_ofPreferences();
 		featureFileFolderParser = new FeatureFileFolderParser(projectParser.getFeatureFileAddress());
 		claferParser = new ClaferFileParser(projectParser.getClaferAddress());
 			
-		updateData();        
+		updateSelectedProjectData();        
 	}
 	
 	private void setRegex_ofPreferences() {
@@ -85,7 +101,7 @@ public class FeatureDashboardViewController {
 		}
 	}
 
-	private List<String> getAnnotatedFilesExtensions_ofPreferences() {
+	private List<String> getExcludedAnnotatedFilesExtensions_ofPreferences() {
 		Preferences preferences = ConfigurationScope.INSTANCE.getNode("se.gu.featuredashboard.ui.mainPreferences.page");
 		Preferences sub1 = preferences.node("node1");
 		
@@ -104,37 +120,61 @@ public class FeatureDashboardViewController {
 			return annotatedFilesExtensions;
 		}
 		else 
-			return projectParser.DEFAULT_ANNOTATED_FILES_EXTENSIONS;
+			return projectParser.DEFAULT_EXCLUDED_ANNOTATED_FILES_EXTENSIONS;
 		
 	}
 	
-	public void updateData(){
-		data.clearAllTraces();
+	private List<String> getExcludedFoldersOfAnnotatedFiles_ofPreferences() {
+		Preferences preferences = ConfigurationScope.INSTANCE.getNode("se.gu.featuredashboard.ui.mainPreferences.page");
+		Preferences sub1 = preferences.node("node1");
+		
+		if(sub1.get("initialized", "default").equals("yes")) {	
+			ArrayList<String> excludedExtentions = new ArrayList<String>();
+			int i=0;
+			
+			while(true) {
+				String folderKey = "Output"+i;
+				String folderValue = sub1.get(folderKey, "default");
+				if(folderValue.equals("default"))
+					break;
+				excludedExtentions.add(folderValue);
+				i++;
+			}
+			return excludedExtentions;
+		}
+		else 
+			return projectParser.DEFAULT_EXCLUDED_FOLDERS_OF_ANNOTATED_FILES;
+		
+	}
+	
+	public void updateSelectedProjectData(){
+		selectedProjectData.clearAllTraces();
+		selectedProjectData.setProject(project);
 		
 		// feature model data should be parsed before than traces
 		// it is for accuracy of 'featuresNotInFeatureModel' in FeatureLocationDashboard
 		claferParser.setParsingFileAddress(projectParser.getClaferAddress());
-		data.setFeatureModel(null);
+		selectedProjectData.setFeatureModel(null);
 		if(claferParser.hasValidClaferFile()) {
-			data.setFeatureModel(claferParser.readParse());
+			selectedProjectData.setFeatureModel(claferParser.readParse());
 		}
 		if(!claferParser.getParsingMessage().isEmpty())
 			parsingMessages+= claferParser.getParsingMessage()+"\n";
 		
-		data.addTraces(annotationParser.readParseAnnotations(projectParser.getAllFiles()));
+		selectedProjectData.addTraces(annotationParser.readParseAnnotations(projectParser.getAllFiles()));
 		if(!annotationParser.getParsingMessage().isEmpty())
 			parsingMessages+= annotationParser.getParsingMessage()+"\n";
 		
 		featureFileFolderParser.setParsingFileAddress(projectParser.getFeatureFileAddress());
 		if(featureFileFolderParser.hasValidFeatureFile()){
-			data.addTraces(featureFileFolderParser.readParse());
+			selectedProjectData.addTraces(featureFileFolderParser.readParse());
 		}
 		if(!featureFileFolderParser.getParsingMessage().isEmpty())
 			parsingMessages+= featureFileFolderParser.getParsingMessage()+"\n";
 
 		featureFileFolderParser.setParsingFileAddress(projectParser.getFeatureFolderAddress());
 		if(featureFileFolderParser.hasValidFeatureFolder()){
-			data.addTraces(featureFileFolderParser.readParse());
+			selectedProjectData.addTraces(featureFileFolderParser.readParse());
 		}
 		if(!featureFileFolderParser.getParsingMessage().isEmpty())
 			parsingMessages+= featureFileFolderParser.getParsingMessage()+"\n";
@@ -144,10 +184,18 @@ public class FeatureDashboardViewController {
 		this.project = project;
 		parsingMessages="";
 		
-		projectParser = new ProjectParser(project, getAnnotatedFilesExtensions_ofPreferences());
+		projectParser = new ProjectParser(project, 
+				getExcludedAnnotatedFilesExtensions_ofPreferences(),
+				getExcludedFoldersOfAnnotatedFiles_ofPreferences());
 		setRegex_ofPreferences();
 		
-		updateData(); 
+		updateSelectedProjectData();
+		updateWorkspaceData();
+	}
+	
+	private void updateWorkspaceData() {
+		if(selectedProjectData.getProject()!=null)
+			WorkspaceData_FeatureLocationDashboard.getInstance().setProjectData(selectedProjectData);
 	}
 
 	public IProject getProject() {
@@ -166,28 +214,33 @@ public class FeatureDashboardViewController {
 		return projectParser.getFeatureFolderAddress()!=null;
 	}
 	
+	public IFile getFeatureModel() {
+		return projectParser.getClaferAddress();
+	}
+	
 	public String getParsingMessage() {
 		return parsingMessages;
 	}
 	
 	public List<Feature> getFeaturesNotInFeatureModel(){
-		return data.getFeaturesNotInFeatureModel();
+		return selectedProjectData.getFeaturesNotInFeatureModel();
 	}
 
 	public List<Feature> getRootFeaturesOfFeatureModel(){
-		return data.getRootFeaturesOfFeatureModel();
+		return selectedProjectData.getRootFeaturesOfFeatureModel();
+
 	}
 	
 	public List<Feature>  getAllFeaturesOfFeatureModel(){
-		return data.getFeaturesOfFeatureModel();
+		return selectedProjectData.getFeaturesOfFeatureModel();
 	}
 
 	public List<IResource> getNotExistentResources(){
-		return data.getNotExistentResources();
+		return selectedProjectData.getNotExistentResources();
 	}
 	
-	public List<FeatureLocation> getTraces(List<Object> featureIDs, List<Object> projectRelativePaths){
-		return data.getTraces(featureIDs, projectRelativePaths);
+	public List<FeatureLocation> getTraces(List<Object> features, List<Object> projectRelativePaths){
+		return selectedProjectData.getTraces(features, projectRelativePaths);
 	}
 	
 }

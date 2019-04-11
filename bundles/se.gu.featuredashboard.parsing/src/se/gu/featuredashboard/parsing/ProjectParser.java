@@ -18,13 +18,17 @@ public class ProjectParser{
 	private IFile claferFileAddress;
 	private ArrayList<IFile> allProjectFiles = new ArrayList<>();
 	
-	public static final List<String> DEFAULT_ANNOTATED_FILES_EXTENSIONS = Arrays.asList("c","cpp","java","js");
-
-	private List<String> annotatedFilesExtenstions = new ArrayList<String>(DEFAULT_ANNOTATED_FILES_EXTENSIONS);
+	public static final List<String> DEFAULT_EXCLUDED_ANNOTATED_FILES_EXTENSIONS = Arrays.asList("pdf", "class", "DS_Store", "docx");
+	public static final List<String> DEFAULT_EXCLUDED_FOLDERS_OF_ANNOTATED_FILES = Arrays.asList("bin");
 	
-	public ProjectParser(IProject project, List<String> annotatedFilesExtensions) {
+	private List<String> excludedAnnotatedFilesExtensions = new ArrayList<String>(DEFAULT_EXCLUDED_ANNOTATED_FILES_EXTENSIONS);
+	private List<String> excludedFoldersOfAnnotatedFiles = new ArrayList<String>(DEFAULT_EXCLUDED_FOLDERS_OF_ANNOTATED_FILES);
+	
+	public ProjectParser(IProject project, List<String> excludedAnnotatedFilesExtensions, List<String> excludedFoldersOfAnnotatedFiles) {
 		this.project = project;
-		annotatedFilesExtenstions = new ArrayList<String>(annotatedFilesExtensions);
+		this.excludedAnnotatedFilesExtensions = new ArrayList<String>(excludedAnnotatedFilesExtensions);
+		this.excludedFoldersOfAnnotatedFiles = new ArrayList<String>(excludedFoldersOfAnnotatedFiles);
+		
 		findFilesForParse(project);
 		if(project != null)
 			findAnnotatedFiles(project);
@@ -64,11 +68,13 @@ public class ProjectParser{
 		try {
 			Arrays.stream(container.members()).forEach(member ->{
 				if(member instanceof IContainer) {
-					findAnnotatedFiles((IContainer) member);
+					String folderPath = ((IContainer) member).getProjectRelativePath().toString();
+					if(!excludedFoldersOfAnnotatedFiles.contains(folderPath))
+							findAnnotatedFiles((IContainer) member);
 				} else if(member instanceof IFile) {
 					IFile newMember = (IFile) member;
 					String extension = newMember.getFileExtension();
-					if(extension!=null && annotatedFilesExtenstions.contains(extension))
+					if(extension==null || !excludedAnnotatedFilesExtensions.contains(extension))
 						allProjectFiles.add( (IFile) member);
 				}
 			});
