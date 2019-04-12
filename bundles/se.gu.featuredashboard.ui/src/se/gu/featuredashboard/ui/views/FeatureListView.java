@@ -13,12 +13,21 @@ import org.eclipse.jface.viewers.IColorProvider;
 import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.jface.viewers.ITreeContentProvider;
+import org.eclipse.jface.viewers.Viewer;
+import org.eclipse.jface.viewers.ViewerFilter;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.FocusEvent;
+import org.eclipse.swt.events.FocusListener;
+import org.eclipse.swt.events.KeyEvent;
+import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
@@ -41,17 +50,59 @@ public class FeatureListView extends ViewPart implements IUpdateInformationListe
 
 	private ParseProjectAction parseProject;
 	private Action sortTableAction;
+	private Action selection;
 
 	private Project activeProject;
+
+	private static final String TOOLTIP = "Filter features";
 
 	@Override
 	public void createPartControl(Composite parent) {
 		window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
 
-		treeViewer = new CheckboxTreeViewer(parent);
+		Group group = new Group(parent, SWT.NONE);
+		group.setLayoutData(new GridData(GridData.FILL, GridData.FILL, true, true));
+		group.setLayout(new GridLayout(1, false));
+
+		Text filter = new Text(group, SWT.BORDER);
+		filter.setText(TOOLTIP);
+		filter.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+		filter.addFocusListener(new FocusListener() {
+
+			@Override
+			public void focusGained(FocusEvent e) {
+				if (filter.getText().equals(TOOLTIP))
+					filter.setText("");
+			}
+
+			@Override
+			public void focusLost(FocusEvent e) {
+				if (filter.getText().equals(""))
+					filter.setText(TOOLTIP);
+			}
+
+		});
+		TreeFilter treeFilter = new TreeFilter();
+
+		filter.addKeyListener(new KeyListener() {
+
+			@Override
+			public void keyPressed(KeyEvent e) {
+			}
+
+			@Override
+			public void keyReleased(KeyEvent e) {
+				treeFilter.setFilter(filter.getText());
+				treeViewer.refresh();
+			}
+
+		});
+
+		treeViewer = new CheckboxTreeViewer(group, SWT.MULTI);
 		treeViewer.getTree().setLayoutData(new GridData(GridData.FILL_BOTH));
 		treeViewer.setContentProvider(new FeatureTreeContentProvider());
 		treeViewer.setLabelProvider(new FeatureTreeLabelProvider());
+		treeViewer.setFilters(treeFilter);
 
 		treeViewer.addCheckStateListener(new ICheckStateListener() {
 
@@ -82,6 +133,11 @@ public class FeatureListView extends ViewPart implements IUpdateInformationListe
 					if (featureFolderView != null)
 						featureFolderView.inputToView(featureFileList);
 
+					TreeView treeView = (TreeView) window.getActivePage()
+							.findView(FeaturedashboardConstants.FEATURETREE_VIEW_ID);
+					if (treeView != null)
+						treeView.inputToView(featureFileList);
+
 					// Work in progress
 //					HistoryView historyView = (HistoryView) window.getActivePage()
 //							.findView(FeaturedashboardConstants.HISTORY_VIEW_ID);
@@ -110,10 +166,22 @@ public class FeatureListView extends ViewPart implements IUpdateInformationListe
 		};
 
 		sortTableAction.setText("Sort alphabetical order");
-		sortTableAction.setToolTipText("Sort table");
 		sortTableAction.setImageDescriptor(
 				PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(ISharedImages.IMG_TOOL_UP));
 		addActionToView(sortTableAction);
+
+		selection = new Action() {
+			public void run() {
+				Object[] checkedElements = treeViewer.getCheckedElements();
+				Arrays.stream(checkedElements).forEach(element -> {
+					treeViewer.setChecked(element, false);
+				});
+			}
+		};
+		selection.setText("Uncheck all elements");
+		selection.setImageDescriptor(
+				PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(ISharedImages.IMG_ELCL_COLLAPSEALL));
+		addActionToView(selection);
 
 		updateData();
 	}
@@ -132,7 +200,6 @@ public class FeatureListView extends ViewPart implements IUpdateInformationListe
 			activeProject = ProjectStore.getActiveProject();
 			if (activeProject != null) {
 				treeViewer.setInput(activeProject);
-				treeViewer.refresh();
 			}
 		});
 	}
@@ -186,7 +253,7 @@ public class FeatureListView extends ViewPart implements IUpdateInformationListe
 		@Override
 		public boolean hasChildren(Object element) {
 			FeatureContainer container = (FeatureContainer) element;
-			return container.getFeature().getSubFeatures().size() > 0;
+			return !container.getFeature().getSubFeatures().isEmpty();
 		}
 
 	}
@@ -245,4 +312,33 @@ public class FeatureListView extends ViewPart implements IUpdateInformationListe
 		}
 
 	}
+
+	public class TreeFilter extends ViewerFilter {
+
+		private String filter = "";
+
+		public void setFilter(String filter) {
+			this.filter = filter;
+		}
+
+		@Override
+		public boolean select(Viewer viewer, Object parentElement, Object element) {
+			if (element instanceof FeatureContainer) {
+				FeatureContainer fc = (FeatureContainer) element;
+				if (fc.getFeature().getFeatureID().contains(filter))
+					return true;
+				for (Feature feature : fc.getFeature().getSubFeatures()) {
+					if (select(viewer, parentElement, feature))
+						return true;
+				}
+			} else {
+				Feature feature = (Feature) element;
+				return feature.getFeatureID().contains(filter);
+			}
+
+			return false;
+		}
+
+	}
+
 }

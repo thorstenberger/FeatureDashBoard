@@ -257,5 +257,20 @@
           name="se.gu.featuredashboard.product">
     </product>
  </extension>
+ 
+ 	<extension
+		point="org.eclipse.ui.views">
+		<category
+			name="FeatureDashboard"
+            id="se.gu.featuredashboard.ui.views">
+		</category>
+		<view
+			name="List Traces"
+            icon="icons/featureDashboard_icon.png"
+            category="se.gu.featuredashboard.ui.views"
+            class="se.gu.featuredashboard.ui.views.TreeView"
+            id="se.gu.featuredashboard.ui.views.TreeView">
+		</view>
+	</extension>
 	
 </plugin>
