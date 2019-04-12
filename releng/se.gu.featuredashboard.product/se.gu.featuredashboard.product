@@ -7,6 +7,9 @@
    </configIni>
 
    <launcherArgs>
+      <programArgsLin>--launcher.GTK_VERSION
+2
+      </programArgsLin>
       <vmArgs>-Dosgi.framework.extensions=org.eclipse.fx.osgi
       </vmArgs>
       <vmArgsMac>-XstartOnFirstThread -Dorg.eclipse.swt.internal.carbon.smallFonts
