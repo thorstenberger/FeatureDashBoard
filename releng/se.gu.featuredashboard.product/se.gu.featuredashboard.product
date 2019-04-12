@@ -26,7 +26,6 @@
    <vm>
    </vm>
 
-
    <plugins>
       <plugin id="com.google.gson"/>
       <plugin id="com.google.guava"/>
@@ -64,6 +63,7 @@
       <plugin id="org.eclipse.ant.core"/>
       <plugin id="org.eclipse.ant.launching"/>
       <plugin id="org.eclipse.ant.ui"/>
+      <plugin id="org.eclipse.capra.ui"/>
       <plugin id="org.eclipse.cdt.core"/>
       <plugin id="org.eclipse.cdt.core.native"/>
       <plugin id="org.eclipse.cdt.core.win32" fragment="true"/>

@@ -59,6 +59,11 @@
 			<url>http://download.eclipse.org/nebula/releases/latest</url>
 			<layout>p2</layout>
 		</repository>
+		<repository>
+			<id>Capra</id>
+			<url>https://hudson.eclipse.org/capra/job/build-src-develop-nightly/lastSuccessfulBuild/artifact/org.eclipse.capra.releng.p2/target/repository/</url>
+			<layout>p2</layout>
+		</repository>
 	</repositories>
 
 	<build>
@@ -101,6 +106,11 @@
 							<ws>win32</ws>
 							<arch>x86_64</arch>
 						</environment>
+						<environment>
+                        	<os>linux</os>
+                        	<ws>gtk</ws>
+                        	<arch>x86_64</arch>
+                    	</environment>
 					</environments>
 				</configuration>
 			</plugin>
