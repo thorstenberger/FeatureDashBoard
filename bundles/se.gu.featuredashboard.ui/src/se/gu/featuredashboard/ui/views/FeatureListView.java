@@ -151,7 +151,7 @@ public class FeatureListView extends ViewPart implements IUpdateInformationListe
 		MetricsComparator comparator = new MetricsComparator();
 		treeViewer.setComparator(comparator);
 
-		parseProject = new ParseProjectAction(parent.getShell());
+		parseProject = new ParseProjectAction();
 		parseProject.setText(FeaturedashboardConstants.ACTION_TEXT);
 		parseProject.setToolTipText(FeaturedashboardConstants.ACTION_TOOLTOP_TEXT);
 		parseProject.setImageDescriptor(

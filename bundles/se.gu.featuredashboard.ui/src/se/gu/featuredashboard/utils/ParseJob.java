@@ -10,9 +10,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.eclipse.core.internal.resources.Marker;
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
+import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
@@ -22,8 +24,6 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.runtime.preferences.ConfigurationScope;
 import org.eclipse.e4.core.services.log.Logger;
-import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 import org.osgi.service.prefs.Preferences;
@@ -33,7 +33,6 @@ import se.gu.featuredashboard.model.featuremodel.FeatureContainer;
 import se.gu.featuredashboard.model.featuremodel.FeatureModelHierarchy;
 import se.gu.featuredashboard.model.featuremodel.Project;
 import se.gu.featuredashboard.model.featuremodel.ProjectStore;
-import se.gu.featuredashboard.model.featuremodel.Triple;
 import se.gu.featuredashboard.model.featuremodel.Tuple;
 import se.gu.featuredashboard.model.location.BlockLine;
 import se.gu.featuredashboard.parsing.ClaferFileParser;
@@ -46,24 +45,19 @@ public class ParseJob extends Job {
 	private Project project;
 	private InFileAnnotationParser parser = new InFileAnnotationParser();
 	private IFile fileToParse;
-	private Shell shell;
 	private Map<Feature, FeatureContainer> projectFeatures;
 	private List<String> excludedFolders;
 	private Logger logger = PlatformUI.getWorkbench().getService(org.eclipse.e4.core.services.log.Logger.class);
 	private JobType jobType;
-	private ErrorDialog errorDialog;
-	private List<Triple<String, String, Integer>> parsingExceptions;
 
 	private enum JobType {
 		FULL, SINGLE
 	};
 
-	public ParseJob(String name, Project project, Shell shell) {
+	public ParseJob(String name, Project project) {
 		super(name);
 		this.project = project;
-		this.shell = shell;
 		projectFeatures = new HashMap<>();
-		parsingExceptions = new ArrayList<>();
 		excludedFolders = new ArrayList<>();
 		jobType = JobType.FULL;
 	}
@@ -72,9 +66,7 @@ public class ParseJob extends Job {
 		super(name);
 		this.project = project;
 		this.fileToParse = file;
-		this.shell = shell;
 		projectFeatures = new HashMap<>();
-		parsingExceptions = new ArrayList<>();
 		excludedFolders = new ArrayList<>();
 		jobType = JobType.SINGLE;
 	}
@@ -122,27 +114,6 @@ public class ParseJob extends Job {
 					handleFile(fileToParse, monitor);
 			}
 
-			if (parsingExceptions.size() > 0) {
-
-				StringBuilder errorMessage = new StringBuilder();
-
-				parsingExceptions.forEach(wrongSyntax -> {
-					if (wrongSyntax.getRight() == null)
-						errorMessage.append(wrongSyntax.getLeft() + "  ---> " + wrongSyntax.getCenter());
-					else
-						errorMessage.append(wrongSyntax.getLeft() + "  ---> " + wrongSyntax.getCenter()
-								+ " at line number: " + wrongSyntax.getRight());
-					errorMessage.append("\n");
-				});
-
-				Display.getDefault().asyncExec(() -> {
-					errorDialog = new ErrorDialog(shell, FeaturedashboardConstants.SYNTAXERROR_DIALOG_TITLE,
-							FeaturedashboardConstants.SYNTAXERROR_DIALOG_MESSAGE, errorMessage.toString());
-					errorDialog.create();
-					errorDialog.open();
-				});
-			}
-
 			monitor.done();
 
 			if (monitor.isCanceled()) {
@@ -159,12 +130,6 @@ public class ParseJob extends Job {
 			// So that we can remove the project from the ProjectStore, otherwise the user
 			// has to close the IDE to re-parse the project
 			logger.warn("Runtime exception occured: " + e.getMessage());
-
-			e.printStackTrace();
-
-			Display.getDefault().asyncExec(() -> {
-				MessageDialog.openError(shell, "Error!", "Runtime error while parsing project: " + e.getMessage());
-			});
 
 			monitor.done();
 
@@ -198,8 +163,12 @@ public class ParseJob extends Job {
 				}
 			});
 		} catch (CoreException e) {
-			parsingExceptions
-					.add(new Triple<String, String, Integer>(container.getFullPath().toString(), e.getMessage(), null));
+			try {
+				IMarker marker = container.createMarker(Marker.PROBLEM);
+				marker.setAttribute(Marker.MESSAGE, e.getMessage());
+			} catch (CoreException e1) {
+				logger.warn(e1.getMessage());
+			}
 			monitor.setCanceled(true);
 		}
 	}
@@ -253,18 +222,14 @@ public class ParseJob extends Job {
 		});
 
 		if (jobType == JobType.SINGLE) {
-			// ObjectToFileHandler handler = ObjectToFileHandler.getInstance();
-
 			for (FeatureContainer fc : containersImplementedInFile) {
 				if (!featureToLines.containsKey(fc.getFeature())) {
 					fc.removeFile(resource);
 					if (fc.getScatteringDegree() == 0) {
 						project.removeFeature(fc);
-						// handler.removeFile(fc);
 						continue;
 					}
 				}
-				// handler.writeObjectToFile(fc);
 			}
 		}
 	}
@@ -307,8 +272,13 @@ public class ParseJob extends Job {
 			}
 
 		} catch (SyntaxException e) {
-			parsingExceptions.add(new Triple<String, String, Integer>(mappingFile.getFullPath().toString(),
-					e.getMessage(), e.getLineNumber()));
+			try {
+				IMarker marker = mappingFile.createMarker(Marker.PROBLEM);
+				marker.setAttribute(Marker.MESSAGE, e.getMessage());
+				marker.setAttribute(Marker.LINE_NUMBER, e.getLineNumber());
+			} catch (CoreException e1) {
+				e1.printStackTrace();
+			}
 		}
 	}
 
@@ -332,8 +302,13 @@ public class ParseJob extends Job {
 				folderResources.add(new Tuple<IResource, Integer>(leafFile, lineCount));
 			}
 		} catch (CoreException | IOException e) {
-			parsingExceptions.add(new Triple<String, String, Integer>(resource.getFullPath().toString(),
-					"Error trying to map resource to feature. " + e.getMessage(), null));
+			try {
+				IMarker marker = project.getIProject().createMarker(Marker.PROBLEM);
+				marker.setAttribute(Marker.MESSAGE, e.getMessage() + ". Cancel project parsing.");
+				marker.setAttribute(Marker.LOCATION, resource.getFullPath().toString());
+			} catch (CoreException e1) {
+				logger.warn(e.getMessage());
+			}
 			monitor.setCanceled(true);
 		}
 	}
@@ -355,6 +330,7 @@ public class ParseJob extends Job {
 		return featureContainer;
 	}
 
+	// Checks if a file is a mapping file or not
 	private boolean equalsMappingFile(IResource resource) {
 		if (!(resource instanceof IFile))
 			return false;
@@ -368,6 +344,8 @@ public class ParseJob extends Job {
 				|| resource.getFileExtension().equals(FeaturedashboardConstants.VPFOLDER_FILE);
 	}
 
+	// If an entire file is annoted then we need to get the length of that file so
+	// the metrics are correct
 	private int countLines(IFile file) throws IOException, CoreException {
 		int count = 0;
 		try (InputStream is = new BufferedInputStream(file.getContents())) {

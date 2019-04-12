@@ -1,4 +1,4 @@
-	package se.gu.featuredashboard.ui.views;
+package se.gu.featuredashboard.ui.views;
 
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.DoubleClickEvent;
@@ -6,8 +6,6 @@ import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.MouseEvent;
-import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
@@ -26,102 +24,105 @@ import se.gu.featuredashboard.utils.IUpdateInformationListener;
 import se.gu.featuredashboard.utils.MetricsComparator;
 
 public class ProjectMetricsView extends ViewPart implements IUpdateInformationListener {
-	
+
 	private TableViewer projectViewer;
 	private Table projectTable;
-	
+
 	@Override
 	public void createPartControl(Composite parent) {
 		projectViewer = new TableViewer(parent, SWT.NONE);
 		projectViewer.setContentProvider(ArrayContentProvider.getInstance());
 		projectViewer.setLabelProvider(new MetricsTableLabelProvider());
-		
+
 		projectViewer.addDoubleClickListener(new IDoubleClickListener() {
 
 			@Override
 			public void doubleClick(DoubleClickEvent event) {
 				IStructuredSelection selection = (IStructuredSelection) event.getSelection();
-				if(selection == null)
+				if (selection == null)
 					return;
-				
+
 				Object selectedElement = selection.getFirstElement();
-				if(!(selectedElement instanceof Project))
+				if (!(selectedElement instanceof Project))
 					return;
-				
-				Project project = (Project) selectedElement; 
-				ProjectStore.setActiveProject(project);		
-				
+
+				Project project = (Project) selectedElement;
+				ProjectStore.setActiveProject(project);
+
 				IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
-				if(page == null)
+				if (page == null)
 					return;
-				
-				FeatureListView featureListView = (FeatureListView) page.findView(FeaturedashboardConstants.FEATURELIST_VIEW_ID);
-				if(featureListView != null)
+
+				FeatureListView featureListView = (FeatureListView) page
+						.findView(FeaturedashboardConstants.FEATURELIST_VIEW_ID);
+				if (featureListView != null)
 					featureListView.updateData();
-				
-				FeatureMetricsView featureMetricsView = (FeatureMetricsView) page.findView(FeaturedashboardConstants.FEATUREMETRICS_VIEW_ID);
-				if(featureMetricsView != null)
+
+				FeatureMetricsView featureMetricsView = (FeatureMetricsView) page
+						.findView(FeaturedashboardConstants.FEATUREMETRICS_VIEW_ID);
+				if (featureMetricsView != null)
 					featureMetricsView.updateData();
 			}
-			
+
 		});
-		
+
 		MetricsComparator comparator = new MetricsComparator();
 		projectViewer.setComparator(comparator);
-		
-		TableSelectionListener tableSelectionListener = new TableSelectionListener(projectViewer, comparator, FeaturedashboardConstants.PROJECTTABLE_ID);
-		
+
+		TableSelectionListener tableSelectionListener = new TableSelectionListener(projectViewer, comparator,
+				FeaturedashboardConstants.PROJECTTABLE_ID);
+
 		projectTable = projectViewer.getTable();
 		projectTable.setLayoutData(new GridData(GridData.FILL_BOTH));
-		
+
 		TableColumn column = new TableColumn(projectTable, SWT.LEFT);
 		column.setText(FeaturedashboardConstants.PROJECTTABLE_COLUMN_1_NAME);
 		column.setToolTipText(FeaturedashboardConstants.PROJECTTABLE_COLUMN_1_TOOLTIP);
 		column.setWidth(100);
 		column.addSelectionListener(tableSelectionListener);
-		
+
 		column = new TableColumn(projectTable, SWT.LEFT);
 		column.setText(FeaturedashboardConstants.PROJECTTABLE_COLUMN_2_NAME);
 		column.setToolTipText(FeaturedashboardConstants.PROJECTTABLE_COLUMN_2_TOOLTIP);
 		column.addSelectionListener(tableSelectionListener);
-		
+
 		column = new TableColumn(projectTable, SWT.LEFT);
 		column.setText(FeaturedashboardConstants.PROJECTTABLE_COLUMN_3_NAME);
 		column.setToolTipText(FeaturedashboardConstants.PROJECTTABLE_COLUMN_3_TOOLTIP);
 		column.addSelectionListener(tableSelectionListener);
-		
+
 		column = new TableColumn(projectTable, SWT.LEFT);
 		column.setText(FeaturedashboardConstants.PROJECTTABLE_COLUMN_4_NAME);
 		column.setToolTipText(FeaturedashboardConstants.PROJECTTABLE_COLUMN_4_TOOLTIP);
 		column.addSelectionListener(tableSelectionListener);
-		
+
 		column = new TableColumn(projectTable, SWT.LEFT);
 		column.setText(FeaturedashboardConstants.PROJECTTABLE_COLUMN_5_NAME);
 		column.setToolTipText(FeaturedashboardConstants.PROJECTTABLE_COLUMN_5_TOOLTIP);
 		column.addSelectionListener(tableSelectionListener);
-		
+
 		column = new TableColumn(projectTable, SWT.LEFT);
 		column.setText(FeaturedashboardConstants.PROJECTTABLE_COLUMN_6_NAME);
 		column.setToolTipText(FeaturedashboardConstants.PROJECTTABLE_COLUMN_6_TOOLTIP);
 		column.addSelectionListener(tableSelectionListener);
-		
+
 		// Pack the columns
-	    for (int i = 1, n = projectTable.getColumnCount(); i < n; i++) {
-	      projectTable.getColumn(i).pack();
-	    }
-		
+		for (int i = 1, n = projectTable.getColumnCount(); i < n; i++) {
+			projectTable.getColumn(i).pack();
+		}
+
 		projectTable.setHeaderVisible(true);
 		projectTable.setLinesVisible(true);
-		
+
 		updateData();
 	}
 
 	@Override
 	public void setFocus() {
 		// TODO Auto-generated method stub
-		
+
 	}
-	
+
 	public void updateData() {
 		Display.getDefault().asyncExec(() -> {
 			projectViewer.setInput(ProjectStore.getAll().toArray());
