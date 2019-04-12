@@ -1,3 +1,11 @@
+/*******************************************************************************
+ * Copyright (c) 2019 Chalmers | University of Gothenburg
+ * All rights reserved.
+ * 
+ * Contributors:
+ *      Chalmers | University of Gothenburg
+ *******************************************************************************/
+
 package se.gu.featuredashboard.parsing;
 
 import java.io.IOException;

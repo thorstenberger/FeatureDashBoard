@@ -1,3 +1,11 @@
+/*******************************************************************************
+ * Copyright (c) 2019 Chalmers | University of Gothenburg
+ * All rights reserved.
+ * 
+ * Contributors:
+ *      Chalmers | University of Gothenburg
+ *******************************************************************************/
+
 package se.gu.featuredashboard.parsing;
 
 import java.util.ArrayList;
@@ -6,6 +14,7 @@ import java.util.List;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
@@ -16,7 +25,9 @@ public class ProjectParser{
 	private IFile featureFolderAddress;
 	private IFile featureFileAddress;
 	private IFile claferFileAddress;
-	private ArrayList<IFile> allProjectFiles = new ArrayList<>();
+	private ArrayList<IFile> allAnnotatedFiles = new ArrayList<>();
+	private ArrayList<IFile> allFiles = new ArrayList<>();
+	private ArrayList<IFolder> allFolders = new ArrayList<>();
 	
 	public static final List<String> DEFAULT_EXCLUDED_ANNOTATED_FILES_EXTENSIONS = Arrays.asList("pdf", "class", "DS_Store", "docx");
 	public static final List<String> DEFAULT_EXCLUDED_FOLDERS_OF_ANNOTATED_FILES = Arrays.asList("bin");
@@ -31,7 +42,7 @@ public class ProjectParser{
 		
 		findFilesForParse(project);
 		if(project != null)
-			findAnnotatedFiles(project);
+			traverseAllProjectMembers(project);
 
 	}
 
@@ -64,18 +75,23 @@ public class ProjectParser{
 
 	}
 
-	private void findAnnotatedFiles(IContainer container) {
+	private void traverseAllProjectMembers(IContainer container) {
 		try {
 			Arrays.stream(container.members()).forEach(member ->{
-				if(member instanceof IContainer) {
-					String folderPath = ((IContainer) member).getProjectRelativePath().toString();
+				if(member instanceof IFolder) {
+					IFolder theFolder = (IFolder)member;
+					allFolders.add(theFolder);
+					
+					String folderPath = theFolder.getProjectRelativePath().toString();
 					if(!excludedFoldersOfAnnotatedFiles.contains(folderPath))
-							findAnnotatedFiles((IContainer) member);
+						traverseAllProjectMembers(theFolder);
 				} else if(member instanceof IFile) {
-					IFile newMember = (IFile) member;
-					String extension = newMember.getFileExtension();
+					IFile theFile = (IFile) member;
+					allFiles.add(theFile);
+					
+					String extension = theFile.getFileExtension();
 					if(extension==null || !excludedAnnotatedFilesExtensions.contains(extension))
-						allProjectFiles.add( (IFile) member);
+						allAnnotatedFiles.add( (IFile) member);
 				}
 			});
 		} catch (CoreException e) {
@@ -95,8 +111,16 @@ public class ProjectParser{
 		return claferFileAddress;
 	}
 	
-	public ArrayList<IFile> getAllFiles(){
-		return allProjectFiles;
+	public ArrayList<IFile> getAllAnnotatedFiles(){
+		return allAnnotatedFiles;
 	}
 
+	public ArrayList<IFolder> getAllFolders() {
+		return allFolders;
+	}
+	
+	public ArrayList<IFile> getAllFiles() {
+		return allFiles;
+	}
+	
 }

@@ -1,3 +1,11 @@
+/*******************************************************************************
+ * Copyright (c) 2019 Chalmers | University of Gothenburg
+ * All rights reserved.
+ * 
+ * Contributors:
+ *      Chalmers | University of Gothenburg
+ *******************************************************************************/
+
 package se.gu.featuredashboard.ui.preferences;
 
 import org.eclipse.core.runtime.preferences.ConfigurationScope;
@@ -26,6 +34,11 @@ import org.osgi.service.prefs.Preferences;
 
 import se.gu.featuredashboard.parsing.ProjectParser;
 
+/**
+ * This is the class of preferences for specifying excluded files and folders from searching
+ * for annotated files in the projects.
+ *
+ */
 public class MainPreferences extends PreferencePage implements IWorkbenchPreferencePage {
 
 	List lstOutputs;
@@ -149,7 +162,7 @@ public class MainPreferences extends PreferencePage implements IWorkbenchPrefere
 		
 		
 		Group grpOutputs = new Group(parent, SWT.NONE);	
-		grpOutputs.setText("Excluded Folders With Annotated Files (Project Relative Path):");
+		grpOutputs.setText("Excluded Folders For Annotated Files (Project Relative Path):");
 		gridData = new GridData(GridData.FILL, GridData.FILL,true, true);
 		grpOutputs.setLayoutData(gridData);		
 		gridLayout = new GridLayout(3, false);

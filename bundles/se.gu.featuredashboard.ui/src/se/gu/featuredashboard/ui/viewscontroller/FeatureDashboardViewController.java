@@ -1,3 +1,11 @@
+/*******************************************************************************
+ * Copyright (c) 2019 Chalmers | University of Gothenburg
+ * All rights reserved.
+ * 
+ * Contributors:
+ *      Chalmers | University of Gothenburg
+ *******************************************************************************/
+
 package se.gu.featuredashboard.ui.viewscontroller;
 
 
@@ -20,6 +28,11 @@ import se.gu.featuredashboard.parsing.FeatureFileFolderParser;
 import se.gu.featuredashboard.parsing.InFileAnnotationParser;
 import se.gu.featuredashboard.parsing.ProjectParser;
 
+/**
+ * This class is the controller of FeatureDashboarView and is used for communications
+ * between different classes with that view.
+ *
+ */
 public class FeatureDashboardViewController {
 
 	private static FeatureDashboardViewController INSTANCE;
@@ -53,7 +66,8 @@ public class FeatureDashboardViewController {
 		
 		annotationParser = new InFileAnnotationParser();
 		setRegex_ofPreferences();
-		featureFileFolderParser = new FeatureFileFolderParser(projectParser.getFeatureFileAddress());
+		featureFileFolderParser = new FeatureFileFolderParser(projectParser.getFeatureFileAddress(), 
+				projectParser.getAllFolders(), projectParser.getAllFiles());
 		claferParser = new ClaferFileParser(projectParser.getClaferAddress());
 			
 		updateSelectedProjectData();        
@@ -161,18 +175,20 @@ public class FeatureDashboardViewController {
 		if(!claferParser.getParsingMessage().isEmpty())
 			parsingMessages+= claferParser.getParsingMessage()+"\n";
 		
-		selectedProjectData.addTraces(annotationParser.readParseAnnotations(projectParser.getAllFiles()));
+		selectedProjectData.addTraces(annotationParser.readParseAnnotations(projectParser.getAllAnnotatedFiles()));
 		if(!annotationParser.getParsingMessage().isEmpty())
 			parsingMessages+= annotationParser.getParsingMessage()+"\n";
 		
-		featureFileFolderParser.setParsingFileAddress(projectParser.getFeatureFileAddress());
+		featureFileFolderParser.setParsingInfo(projectParser.getFeatureFileAddress(), 
+				projectParser.getAllFolders(),projectParser.getAllFiles());
 		if(featureFileFolderParser.hasValidFeatureFile()){
 			selectedProjectData.addTraces(featureFileFolderParser.readParse());
 		}
 		if(!featureFileFolderParser.getParsingMessage().isEmpty())
 			parsingMessages+= featureFileFolderParser.getParsingMessage()+"\n";
 
-		featureFileFolderParser.setParsingFileAddress(projectParser.getFeatureFolderAddress());
+		featureFileFolderParser.setParsingInfo(projectParser.getFeatureFolderAddress(), 
+				projectParser.getAllFolders(),projectParser.getAllFiles());
 		if(featureFileFolderParser.hasValidFeatureFolder()){
 			selectedProjectData.addTraces(featureFileFolderParser.readParse());
 		}

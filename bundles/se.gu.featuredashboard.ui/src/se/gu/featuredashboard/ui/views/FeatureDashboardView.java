@@ -1,3 +1,11 @@
+/*******************************************************************************
+ * Copyright (c) 2019 Chalmers | University of Gothenburg
+ * All rights reserved.
+ * 
+ * Contributors:
+ *      Chalmers | University of Gothenburg
+ *******************************************************************************/
+
 package se.gu.featuredashboard.ui.views;
 
 import java.io.BufferedWriter;
@@ -98,6 +106,12 @@ import se.gu.featuredashboard.model.featuremodel.Feature;
 import se.gu.featuredashboard.model.location.FeatureLocation;
 import se.gu.featuredashboard.ui.viewscontroller.FeatureDashboardViewController;
 
+/**
+ * This class is a view including three tabs: feature model, resources and traces.
+ * For the imported project, according to the selected features and resources, all of the 
+ * existent traces in that project would be shown in the traces tab.
+ *
+ */
 public class FeatureDashboardView extends ViewPart {
 
 	private FeatureDashboardViewController controller = FeatureDashboardViewController.getInstance();

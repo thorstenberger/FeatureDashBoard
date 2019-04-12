@@ -1,3 +1,11 @@
+/*******************************************************************************
+ * Copyright (c) 2019 Chalmers | University of Gothenburg
+ * All rights reserved.
+ * 
+ * Contributors:
+ *      Chalmers | University of Gothenburg
+ *******************************************************************************/
+
 package se.gu.featuredashboard.ui.preferences;
 
 import java.util.ArrayList;
@@ -29,6 +37,10 @@ import org.osgi.service.prefs.Preferences;
 
 import se.gu.featuredashboard.parsing.InFileAnnotationParser;
 
+/**
+ * This is the class of preferences for Regex expressions used for annotated files parser.
+ *
+ */
 public class RegexPreferences extends PreferencePage implements IWorkbenchPreferencePage {
 
 	private static final String DEFAULT_LINE_ANNOTATION_REGEX = InFileAnnotationParser.DEFAULT_LINE_ANNOTATION_REGEX;
