@@ -165,7 +165,7 @@ public class ParseJob extends Job {
 		} catch (CoreException e) {
 			try {
 				IMarker marker = container.createMarker(Marker.PROBLEM);
-				marker.setAttribute(Marker.MESSAGE, e.getMessage());
+				marker.setAttribute(Marker.MESSAGE, e.getMessage() + ". Cancelling parsing of project.");
 			} catch (CoreException e1) {
 				logger.warn(e1.getMessage());
 			}
@@ -257,7 +257,10 @@ public class ParseJob extends Job {
 				List<IResource> resources = mapping.get(feature);
 
 				for (IResource resource : resources)
-					mapResourceToFeature(feature, resource, folderResources, monitor);
+					mapResourceToFeature(resource, folderResources, monitor);
+
+				if (monitor.isCanceled())
+					return;
 
 				FeatureContainer featureContainer = getFeatureContainer(feature);
 				featureContainer.addMappingResource(mappingFile, folderResources);
@@ -282,8 +285,8 @@ public class ParseJob extends Job {
 		}
 	}
 
-	private void mapResourceToFeature(Feature feature, IResource resource,
-			List<Tuple<IResource, Integer>> folderResources, IProgressMonitor monitor) {
+	private void mapResourceToFeature(IResource resource, List<Tuple<IResource, Integer>> folderResources,
+			IProgressMonitor monitor) {
 		if (monitor.isCanceled())
 			return;
 
@@ -293,8 +296,7 @@ public class ParseJob extends Job {
 				IResource[] members = folder.members();
 
 				folderResources.add(new Tuple<IResource, Integer>(folder, 0));
-				Arrays.stream(members)
-						.forEach(member -> mapResourceToFeature(feature, member, folderResources, monitor));
+				Arrays.stream(members).forEach(member -> mapResourceToFeature(member, folderResources, monitor));
 			} else {
 				IFile leafFile = (IFile) resource;
 				int lineCount = countLines(leafFile);
