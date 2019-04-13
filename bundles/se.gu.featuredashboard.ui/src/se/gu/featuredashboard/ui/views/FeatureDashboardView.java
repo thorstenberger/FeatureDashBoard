@@ -105,6 +105,8 @@ import org.eclipse.ui.dialogs.PatternFilter;
 import se.gu.featuredashboard.model.featuremodel.Feature;
 import se.gu.featuredashboard.model.location.FeatureLocation;
 import se.gu.featuredashboard.ui.viewscontroller.FeatureDashboardViewController;
+import se.gu.featuredashboard.ui.viewscontroller.GeneralViewsController;
+import se.gu.featuredashboard.utils.IUpdateInformationListener;
 
 /**
  * This class is a view including three tabs: feature model, resources and traces.
@@ -112,10 +114,12 @@ import se.gu.featuredashboard.ui.viewscontroller.FeatureDashboardViewController;
  * existent traces in that project would be shown in the traces tab.
  *
  */
-public class FeatureDashboardView extends ViewPart {
+public class FeatureDashboardView extends ViewPart implements IUpdateInformationListener {
 
 	private FeatureDashboardViewController controller = FeatureDashboardViewController.getInstance();
-		
+	
+	GeneralViewsController viewsController;
+	
 	CheckboxTreeViewer tvFeatureModel;
 	CheckboxTreeViewer tvResources;
 	Table tblTraces;
@@ -134,6 +138,13 @@ public class FeatureDashboardView extends ViewPart {
 	private java.util.List<IResource> allCheckedResources = new ArrayList<IResource>();
 	private java.util.List<IResource> notExistentResources = new ArrayList<IResource>();
 
+
+	//misssing
+	@Override
+	public void updateData() {
+		
+	}
+	
 	@Override
  	public void setFocus() {
 	}
@@ -393,6 +404,14 @@ public class FeatureDashboardView extends ViewPart {
 				else {
 					allCheckedFeatures.remove((Feature)event.getElement());
 				}
+				
+
+				java.util.List<Object> selectedFeatures = Arrays.asList(tvFeatureModel.getCheckedElements());
+				java.util.List<Object> selectedResources = Arrays.asList(tvResources.getCheckedElements());
+
+				java.util.List<FeatureLocation> traces = controller.getTraces(selectedFeatures, selectedResources);
+
+				viewsController.getInstance().updateLocation(traces);
 			}
 		});
 		
@@ -1155,5 +1174,6 @@ public class FeatureDashboardView extends ViewPart {
 			return false;
 		}
 	}
+
 	
 }

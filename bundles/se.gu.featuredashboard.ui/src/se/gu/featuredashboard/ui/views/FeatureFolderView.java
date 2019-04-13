@@ -22,14 +22,19 @@ import com.google.inject.Injector;
 import com.google.inject.util.Modules;
 
 import se.gu.featuredashboard.model.featuremodel.FeatureContainer;
+import se.gu.featuredashboard.model.location.FeatureLocation;
+import se.gu.featuredashboard.ui.listeners.FeatureSelectionListener;
 import se.gu.featuredashboard.ui.providers.GraphContentProvider;
+import se.gu.featuredashboard.ui.viewscontroller.GeneralViewsController;
 import se.gu.featuredashboard.utils.CustomEdge;
 import se.gu.featuredashboard.utils.FeaturedashboardConstants;
 import se.gu.featuredashboard.utils.SelectionHandler;
 import se.gu.featuredashboard.utils.gef.CustomZestFxModule;
 
-public class FeatureFolderView extends ZestFxUiView {
-
+public class FeatureFolderView extends ZestFxUiView implements FeatureSelectionListener {
+	
+	private GeneralViewsController viewController = GeneralViewsController.getInstance();
+	
 	private Set<CustomEdge> graphEdges;
 	private List<Node> graphNodes;
 	private Map<IContainer, Node> lookup;
@@ -47,13 +52,35 @@ public class FeatureFolderView extends ZestFxUiView {
 	@Override
 	public void createPartControl(Composite parent) {
 		super.createPartControl(parent);
-
-		inputToView(SelectionHandler.getSelection());
 	}
 
 	// We can use the same list as we can get the folder that the file is located in
 	// from IFile.getParent()
-	public void inputToView(List<FeatureContainer> featureFileList) {
+	private void getParentStructure(IContainer parent, IContainer child) {
+		if(parent != null) {
+			if(lookup.containsKey(parent)) {
+				graphEdges.add(new CustomEdge(lookup.get(parent), lookup.get(child)));	
+			} else {
+				Node folderNode = GraphContentProvider.getNode(parent.getName());
+				lookup.put(parent, folderNode);
+				graphNodes.add(folderNode);
+				graphEdges.add(new CustomEdge(lookup.get(parent), lookup.get(child)));
+				
+				if(parent instanceof IProject)
+					return;
+				
+				getParentStructure(parent.getParent(), parent);
+			}
+		}
+	}
+
+	
+	// We can use the same list as we can get the folder that the file is located in from IFile.getParent()
+
+	@Override
+	public void dataUpdated(List<FeatureLocation> featureLocations) {
+		/*
+>>>>>>> Stashed changes
 		lookup = new HashMap<>();
 		graphNodes = new ArrayList<>();
 		graphEdges = new HashSet<>();
@@ -80,6 +107,7 @@ public class FeatureFolderView extends ZestFxUiView {
 			});
 			graphNodes.add(featureNode);
 		}
+<<<<<<< Updated upstream
 
 		setGraph(GraphContentProvider.getGraph(FeaturedashboardConstants.FEATUREFOLDER_VIEW_ID,
 				graphEdges.stream().map(customEdge -> (Edge) customEdge).collect(Collectors.toList()), graphNodes,
@@ -102,5 +130,9 @@ public class FeatureFolderView extends ZestFxUiView {
 				getParentStructure(parent.getParent(), parent);
 			}
 		}
+=======
+		
+		setGraph(GraphContentProvider.getGraph(FeaturedashboardConstants.FEATUREFOLDER_VIEW_ID, graphEdges.stream().map(customEdge -> (Edge) customEdge).collect(Collectors.toList()), graphNodes, layoutAlgorithm)); 
+		*/
 	}
 }

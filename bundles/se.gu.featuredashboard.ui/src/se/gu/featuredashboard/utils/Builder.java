@@ -18,7 +18,7 @@ import org.eclipse.ui.PlatformUI;
 import se.gu.featuredashboard.model.featuremodel.Project;
 import se.gu.featuredashboard.model.featuremodel.ProjectStore;
 import se.gu.featuredashboard.ui.listeners.JobChangeListener;
-import se.gu.featuredashboard.ui.views.FeatureListView;
+import se.gu.featuredashboard.ui.views.FeatureDashboardView;
 import se.gu.featuredashboard.ui.views.FeatureMetricsView;
 import se.gu.featuredashboard.ui.views.ProjectMetricsView;
 
@@ -46,11 +46,11 @@ public class Builder extends IncrementalProjectBuilder {
 			IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
 			
 			// Views that should listen when the parsing job is done
-			FeatureListView featureListView = (FeatureListView) page.findView(FeaturedashboardConstants.FEATURELIST_VIEW_ID);
-			FeatureMetricsView featureMetricsView = (FeatureMetricsView) page.findView(FeaturedashboardConstants.FEATUREMETRICS_VIEW_ID);
+			FeatureDashboardView featureDashboardView = (FeatureDashboardView) page.findView(FeaturedashboardConstants.FEATURE_DASHBOARD_VIEW_ID);
+			//FeatureMetricsView featureMetricsView = (FeatureMetricsView) page.findView(FeaturedashboardConstants.FEATUREMETRICS_VIEW_ID);
 			ProjectMetricsView projectMetricsView = (ProjectMetricsView) page.findView(FeaturedashboardConstants.PROJECTMETRICS_VIEW_ID);
 			
-			JobChangeListener jobChangeListener = new JobChangeListener(Arrays.asList(featureListView, featureMetricsView, projectMetricsView));
+			JobChangeListener jobChangeListener = new JobChangeListener(Arrays.asList(featureDashboardView, projectMetricsView));
 			
 			Project project = ProjectStore.getProject(iProject.getLocation());
 			

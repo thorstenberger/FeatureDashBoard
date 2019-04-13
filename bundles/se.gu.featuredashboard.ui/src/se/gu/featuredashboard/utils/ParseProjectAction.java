@@ -27,7 +27,6 @@ import org.eclipse.ui.PlatformUI;
 import se.gu.featuredashboard.model.featuremodel.Project;
 import se.gu.featuredashboard.model.featuremodel.ProjectStore;
 import se.gu.featuredashboard.ui.listeners.JobChangeListener;
-import se.gu.featuredashboard.ui.views.FeatureListView;
 import se.gu.featuredashboard.ui.views.FeatureMetricsView;
 import se.gu.featuredashboard.ui.views.ProjectMetricsView;
 
@@ -42,15 +41,13 @@ public class ParseProjectAction extends Action {
 		IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
 		IWorkbenchPage page = window.getActivePage();
 
-		FeatureListView featureListView = (FeatureListView) page
-				.findView(FeaturedashboardConstants.FEATURELIST_VIEW_ID);
 		FeatureMetricsView featureMetricsView = (FeatureMetricsView) page
 				.findView(FeaturedashboardConstants.FEATUREMETRICS_VIEW_ID);
 		ProjectMetricsView projectMetricsView = (ProjectMetricsView) page
 				.findView(FeaturedashboardConstants.PROJECTMETRICS_VIEW_ID);
 
 		List<IUpdateInformationListener> listeners = new ArrayList<>(
-				Arrays.asList(featureListView, featureMetricsView, projectMetricsView));
+				Arrays.asList(featureMetricsView, projectMetricsView));
 
 		try {
 			String explorerOfChoice = FeaturedashboardConstants.PROJECT_EXPLORER;

@@ -13,14 +13,20 @@ import com.google.inject.Injector;
 import com.google.inject.util.Modules;
 
 import se.gu.featuredashboard.model.featuremodel.FeatureContainer;
+import se.gu.featuredashboard.model.location.FeatureLocation;
+import se.gu.featuredashboard.ui.listeners.FeatureSelectionListener;
 import se.gu.featuredashboard.ui.providers.GraphContentProvider;
+import se.gu.featuredashboard.ui.viewscontroller.FeatureDashboardViewController;
+import se.gu.featuredashboard.ui.viewscontroller.GeneralViewsController;
 import se.gu.featuredashboard.utils.FeaturedashboardConstants;
 import se.gu.featuredashboard.utils.SelectionHandler;
 import se.gu.featuredashboard.utils.gef.CustomGridLayoutAlgorithm;
 import se.gu.featuredashboard.utils.gef.CustomZestFxModule;
 
-public class FeatureFileView extends ZestFxUiView {
-
+public class FeatureFileView extends ZestFxUiView implements FeatureSelectionListener {
+	
+	private GeneralViewsController viewController = GeneralViewsController.getInstance();
+	
 	public FeatureFileView() {
 		super(Guice.createInjector(Modules.override(new MvcFxUiModule()).with(new CustomZestFxModule())));
 	}
@@ -32,15 +38,26 @@ public class FeatureFileView extends ZestFxUiView {
 	@Override
 	public void createPartControl(Composite parent) {
 		super.createPartControl(parent);
+	}
+	
 
-		inputToView(SelectionHandler.getSelection());
+	@Override
+	public void setFocus() {
 	}
 
-	public void inputToView(List<FeatureContainer> featureFileList) {
+	@Override
+	public void dataUpdated(List<FeatureLocation> featureLocations) {
+		/*
+		for(FeatureLocation fc : featureLocations) {
+			System.out.println("Feature:" + fc.getFeature());
+		}
+		
+		
 		List<Node> graphNodes = new ArrayList<>();
-
-		for (FeatureContainer featureFileContainer : featureFileList) {
-			if (featureFileContainer.getFiles().isEmpty())
+		
+		for(FeatureLocation featureFileContainer : featureLocations) {
+			if(featureFileContainer.getFiles().isEmpty())
+>>>>>>> Stashed changes
 				continue;
 
 			Node featureNode = GraphContentProvider.getFeatureNode(featureFileContainer.getFeature().getFeatureID());
@@ -57,6 +74,7 @@ public class FeatureFileView extends ZestFxUiView {
 					nestedGraphNodes, new CustomGridLayoutAlgorithm(40, 40)));
 			graphNodes.add(featureNode);
 		}
+<<<<<<< Updated upstream
 
 		setGraph(GraphContentProvider.getGraph(FeaturedashboardConstants.FEATUREFILE_VIEW_ID, graphNodes,
 				new CustomGridLayoutAlgorithm(40, 40)));
@@ -64,6 +82,10 @@ public class FeatureFileView extends ZestFxUiView {
 
 	@Override
 	public void setFocus() {
+=======
+		
+		setGraph(GraphContentProvider.getGraph(FeaturedashboardConstants.FEATUREFILE_VIEW_ID, graphNodes, new CustomGridLayoutAlgorithm(40, 40)));
+		*/
 	}
 
 }

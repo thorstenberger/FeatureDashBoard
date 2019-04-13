@@ -52,15 +52,9 @@ public class ProjectMetricsView extends ViewPart implements IUpdateInformationLi
 				IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
 				if (page == null)
 					return;
-
-				FeatureListView featureListView = (FeatureListView) page
-						.findView(FeaturedashboardConstants.FEATURELIST_VIEW_ID);
-				if (featureListView != null)
-					featureListView.updateData();
-
-				FeatureMetricsView featureMetricsView = (FeatureMetricsView) page
-						.findView(FeaturedashboardConstants.FEATUREMETRICS_VIEW_ID);
-				if (featureMetricsView != null)
+				
+				FeatureMetricsView featureMetricsView = (FeatureMetricsView) page.findView(FeaturedashboardConstants.FEATUREMETRICS_VIEW_ID);
+				if(featureMetricsView != null)
 					featureMetricsView.updateData();
 			}
 

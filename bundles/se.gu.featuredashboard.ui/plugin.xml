@@ -250,7 +250,7 @@
 		</view>
 	</extension>
  <extension
-       id="se.gu.featuredashboard.ui.FeatureDashboard"
+       id="se.gu.featuredashboard.ui.FeatureDashboardView"
        point="org.eclipse.core.runtime.products">
     <product
           application="org.eclipse.ui.ide.workbench"
