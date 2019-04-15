@@ -23,13 +23,12 @@ public class FeaturedashboardConstants {
 	public static final String FEATURETREE_VIEW_ID = "se.gu.featuredashboard.ui.views.TreeView";
 	public static final String FEATURE_DASHBOARD_VIEW_ID = "se.gu.featuredashboard.ui.views.FeatureDashboardView";
 
-
 	public static final String FEATUREDASHBOARD_FOLDER_PATH = ".featuredashboard";
 
 	public static final String FEATUREDASHBOARD_PREFERENCES = "se.gu.featuredashboard.ui.mainPreferences.page";
 
 	public static final Dimension NODE_SIZE = new Dimension(75, 25);
-	public static final Dimension NODE_SPACING = new Dimension(NODE_SIZE.width + 30, NODE_SIZE.height + 30);
+	public static final Dimension NODE_SPACING = new Dimension(NODE_SIZE.width + 100, NODE_SIZE.height + 30);
 
 	public static final String GRAPH_ID_KEY = "GRAPH_ID";
 	public static final String NESTEDGRAPH_ID = "GRAPH_ID";
