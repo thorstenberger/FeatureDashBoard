@@ -17,67 +17,60 @@ import se.gu.featuredashboard.utils.gef.FeatureNode;
 import se.gu.featuredashboard.utils.gef.FileNode;
 
 public class GraphContentProvider {
-	
+
 	public static Node getNestedGraphNode(String nodeLabel) {
 		FeatureNode featureNode = (FeatureNode) getFeatureNode(nodeLabel);
-		
+
 		ZestProperties.setSize(featureNode, new Dimension(200, 100));
-		
+
 		return featureNode;
 	}
-	
+
 	public static Node getFeatureNode(String nodeLabel) {
-		FeatureNode featureNode = new FeatureNode();
-		
+		FeatureNode featureNode = new FeatureNode(nodeLabel);
+
 		ZestProperties.setLabel(featureNode, nodeLabel);
 		ZestProperties.setTooltip(featureNode, "Double-click to node to see files");
 		ZestProperties.setShapeCssStyle(featureNode, "-fx-fill:green;");
-		
+
 		return featureNode;
 	}
-	
+
 	public static Node getNode(String nodeLabel) {
 		Node node = new Node();
-		
+
 		ZestProperties.setLabelCssStyle(node, "-fx-font-size:12;-fx-fill:white;");
 		ZestProperties.setLabel(node, nodeLabel);
 		ZestProperties.setSize(node, FeaturedashboardConstants.NODE_SIZE);
 		ZestProperties.setPosition(node, new Point(100, 100));
-		
+
 		return node;
 	}
 
-	public static Node getFileNode(String nodeLabel, String tooltip, IFile file, List<BlockLine> annotatedLines) {		
+	public static Node getFileNode(String nodeLabel, String tooltip, IFile file, List<BlockLine> annotatedLines) {
 		FileNode fileNode = new FileNode(file, annotatedLines);
-		
+
 		ZestProperties.setLabel(fileNode, nodeLabel);
 		ZestProperties.setLabelCssStyle(fileNode, "-fx-font-size:12;-fx-fill:white;");
 		ZestProperties.setTooltip(fileNode, tooltip);
 		ZestProperties.setSize(fileNode, new Dimension(100, 50));
 		ZestProperties.setPosition(fileNode, new Point(100, 100));
-		
+
 		return fileNode;
 	}
-	
+
 	public static Graph getGraph(String id, List<Edge> edges, List<Node> nodes, ILayoutAlgorithm layoutAlgorithm) {
-		Graph graph = new Graph.Builder()
-				.nodes(nodes)
-				.edges(edges)
-				.attr(FeaturedashboardConstants.GRAPH_ID_KEY, id)
-				.attr(ZestProperties.LAYOUT_ALGORITHM__G, layoutAlgorithm)
-				.build();
-		
+		Graph graph = new Graph.Builder().nodes(nodes).edges(edges).attr(FeaturedashboardConstants.GRAPH_ID_KEY, id)
+				.attr(ZestProperties.LAYOUT_ALGORITHM__G, layoutAlgorithm).build();
+
 		return graph;
 	}
-	
+
 	public static Graph getGraph(String id, List<Node> nodes, ILayoutAlgorithm layoutAlgorithm) {
-		Graph graph = new Graph.Builder()
-				.nodes(nodes)
-				.attr(FeaturedashboardConstants.GRAPH_ID_KEY, id)
-				.attr(ZestProperties.LAYOUT_ALGORITHM__G, layoutAlgorithm)
-				.build();
-		
+		Graph graph = new Graph.Builder().nodes(nodes).attr(FeaturedashboardConstants.GRAPH_ID_KEY, id)
+				.attr(ZestProperties.LAYOUT_ALGORITHM__G, layoutAlgorithm).build();
+
 		return graph;
 	}
-	
+
 }
