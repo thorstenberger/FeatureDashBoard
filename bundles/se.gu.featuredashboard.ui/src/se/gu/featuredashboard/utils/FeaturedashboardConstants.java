@@ -20,7 +20,7 @@ public class FeaturedashboardConstants {
 	public static final String BUILDER_ID = "se.gu.featuredashboard.utils.Builder";
 	public static final String FEATURE_MARKER_ID = "se.gu.featuredashboard.ui.AnnotationMarker";
 	public static final String REMOVEMARKERS_COMMAND_ID = "se.gu.featuredashboard.ui.commands.RemoveMarkers";
-	public static final String FEATURETREE_VIEW_ID = "se.gu.featuredashboard.ui.views.TreeView";
+	public static final String FEATURETREE_VIEW_ID = "se.gu.featuredashboard.ui.views.FeatureListView";
 	public static final String FEATURE_DASHBOARD_VIEW_ID = "se.gu.featuredashboard.ui.views.FeatureDashboardView";
 
 	public static final String FEATUREDASHBOARD_FOLDER_PATH = ".featuredashboard";

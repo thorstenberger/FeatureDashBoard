@@ -1,6 +1,9 @@
 package se.gu.featuredashboard.ui.views;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.jface.viewers.ILabelProvider;
@@ -18,25 +21,28 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.part.ViewPart;
 
-import se.gu.featuredashboard.model.featuremodel.FeatureContainer;
-import se.gu.featuredashboard.model.featuremodel.ProjectStore;
-import se.gu.featuredashboard.utils.SelectionHandler;
+import se.gu.featuredashboard.model.featuremodel.Feature;
+import se.gu.featuredashboard.model.location.FeatureLocation;
+import se.gu.featuredashboard.ui.listeners.FeatureSelectionListener;
+import se.gu.featuredashboard.ui.viewscontroller.GeneralViewsController;
+import se.gu.featuredashboard.utils.FeaturedashboardConstants;
 
-public class TreeView extends ViewPart {
+public class FeatureListView extends ViewPart implements FeatureSelectionListener {
 
 	private TreeViewer fileViewer;
-
+	private GeneralViewsController viewController = GeneralViewsController.getInstance();
 	private static final String TOOLTIP = "Search for files";
+	private Map<Feature, List<IFile>> map;
 
 	@Override
 	public void createPartControl(Composite parent) {
 
-		/*--------------------FILE----------------------*/
+		viewController.registerFeatureSelectionListener(this);
+
 		Group fileGroup = new Group(parent, SWT.NONE);
 		fileGroup.setLayoutData(new GridData(GridData.FILL, GridData.FILL, true, true));
 		fileGroup.setLayout(new GridLayout(1, false));
@@ -82,23 +88,19 @@ public class TreeView extends ViewPart {
 		fileViewer.setContentProvider(new ITreeContentProvider() {
 			@Override
 			public Object[] getElements(Object inputElement) {
-				return (Object[]) inputElement;
+				return map.keySet().toArray();
 			}
 
 			@Override
 			public Object[] getChildren(Object parentElement) {
-				FeatureContainer fc = (FeatureContainer) parentElement;
-				return fc.getFiles().toArray();
+				if (parentElement instanceof Feature) {
+					return map.get((Feature) parentElement).toArray();
+				}
+				return null;
 			}
 
 			@Override
 			public Object getParent(Object element) {
-				if (element instanceof IFile) {
-					IFile file = (IFile) element;
-					return ProjectStore.getActiveProject().getFeatureContainers().stream().filter(fc -> {
-						return fc.isAnnotatedIn(file) || fc.isMappedIn(file);
-					}).findFirst().get();
-				}
 				return null;
 			}
 
@@ -106,8 +108,7 @@ public class TreeView extends ViewPart {
 			public boolean hasChildren(Object element) {
 				if (element instanceof IFile)
 					return false;
-				FeatureContainer fc = (FeatureContainer) element;
-				return !fc.getFiles().isEmpty();
+				return !map.get((Feature) element).isEmpty();
 			}
 
 		});
@@ -148,20 +149,13 @@ public class TreeView extends ViewPart {
 				if (element instanceof IFile) {
 					return ((IFile) element).getName();
 				} else {
-					return ((FeatureContainer) element).getFeature().getFeatureID();
+					return ((Feature) element).getFeatureID();
 				}
 			}
 		});
 		fileViewer.setFilters(viewerFilter);
 
-		inputToView(SelectionHandler.getSelection());
-	}
-
-	public void inputToView(List<FeatureContainer> selection) {
-		Display.getDefault().asyncExec(() -> {
-			fileViewer.setInput(selection.toArray());
-		});
-
+		dataUpdated(viewController.getLocations());
 	}
 
 	@Override
@@ -181,16 +175,43 @@ public class TreeView extends ViewPart {
 			if (element instanceof IFile) {
 				return ((IFile) element).getName().contains(filter);
 			} else {
-				for (IFile file : ((FeatureContainer) element).getFiles()) {
+				for (IFile file : map.get((Feature) element)) {
 					if (select(viewer, parentElement, file)) {
 						return true;
 					}
 				}
 			}
-
 			return false;
 		}
 
+	}
+
+	private boolean equalsMappingFile(IFile file) {
+		if (file.getFileExtension() == null)
+			return false;
+
+		return file.getFileExtension().equals(FeaturedashboardConstants.FEATUREFILE_FILE)
+				|| file.getFileExtension().equals(FeaturedashboardConstants.FEATUREFOLDER_FILE)
+				|| file.getFileExtension().equals(FeaturedashboardConstants.VPFOLDER_FILE)
+				|| file.getFileExtension().equals(FeaturedashboardConstants.VPFILE_FILE);
+
+	}
+
+	@Override
+	public void dataUpdated(List<FeatureLocation> featureLocations) {
+		map = new HashMap<>();
+
+		featureLocations.forEach(featureLocation -> {
+			List<IFile> files = map.get(featureLocation.getFeature());
+			if (files == null) {
+				files = new ArrayList<>();
+				map.put(featureLocation.getFeature(), files);
+			}
+			if (!equalsMappingFile((IFile) featureLocation.getResource()))
+				files.add((IFile) featureLocation.getResource());
+		});
+
+		fileViewer.setInput(featureLocations);
 	}
 
 }

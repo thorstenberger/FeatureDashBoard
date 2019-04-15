@@ -250,11 +250,11 @@
             id="se.gu.featuredashboard.ui.views">
 		</category>
 		<view
-			name="Feature-to-File List"
+			name="Feature List View"
             icon="icons/featureDashboard_icon.png"
             category="se.gu.featuredashboard.ui.views"
-            class="se.gu.featuredashboard.ui.views.TreeView"
-            id="se.gu.featuredashboard.ui.views.TreeView">
+            class="se.gu.featuredashboard.ui.views.FeatureListView"
+            id="se.gu.featuredashboard.ui.views.FeatureListView">
 		</view>
 	</extension>
 	
