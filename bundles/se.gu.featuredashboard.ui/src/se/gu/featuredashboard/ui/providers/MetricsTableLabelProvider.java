@@ -39,6 +39,10 @@ public class MetricsTableLabelProvider implements ITableLabelProvider {
 
 	@Override
 	public String getColumnText(Object element, int columnIndex) {
+		
+		//needs change 
+		
+		
 		if(element instanceof FeatureContainer) {
 			FeatureContainer featureContainer = (FeatureContainer) element;
 			

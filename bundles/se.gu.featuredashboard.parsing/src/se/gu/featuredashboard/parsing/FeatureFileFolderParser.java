@@ -44,29 +44,15 @@ public class FeatureFileFolderParser {
 	
 	private IFile parsingFile;
 	
-	private List<IFile> allFiles;
-	private List<IFolder> allFolders;
-	
 	/**
 	 * Parsing Constructor 
 	 * 
 	 * @param parsingFile
 	 * 		the file that the will be parsed. The valid file extension must be feature-file
-	 * 		or feature-folder
-	 * 
-	 * @param allFolders
-	 * 		All of the folders in the corresponding project. In the .feature-folder the name of some 
-	 * 		folders would be mentioned, and this input in needed to locate the path of the these folder names.
-	 * 
-	 * @param allFiles
-	 * 		All of the files in the corresponding project. In the .feature-file the name of some 
-	 * 		files would be mentioned, and this input in needed to locate the path of these file names.
-	 * 
+	 * 		or feature-folder 
 	 */
-	public FeatureFileFolderParser(IFile parsingFile, List<IFolder> allFolders, List<IFile> allFiles){
+	public FeatureFileFolderParser(IFile parsingFile){
 		this.parsingFile = parsingFile;
-		this.allFolders = allFolders;
-		this.allFiles = allFiles;
 	}
 
 	
@@ -83,20 +69,9 @@ public class FeatureFileFolderParser {
 	 * @param parsingFile
 	 * 		the file that the will be parsed. The valid file extension must be feature-file
 	 * 		or feature-folder
-	 * 
-	 * @param allFolders
-	 * 		All of the folders in the corresponding project. In the .feature-folder the name of some 
-	 * 		folders would be mentioned, and this input in needed to locate the path of the these folder names.
-	 * 
-	 * @param allFiles
-	 * 		All of the files in the corresponding project. In the .feature-file the name of some 
-	 * 		files would be mentioned, and this input in needed to locate the path of these file names.
-	 * 
 	 */
 	public void setParsingInfo(IFile parsingFile, List<IFolder> allFolders, List<IFile> allFiles) {
 		this.parsingFile = parsingFile;
-		this.allFolders = allFolders;
-		this.allFiles = allFiles;
 	}
 
 	
@@ -189,7 +164,7 @@ public class FeatureFileFolderParser {
 		String[] parts = featureLocationsString.split(";");// removing ';' from the end
 		String featureID = parts[0].split(":")[0];
 		String[] resourcesNames = parts[0].split(":")[1].split(",");
-		
+		/*
 		for(int i=0;i<resourcesNames.length;i++) {
 			if( hasValidFeatureFile() ) {
 				results.add(new FeatureLocation(new Feature(featureID), getFile(resourcesNames[i]) , null));
@@ -197,41 +172,11 @@ public class FeatureFileFolderParser {
 			else { 
 				results.add(new FeatureLocation(new Feature(featureID), getFolder(resourcesNames[i]), null));
 			}	
-		}		
+		}
+		*/		
 		return results;		
 	}
 	
-	/**
-	 * Returns the first file in the project having the name given in the input. If there is
-	 * not such a file, a file with the same name and member of the project will be returned.
-	 * 
-	 * @param fileName
-	 * 		the name of the file that is searched in the project
-	 * 
-	 */
-	private IFile getFile(String fileName) {
-		for(IFile file:allFiles) {
-			if(file.getName().equals(fileName))
-				return file;
-		}
-		return parsingFile.getProject().getFile(fileName);
-	}
-	
-	/**
-	 * Returns the first folder in the project having the name given in the input. If there is
-	 * not such a folder, a folder with the same name and member of the project will be returned.
-	 * 
-	 * @param folderName
-	 * 		the name of the folder that is searched in the project
-	 * 
-	 */
-	private IFolder getFolder(String folderName) {
-		for(IFolder folder:allFolders) {
-			if(folder.getName().equals(folderName))
-				return folder;
-		}
-		return parsingFile.getProject().getFolder(folderName);
-	}
 	
 	/**
 	 * Returns the message of parsing.

@@ -118,7 +118,7 @@ public class MainPreferences extends PreferencePage implements IWorkbenchPrefere
 		});
 
 		Label lblExtension = new Label(grpExtensions, SWT.NONE);
-		lblExtension.setText("New Excluded File Extension:");
+		lblExtension.setText("New File Extension:");
 
 		Text txtExtension = new Text(grpExtensions, SWT.BORDER);
 		gridData = new GridData(GridData.FILL, GridData.CENTER, true, false);
@@ -159,7 +159,7 @@ public class MainPreferences extends PreferencePage implements IWorkbenchPrefere
 		});
 
 		Group grpOutputs = new Group(parent, SWT.NONE);
-		grpOutputs.setText("Excluded Folders For Annotated Files (Project Relative Path):");
+		grpOutputs.setText("Excluded Folders (Project Relative Path):");
 		gridData = new GridData(GridData.FILL, GridData.FILL, true, true);
 		grpOutputs.setLayoutData(gridData);
 		gridLayout = new GridLayout(3, false);
@@ -207,7 +207,7 @@ public class MainPreferences extends PreferencePage implements IWorkbenchPrefere
 		});
 
 		Label lblOutput = new Label(grpOutputs, SWT.NONE);
-		lblOutput.setText("New Excluded Folder:");
+		lblOutput.setText("New Folder:");
 
 		Text txtOutput = new Text(grpOutputs, SWT.BORDER);
 		gridData = new GridData(GridData.FILL, GridData.CENTER, true, false);

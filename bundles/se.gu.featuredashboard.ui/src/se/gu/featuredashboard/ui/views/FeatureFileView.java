@@ -1,7 +1,9 @@
 package se.gu.featuredashboard.ui.views;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.gef.graph.Node;
 import org.eclipse.gef.mvc.fx.ui.MvcFxUiModule;
@@ -12,6 +14,7 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.util.Modules;
 
+import se.gu.featuredashboard.model.featuremodel.Feature;
 import se.gu.featuredashboard.model.featuremodel.FeatureContainer;
 import se.gu.featuredashboard.model.location.FeatureLocation;
 import se.gu.featuredashboard.ui.listeners.FeatureSelectionListener;
@@ -38,6 +41,7 @@ public class FeatureFileView extends ZestFxUiView implements FeatureSelectionLis
 	@Override
 	public void createPartControl(Composite parent) {
 		super.createPartControl(parent);
+		dataUpdated(viewController.getLocations());
 	}
 	
 
@@ -47,45 +51,22 @@ public class FeatureFileView extends ZestFxUiView implements FeatureSelectionLis
 
 	@Override
 	public void dataUpdated(List<FeatureLocation> featureLocations) {
-		/*
-		for(FeatureLocation fc : featureLocations) {
-			System.out.println("Feature:" + fc.getFeature());
-		}
-		
-		
 		List<Node> graphNodes = new ArrayList<>();
+		Map<Feature, Node> map = new HashMap<>();
 		
-		for(FeatureLocation featureFileContainer : featureLocations) {
-			if(featureFileContainer.getFiles().isEmpty())
->>>>>>> Stashed changes
-				continue;
-
-			Node featureNode = GraphContentProvider.getFeatureNode(featureFileContainer.getFeature().getFeatureID());
-
-			List<Node> nestedGraphNodes = new ArrayList<>();
-
-			featureFileContainer.getFiles().forEach(file -> {
-				Node fileNode = GraphContentProvider.getFileNode(file.getName(), file.getFullPath().toString(), file,
-						featureFileContainer.getLines(file));
-				nestedGraphNodes.add(fileNode);
-			});
-
-			featureNode.setNestedGraph(GraphContentProvider.getGraph(FeaturedashboardConstants.NESTEDGRAPH_ID,
-					nestedGraphNodes, new CustomGridLayoutAlgorithm(40, 40)));
-			graphNodes.add(featureNode);
+		for(FeatureLocation featureLocation : featureLocations) {
+			Node featureNode = map.get(featureLocation.getFeature());
+			
+			if(featureNode == null) {
+				featureNode = GraphContentProvider.getFeatureNode(featureLocation.getFeature().getFeatureID());
+				map.put(featureLocation.getFeature(), featureNode);
+				graphNodes.add(featureNode);
+			}
+			
 		}
-<<<<<<< Updated upstream
 
 		setGraph(GraphContentProvider.getGraph(FeaturedashboardConstants.FEATUREFILE_VIEW_ID, graphNodes,
 				new CustomGridLayoutAlgorithm(40, 40)));
-	}
-
-	@Override
-	public void setFocus() {
-=======
-		
-		setGraph(GraphContentProvider.getGraph(FeaturedashboardConstants.FEATUREFILE_VIEW_ID, graphNodes, new CustomGridLayoutAlgorithm(40, 40)));
-		*/
 	}
 
 }

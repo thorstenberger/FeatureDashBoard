@@ -33,7 +33,6 @@ import se.gu.featuredashboard.model.featuremodel.ProjectStore;
 import se.gu.featuredashboard.model.featuremodel.Triple;
 import se.gu.featuredashboard.model.featuremodel.Tuple;
 import se.gu.featuredashboard.utils.FeaturedashboardConstants;
-import se.gu.featuredashboard.utils.ParseJob;
 
 // See how metrics have evolved over time on the current branch in a traditional graph over time
 public class HistoryView extends ViewPart {
@@ -226,10 +225,10 @@ public class HistoryView extends ViewPart {
 					} else if (info[0].equals(GIT_DELETED) || info[0].equals(GIT_MODIFIED)) {
 						// If the diff showd that the file was removed/modified then we need to reparse
 						// it.
-						ParseJob job = new ParseJob("Parse history", project, file,
-								Display.getDefault().getActiveShell());
-						job.setUser(true);
-						job.schedule();
+//						ParseJob job = new ParseJob("Parse history", project, file,
+//								Display.getDefault().getActiveShell());
+//						job.setUser(true);
+//						job.schedule();
 					}
 				}
 

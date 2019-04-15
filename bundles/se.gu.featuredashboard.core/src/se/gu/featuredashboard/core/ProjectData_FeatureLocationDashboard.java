@@ -9,14 +9,20 @@
 package se.gu.featuredashboard.core;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 
+import metrics.Feature_ProjectMetrics;
 import se.gu.featuredashboard.model.featuremodel.Feature;
+import se.gu.featuredashboard.model.location.BlockLine;
 import se.gu.featuredashboard.model.featuremodel.FeatureModelHierarchy;
 import se.gu.featuredashboard.model.location.FeatureLocation;
 
@@ -29,6 +35,8 @@ public class ProjectData_FeatureLocationDashboard {
 	private IProject project;
 	private List<FeatureLocation> traces = new ArrayList<>();
 	private FeatureModelHierarchy featureModelHierarchy = new FeatureModelHierarchy();
+	
+	private Map<Feature, Feature_ProjectMetrics> featureProjectMetrics = new HashMap<>();
 
 	private List<IResource> notExistentResources = new ArrayList<IResource>();
 	private List<Feature> featuresNotInFeatureModel = new ArrayList<Feature>();
@@ -231,4 +239,111 @@ public class ProjectData_FeatureLocationDashboard {
 		featuresNotInFeatureModel.clear();
 		featuresOfFeatureModel.clear();
 	}
+
+	//***************************Metrics************************************
+	
+	public void calculateMetrics() {
+		traces.forEach(featureTrace->{		
+			Feature feature = featureTrace.getFeature();
+			Feature_ProjectMetrics metrics = featureProjectMetrics.get(feature);
+			
+			updateByAdd_maxNestingDepth(metrics,featureTrace);
+			updateByAdd_minNestingDepth(metrics,featureTrace);
+			updateByAdd_avgNestingDepth(metrics,featureTrace);
+			updateByAdd_totalNestingDepth(metrics,featureTrace);
+			updateByAdd_LOFC(metrics,featureTrace);
+			updateByAdd_tanglingDegree(metrics,featureTrace);
+			updateByAdd_folderAnnotations(metrics,featureTrace);
+			updateByAdd_fileAnnotations(metrics,featureTrace);	
+		});
+	}
+	
+	public List<Feature_ProjectMetrics> getProjectMetrics(){
+		return featureProjectMetrics.values().stream().collect(Collectors.toList());
+	}
+	
+	public void appendMetrics(Feature_ProjectMetrics metrics, FeatureLocation featureTrace) {
+		Feature feature = featureTrace.getFeature();
+		IResource resource = featureTrace.getResource();
+		List<BlockLine> blockLines = featureTrace.getBlocklines();
+		
+		if(metrics == null) {
+			metrics = new Feature_ProjectMetrics(feature);
+		}
+		//metrics.setMaxNestingDepth(returnNestingDepth(resource));
+	}
+	
+	private int returnNestingDepth(IResource resource) {
+		if (resource instanceof IProject) {
+			return 0;
+		} else {
+			return 1 + returnNestingDepth(resource.getParent());
+		}
+	}
+	
+	private void updateByAdd_maxNestingDepth(Feature_ProjectMetrics projectMetrics, FeatureLocation featureTrace) {
+		
+	}
+	
+	private void updateByRemove_maxNestingDepth(Feature_ProjectMetrics projectMetrics, FeatureLocation featureTrace) {
+		
+	}
+	
+	private void updateByAdd_minNestingDepth(Feature_ProjectMetrics projectMetrics, FeatureLocation featureTrace) {
+		
+	}
+	
+	private void updateByRemove_minNestingDepth(Feature_ProjectMetrics projectMetrics, FeatureLocation featureTrace) {
+		
+	}
+	
+	private void updateByAdd_avgNestingDepth(Feature_ProjectMetrics projectMetrics, FeatureLocation featureTrace) {
+		
+	}
+	
+	private void updateByRemove_avgNestingDepth(Feature_ProjectMetrics projectMetrics, FeatureLocation featureTrace) {
+		
+	}
+	
+	private void updateByAdd_totalNestingDepth(Feature_ProjectMetrics projectMetrics, FeatureLocation featureTrace) {
+		
+	}
+	
+	private void updateByRemove_totalNestingDepth(Feature_ProjectMetrics projectMetrics, FeatureLocation featureTrace) {
+		
+	}
+	
+	private void updateByAdd_LOFC(Feature_ProjectMetrics projectMetrics, FeatureLocation featureTrace) {
+		
+	}
+	
+	private void updateByRemvoe_LOFC(Feature_ProjectMetrics projectMetrics, FeatureLocation featureTrace) {
+		
+	}
+	
+	private void updateByAdd_tanglingDegree(Feature_ProjectMetrics projectMetrics, FeatureLocation featureTrace) {
+		
+	}
+	
+	private void updateByRemove_tanglingDegree(Feature_ProjectMetrics projectMetrics, FeatureLocation featureTrace) {
+		
+	}
+	
+	private void updateByAdd_folderAnnotations(Feature_ProjectMetrics projectMetrics, FeatureLocation featureTrace) {
+		
+	}
+	
+	private void updateByRemove_folderAnnotations(Feature_ProjectMetrics projectMetrics, FeatureLocation featureTrace) {
+		
+	}
+	
+	private void updateByAdd_fileAnnotations(Feature_ProjectMetrics projectMetrics, FeatureLocation featureTrace) {
+		
+	}
+	
+	private void updateByRemove_fileAnnotations(Feature_ProjectMetrics projectMetrics, FeatureLocation featureTrace) {
+		
+	}
+	
+	
 }

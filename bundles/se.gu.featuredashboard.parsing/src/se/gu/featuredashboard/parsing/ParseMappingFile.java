@@ -7,6 +7,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,6 +19,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.Path;
 
 import se.gu.featuredashboard.model.featuremodel.Feature;
+import se.gu.featuredashboard.model.location.FeatureLocation;
 
 public class ParseMappingFile {
 
@@ -37,17 +39,17 @@ public class ParseMappingFile {
 	private ParseMappingFile() {
 	}
 
-	public static Map<Feature, List<IResource>> readMappingFile(IFile featureFile, IProject project)
+	public static List<FeatureLocation> readMappingFile(IFile featureFile, IProject project)
 			throws SyntaxException {
 
 		if (!Files.exists(Paths.get(featureFile.getLocation().toString())))
-			return new HashMap<>();
+			return Collections.emptyList();
 
 		try (BufferedReader reader = new BufferedReader(new InputStreamReader(featureFile.getContents()))) {
 			if (featureFile.getFileExtension().equals(VPFILE_FILE))
 				return parseVPFileMappingFile(reader, featureFile, project);
-			else if (featureFile.getFileExtension().equals(VPFOLDER_FILE))
-				return parseVPFolderMappingFile(reader, featureFile);
+			else if (featureFile.getFileExtension().equals(VPFOLDER_FILE) || featureFile.getFileExtension().equals(FEATUREFOLDER_FILE))
+				return parseFolderMappingFile(reader, featureFile);
 			return parseFeatureMappingFile(reader, featureFile, project);
 		} catch (IOException | CoreException e) {
 			throw new SyntaxException(e.getMessage());
@@ -55,23 +57,27 @@ public class ParseMappingFile {
 
 	}
 
-	private static Map<Feature, List<IResource>> parseVPFolderMappingFile(BufferedReader reader, IFile featureFile)
+	private static List<FeatureLocation> parseFolderMappingFile(BufferedReader reader, IFile featureFile)
 			throws IOException, CoreException {
-		Map<Feature, List<IResource>> featureFiles = new HashMap<>();
+		List<FeatureLocation> locations = new ArrayList<FeatureLocation>();
 
 		String line = null;
 
 		while ((line = reader.readLine()) != null) {
-			featureFiles.put(new Feature(line.replaceAll(WHITESPACE_REGEX, "")),
-					Arrays.asList(featureFile.getParent().members()));
+			Feature feature = new Feature(line.replaceAll(WHITESPACE_REGEX, ""));
+			Arrays.asList(featureFile.getParent().members()).forEach(resource->{
+				locations.add(new FeatureLocation(feature, resource, null));
+			});
 		}
 
-		return featureFiles;
+		return locations;
 	}
 
-	private static Map<Feature, List<IResource>> parseVPFileMappingFile(BufferedReader reader, IFile featureFile,
+	private static List<FeatureLocation>  parseVPFileMappingFile(BufferedReader reader, IFile featureFile,
 			IProject project) throws SyntaxException, IOException {
-		Map<Feature, List<IResource>> featureFiles = new HashMap<>();
+		
+		List<FeatureLocation> locations = new ArrayList<FeatureLocation>();
+		List<Feature> allFeatures = new ArrayList<Feature>();
 
 		String currentLine = null;
 		String nextLine = null;
@@ -92,19 +98,25 @@ public class ParseMappingFile {
 
 			String[] resources = currentLine.split(" ");
 			Feature feature = new Feature(nextLine.replaceAll(WHITESPACE_REGEX, ""));
-
-			if (featureFiles.containsKey(feature))
+			
+			if(allFeatures.contains(feature)) {
 				throw new SyntaxException(ERRORMESSAGE_DUPLICATED_FEATURE, lineCounter);
-
-			featureFiles.put(feature, getResources(Arrays.asList(resources), lineCounter, featureFile, project));
+			}
+			
+			allFeatures.add(feature);
+			getResources(Arrays.asList(resources), lineCounter, featureFile, project).forEach(resource->{
+				locations.add(new FeatureLocation(feature, resource, null));
+			});
 		}
 
-		return featureFiles;
+		return locations;
 	}
 
-	private static Map<Feature, List<IResource>> parseFeatureMappingFile(BufferedReader reader, IFile featureFile,
+	private static List<FeatureLocation> parseFeatureMappingFile(BufferedReader reader, IFile featureFile,
 			IProject project) throws SyntaxException, IOException {
-		Map<Feature, List<IResource>> featureFiles = new HashMap<>();
+		
+		List<FeatureLocation> locations = new ArrayList<FeatureLocation>();
+		List<Feature> allFeatures = new ArrayList<Feature>();
 
 		String line = null;
 
@@ -129,19 +141,21 @@ public class ParseMappingFile {
 
 			Feature feature = new Feature(featureString);
 
-			if (featureFiles.containsKey(feature))
+			if (allFeatures.contains(feature))
 				throw new SyntaxException(ERRORMESSAGE_DUPLICATED_FEATURE, lineCounter);
-
+			
+			allFeatures.add(feature);
 			String mappingElements[] = lineElements[1].split(",");
 
 			if (mappingElements.length == 0)
 				throw new SyntaxException(ERRORMESSAGE_COMMAS, lineCounter);
 
-			featureFiles.put(feature, getResources(Arrays.asList(mappingElements), lineCounter, featureFile, project));
-
+			getResources(Arrays.asList(mappingElements), lineCounter, featureFile, project).forEach(resource->{
+				locations.add(new FeatureLocation(feature,resource,null));
+			});
 		}
 
-		return featureFiles;
+		return locations;
 	}
 
 	private static List<IResource> getResources(List<String> elements, int lineCounter, IFile mappingFile,

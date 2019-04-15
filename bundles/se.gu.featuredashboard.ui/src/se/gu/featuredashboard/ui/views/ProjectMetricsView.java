@@ -20,10 +20,9 @@ import se.gu.featuredashboard.model.featuremodel.ProjectStore;
 import se.gu.featuredashboard.ui.listeners.TableSelectionListener;
 import se.gu.featuredashboard.ui.providers.MetricsTableLabelProvider;
 import se.gu.featuredashboard.utils.FeaturedashboardConstants;
-import se.gu.featuredashboard.utils.IUpdateInformationListener;
 import se.gu.featuredashboard.utils.MetricsComparator;
 
-public class ProjectMetricsView extends ViewPart implements IUpdateInformationListener {
+public class ProjectMetricsView extends ViewPart {
 
 	private TableViewer projectViewer;
 	private Table projectTable;

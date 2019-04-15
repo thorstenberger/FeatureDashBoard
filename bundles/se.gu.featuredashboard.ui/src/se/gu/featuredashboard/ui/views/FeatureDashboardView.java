@@ -15,19 +15,23 @@ import java.net.URL;
 import java.text.Collator;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
 import org.eclipse.capra.ui.views.SelectionView;
+import org.eclipse.core.resources.ICommand;
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IAdaptable;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IMenuListener;
@@ -41,6 +45,7 @@ import org.eclipse.jface.resource.ResourceManager;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
+import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.CheckStateChangedEvent;
 import org.eclipse.jface.viewers.CheckboxTreeViewer;
 import org.eclipse.jface.viewers.DelegatingStyledCellLabelProvider;
@@ -55,6 +60,7 @@ import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.StyledString;
+import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TreeSelection;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.TreeViewerColumn;
@@ -99,14 +105,22 @@ import org.eclipse.ui.part.ViewPart;
 import org.eclipse.ui.texteditor.ITextEditor;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.FrameworkUtil;
+
+import Listeners.IUpdateInformationListener;
+
 import org.eclipse.ui.dialogs.FilteredTree;
 import org.eclipse.ui.dialogs.PatternFilter;
 
 import se.gu.featuredashboard.model.featuremodel.Feature;
+import se.gu.featuredashboard.model.featuremodel.Project;
+import se.gu.featuredashboard.model.featuremodel.ProjectStore;
 import se.gu.featuredashboard.model.location.FeatureLocation;
+import se.gu.featuredashboard.ui.listeners.TableSelectionListener;
+import se.gu.featuredashboard.ui.providers.MetricsTableLabelProvider;
 import se.gu.featuredashboard.ui.viewscontroller.FeatureDashboardViewController;
 import se.gu.featuredashboard.ui.viewscontroller.GeneralViewsController;
-import se.gu.featuredashboard.utils.IUpdateInformationListener;
+import se.gu.featuredashboard.utils.FeaturedashboardConstants;
+import se.gu.featuredashboard.utils.MetricsComparator;
 
 /**
  * This class is a view including three tabs: feature model, resources and traces.
@@ -114,7 +128,7 @@ import se.gu.featuredashboard.utils.IUpdateInformationListener;
  * existent traces in that project would be shown in the traces tab.
  *
  */
-public class FeatureDashboardView extends ViewPart implements IUpdateInformationListener {
+public class FeatureDashboardView extends ViewPart {
 
 	private FeatureDashboardViewController controller = FeatureDashboardViewController.getInstance();
 	
@@ -128,22 +142,20 @@ public class FeatureDashboardView extends ViewPart implements IUpdateInformation
 	CTabItem ctiFeatureModel;
 	CTabItem ctiResources;
 	CTabItem ctiTraces;
+	CTabItem ctiMetrics;
+	
 	
 	Label lblFeatureModelTabInfo;
 	Label lblResourcesTabInfo;
 	Label lblTracesTabInfo;
+	
+	private TableViewer featureViewer;
+	private Table featureTable;
 
 	private java.util.List<Feature> featuresNotInFeatureModel = new ArrayList<Feature>();
 	private java.util.List<Feature> allCheckedFeatures = new ArrayList<Feature>();
 	private java.util.List<IResource> allCheckedResources = new ArrayList<IResource>();
 	private java.util.List<IResource> notExistentResources = new ArrayList<IResource>();
-
-
-	//misssing
-	@Override
-	public void updateData() {
-		
-	}
 	
 	@Override
  	public void setFocus() {
@@ -187,9 +199,14 @@ public class FeatureDashboardView extends ViewPart implements IUpdateInformation
 	    ctiTraces.setText("Traces");
 	    ctiTraces.setShowClose(false);
 	    
+	    ctiMetrics = new CTabItem(ctfMain, SWT.CLOSE);
+	    ctiMetrics.setText("Feature Metrics");
+	    ctiMetrics.setShowClose(false);
+	    
 	    setFeatureModelTab();
 	    setResourcesTab();
 	    setTracesTab();
+	    setFeatureMetricsTab();
 	    
 	    ctfMain.addSelectionListener(new SelectionAdapter() {		
 	        public void widgetSelected(org.eclipse.swt.events.SelectionEvent event) {    
@@ -315,12 +332,23 @@ public class FeatureDashboardView extends ViewPart implements IUpdateInformation
 	    Action refreshProject = new Action() {
 	    	@Override
 			public void run() {
-    			controller.updateController(getCurrentProject());
+    			IProject selectedIProject = getCurrentProject();
+    			
+    			controller.updateController(selectedIProject);
     			updateFeatureModelTab();
     			updateResourcesTab();
     			updateTracesTab();
     			if(!controller.getParsingMessage().isEmpty())
     				showMessage(controller.getParsingMessage());
+    			
+    			try {
+					if(!hasBuilder(selectedIProject)) {
+						addBuilder(selectedIProject);
+					}
+				} catch (CoreException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 	    	}
 		};
 		refreshProject.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(ISharedImages.IMG_ELCL_SYNCED));
@@ -441,7 +469,7 @@ public class FeatureDashboardView extends ViewPart implements IUpdateInformation
 		
 	}
 	
-	private void updateFeatureModelTab() {	
+	public void updateFeatureModelTab() {	
 		final String message1 = "No project is selected.";
 		final String message2 = "No feature model (.cfr) exists in the project.";
 		final String message3 = "Syntax error in defining the feature model.";
@@ -592,7 +620,7 @@ public class FeatureDashboardView extends ViewPart implements IUpdateInformation
 		return subTreeElemets;
 	}
 	
-	private void updateResourcesTab() {
+	public void updateResourcesTab() {
 		final String message1 = "No project is selected.";
 		final String message2 = "No feature folder traces(.feature-folder) exists in the project.";
 		final String message3 = "No feature file traces(.feature-file) exists in the project.";
@@ -611,27 +639,8 @@ public class FeatureDashboardView extends ViewPart implements IUpdateInformation
 		}
 		else {
 			tvResources.setContentProvider(new ResourcesContentProvider(getCurrentProject()));
-			
-			if(!controller.hasFeatureFolderTraces()) {
-				if(controller.hasFeatureFileTraces()) {
-					lblResourcesTabInfo.setText(message2);	
-					lblResourcesTabInfo.setVisible(true);
-				}
-				else {
-					lblResourcesTabInfo.setText(message4);	
-					lblResourcesTabInfo.setVisible(true);
-				}
-			}
-			else {
-				if(controller.hasFeatureFileTraces()) {
-					lblResourcesTabInfo.setVisible(false);			
-					notExistentResources = controller.getNotExistentResources();
-				}
-				else {
-					lblResourcesTabInfo.setText(message3);	
-					lblResourcesTabInfo.setVisible(true);
-				}
-			}
+			lblResourcesTabInfo.setVisible(false);
+			notExistentResources = controller.getNotExistentResources();
 		}	
 		
 		tvResources.setInput("root"); // passing a non-null value that will be ignored later
@@ -808,7 +817,7 @@ public class FeatureDashboardView extends ViewPart implements IUpdateInformation
 		
 	}
 	
-	private void updateTracesTab() {
+	public void updateTracesTab() {
 		tblTraces.removeAll();
 		tblTraces.setTopIndex(0);
 		
@@ -861,6 +870,95 @@ public class FeatureDashboardView extends ViewPart implements IUpdateInformation
 		lblTracesTabInfo.setVisible(false);
 	}
 
+	private void setFeatureMetricsTab() {
+		CTabItem parentTab = ctiMetrics;
+		
+		Group grpFeatureMetrics = new Group(parentTab.getParent(), SWT.NONE);
+		parentTab.setControl(grpFeatureMetrics);
+		
+		GridData gridData = new GridData(GridData.FILL, GridData.FILL,true, true);
+		grpFeatureMetrics.setLayoutData(gridData);
+		GridLayout gridLayout = new GridLayout(1, false);
+		grpFeatureMetrics.setLayout(gridLayout);
+		
+		MetricsComparator comparator = new MetricsComparator();
+		
+		featureViewer = new TableViewer(grpFeatureMetrics, SWT.NONE);
+		featureViewer.setContentProvider(ArrayContentProvider.getInstance());
+		featureViewer.setLabelProvider(new MetricsTableLabelProvider());
+		featureViewer.setComparator(comparator);
+		
+		TableSelectionListener tableSelectionListener = new TableSelectionListener(featureViewer, comparator, FeaturedashboardConstants.FEATURETABLE_ID);
+		
+		featureTable = featureViewer.getTable();
+		featureTable.setLayoutData(new GridData(GridData.FILL_BOTH));
+		
+		TableColumn column = new TableColumn(featureTable, SWT.LEFT);
+		column.setText(FeaturedashboardConstants.FEATURETABLE_COLUMN_1_NAME);
+		column.setToolTipText(FeaturedashboardConstants.FEATURETABLE_COLUMN_1_TOOLTIP);
+		column.addSelectionListener(tableSelectionListener);
+		column.setWidth(FeaturedashboardConstants.FEATURETABLE_COLUMN_1_SIZE);
+		
+		column = new TableColumn(featureTable, SWT.RIGHT);
+		column.setText(FeaturedashboardConstants.FEATURETABLE_COLUMN_2_NAME);
+		column.setToolTipText(FeaturedashboardConstants.FEATURETABLE_COLUMN_2_TOOLTIP);
+		column.addSelectionListener(tableSelectionListener);
+		column.setWidth(75);
+		
+		column = new TableColumn(featureTable, SWT.LEFT);
+		column.setText(FeaturedashboardConstants.FEATURETABLE_COLUMN_3_NAME);
+		column.setToolTipText(FeaturedashboardConstants.FEATURETABLE_COLUMN_3_TOOLTIP);
+		column.addSelectionListener(tableSelectionListener);
+		
+		column = new TableColumn(featureTable, SWT.LEFT);
+		column.setText(FeaturedashboardConstants.FEATURETABLE_COLUMN_4_NAME);
+		column.setToolTipText(FeaturedashboardConstants.FEATURETABLE_COLUMN_4_TOOLTIP);
+		column.addSelectionListener(tableSelectionListener);
+		
+		column = new TableColumn(featureTable, SWT.LEFT);
+		column.setText(FeaturedashboardConstants.FEATURETABLE_COLUMN_5_NAME);
+		column.setToolTipText(FeaturedashboardConstants.FEATURETABLE_COLUMN_5_TOOLTIP);
+		column.addSelectionListener(tableSelectionListener);
+		
+		column = new TableColumn(featureTable, SWT.LEFT);
+		column.setText(FeaturedashboardConstants.FEATURETABLE_COLUMN_6_NAME);
+		column.setToolTipText(FeaturedashboardConstants.FEATURETABLE_COLUMN_6_TOOLTIP);
+		column.addSelectionListener(tableSelectionListener);
+		
+		column = new TableColumn(featureTable, SWT.LEFT);
+		column.setText(FeaturedashboardConstants.FEATURETABLE_COLUMN_7_NAME);
+		column.setToolTipText(FeaturedashboardConstants.FEATURETABLE_COLUMN_7_TOOLTIP);
+		column.addSelectionListener(tableSelectionListener);
+		
+		column = new TableColumn(featureTable, SWT.LEFT);
+		column.setText(FeaturedashboardConstants.FEATURETABLE_COLUMN_8_NAME);
+		column.setToolTipText(FeaturedashboardConstants.FEATURETABLE_COLUMN_8_TOOLTIP);
+		column.addSelectionListener(tableSelectionListener);
+		
+		column = new TableColumn(featureTable, SWT.LEFT);
+		column.setText(FeaturedashboardConstants.FEATURETABLE_COLUMN_9_NAME);
+		column.setToolTipText(FeaturedashboardConstants.FEATURETABLE_COLUMN_9_TOOLTIP);
+		column.addSelectionListener(tableSelectionListener);
+		
+		// Pack the columns
+	    for (int i = 2, n = featureTable.getColumnCount(); i < n; i++) {
+	      featureTable.getColumn(i).pack();
+	    }
+
+		featureTable.setHeaderVisible(true);
+		featureTable.setLinesVisible(true);
+		
+		updateFeatureMetricsTab();
+	}
+	
+	private void updateFeatureMetricsTab() {
+		Display.getDefault().asyncExec(() -> {
+			IProject activeProject = getCurrentProject();
+			if(activeProject != null)
+				featureViewer.setInput(controller.getProjectMetrics());
+		});
+	}
+	
 	private void showMessage(String message) {
 		MessageDialog.openInformation(ctfMain.getShell(), "Feature Locations View", message);
 	}
@@ -1175,5 +1273,23 @@ public class FeatureDashboardView extends ViewPart implements IUpdateInformation
 		}
 	}
 
+	private void addBuilder(IProject project) throws CoreException {
+	IProjectDescription projectDescription = project.getDescription();
+	ICommand[] buildSpec = projectDescription.getBuildSpec();
+	ICommand command = projectDescription.newCommand();
+	command.setBuilderName(FeaturedashboardConstants.BUILDER_ID);
+	Collection<ICommand> list = new ArrayList<>(Arrays.asList(buildSpec));
+	list.add(command);
+	projectDescription.setBuildSpec(list.toArray(new ICommand[list.size()]));
+	project.setDescription(projectDescription, new NullProgressMonitor());
+}
+
+	private boolean hasBuilder(IProject project) throws CoreException {
+		for (final ICommand buildSpec : project.getDescription().getBuildSpec()) {
+			if (FeaturedashboardConstants.BUILDER_ID.equals(buildSpec.getBuilderName()))
+				return true;
+		}
+		return false;
+	}
 	
 }

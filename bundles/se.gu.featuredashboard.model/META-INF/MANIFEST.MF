@@ -4,7 +4,8 @@ Bundle-Name: Model
 Bundle-SymbolicName: se.gu.featuredashboard.model
 Bundle-Version: 0.1.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Export-Package: se.gu.featuredashboard.model.featuremodel,
+Export-Package: metrics,
+ se.gu.featuredashboard.model.featuremodel,
  se.gu.featuredashboard.model.location
 Require-Bundle: org.eclipse.core.resources,
  org.eclipse.core.jobs
