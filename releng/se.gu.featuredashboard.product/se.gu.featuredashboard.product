@@ -7,7 +7,7 @@
    </configIni>
 
    <launcherArgs>
-      <programArgsLin>--launcher.GTK_VERSION
+      <programArgsLin>--launcher.GTK_VERSION 
 2
       </programArgsLin>
       <vmArgs>-Dosgi.framework.extensions=org.eclipse.fx.osgi
