@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+	<extension
+		id="headless"
+		point="org.eclipse.core.runtime.applications">
+		<application>
+			<run
+				class="se.gu.featuredashboard.parsing.headless.ParseHeadless">
+			</run>
+		</application>
+	</extension>
+ <extension
+       id="headless"
+       point="org.eclipse.core.runtime.products">
+    <product
+          application="se.gu.featuredashboard.parsing.headless"
+          name="FeatureDashboard Headless">
+    </product>
+ </extension>
+</plugin>
