@@ -9,8 +9,6 @@ import org.eclipse.gef.layout.ILayoutAlgorithm;
 import org.eclipse.gef.layout.LayoutContext;
 import org.eclipse.gef.layout.LayoutProperties;
 
-import se.gu.featuredashboard.utils.FeaturedashboardConstants;
-
 public class FeatureFileLayoutAlgorithm implements ILayoutAlgorithm {
 
 	private Rectangle bounds;
@@ -30,13 +28,16 @@ public class FeatureFileLayoutAlgorithm implements ILayoutAlgorithm {
 
 	private void performLayout(Node[] nodes, Edge[] edges, Rectangle graphBounds) {
 
-		double featureNodeX = 0;
-		double featureNodeY = FeaturedashboardConstants.FEATURE_NODE_SIZE.height + 20;
+		if (nodes.length == 0)
+			return;
 
-		double nestedNodeX = 0;
-		double nestedNodeY = graphBounds.getHeight() - 2*FeaturedashboardConstants.NESTED_NODE_SIZE.height;
+		double featureNodeX = 20;
+		double featureNodeY = 20;
 
-		double commonNodeX = 0;
+		double nestedNodeX = 20;
+		double nestedNodeY = graphBounds.getHeight() - 100;
+
+		double commonNodeX = 20;
 		double commonNodeY = graphBounds.getHeight() / 2;
 
 		for (Node node : nodes) {
