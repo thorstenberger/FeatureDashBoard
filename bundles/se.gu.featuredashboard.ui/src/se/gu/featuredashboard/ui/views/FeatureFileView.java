@@ -86,8 +86,17 @@ public class FeatureFileView extends ZestFxUiView implements IFeatureSelectionLi
 					nestedMap.get(value), new CustomGridLayoutAlgorithm(50, 50)));
 		});
 
+		if (graphNodes.isEmpty())
+			return;
+
 		setGraph(GraphContentProvider.getGraph(FeaturedashboardConstants.FEATUREFILE_VIEW_ID, graphNodes,
 				new CustomGridLayoutAlgorithm(50, 50)));
+	}
+
+	@Override
+	public void dispose() {
+		super.dispose();
+		viewController.removeFeatureSelectionListener(this);
 	}
 
 	private boolean equalsMappingFile(IFile file) {

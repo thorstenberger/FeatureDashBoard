@@ -87,17 +87,8 @@ public class FeatureFolderView extends ZestFxUiView implements IFeatureSelection
 
 		}
 
-		graphEdges.forEach(edge -> {
-			System.out.println("Source: " + edge.getSource().getAttributes().get("element-label") + ". Dest: "
-					+ edge.getTarget().getAttributes().get("element-label"));
-		});
-
-		System.out.println("Edges: " + graphEdges.size());
-
-		System.out.println("Nodes: " + graphNodes.size());
-		graphNodes.forEach(node -> {
-
-		});
+		if (graphNodes.isEmpty() && graphEdges.isEmpty())
+			return;
 
 		setGraph(GraphContentProvider.getGraph(FeaturedashboardConstants.FEATUREFOLDER_VIEW_ID,
 				graphEdges.stream().map(edges -> (Edge) edges).collect(Collectors.toList()),
@@ -121,5 +112,11 @@ public class FeatureFolderView extends ZestFxUiView implements IFeatureSelection
 				getParentStructure(parent.getParent(), parent);
 			}
 		}
+	}
+
+	@Override
+	public void dispose() {
+		super.dispose();
+		viewController.removeFeatureSelectionListener(this);
 	}
 }

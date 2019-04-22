@@ -4,7 +4,7 @@ import java.util.List;
 
 import se.gu.featuredashboard.model.location.FeatureLocation;
 
-public interface IFeatureSelectionListener extends ISelectionListener {
+public interface IFeatureSelectionListener {
 
 	void updateFeatureSelection(List<FeatureLocation> featureLocations);
 

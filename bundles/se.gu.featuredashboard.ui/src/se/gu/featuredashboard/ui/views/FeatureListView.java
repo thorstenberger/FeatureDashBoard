@@ -214,4 +214,10 @@ public class FeatureListView extends ViewPart implements IFeatureSelectionListen
 		fileViewer.setInput(featureLocations);
 	}
 
+	@Override
+	public void dispose() {
+		super.dispose();
+		viewController.removeFeatureSelectionListener(this);
+	}
+
 }

@@ -30,6 +30,8 @@ import se.gu.featuredashboard.utils.gef.FeatureNode;
 
 public class FeatureTanglingView extends ZestFxUiView implements IFeatureSelectionListener, IProjectSelectionListener {
 
+	private GeneralViewsController viewController;
+
 	private SpringLayoutAlgorithm springLayoutAlgorithm = new SpringLayoutAlgorithm();
 
 	private Map<IFile, Set<Feature>> fileToFeatures;
@@ -39,7 +41,12 @@ public class FeatureTanglingView extends ZestFxUiView implements IFeatureSelecti
 	public void createPartControl(Composite parent) {
 		super.createPartControl(parent);
 
-		GeneralViewsController.getInstance().registerFeatureSelectionListener(this);
+		viewController = GeneralViewsController.getInstance();
+		viewController.registerFeatureSelectionListener(this);
+		viewController.registerProjectSelectionListener(this);
+
+		updateFeatureSelection(viewController.getLocations());
+
 		springLayoutAlgorithm.setResizing(false);
 		springLayoutAlgorithm.setSpringLength(50);
 	}
@@ -115,6 +122,9 @@ public class FeatureTanglingView extends ZestFxUiView implements IFeatureSelecti
 		List<Edge> edges = graphEdges.stream().map(customEdge -> (Edge) customEdge).collect(Collectors.toList());
 		List<Node> nodes = graphNodes.stream().map(featureNode -> (Node) featureNode).collect(Collectors.toList());
 
+		if (graphNodes.isEmpty() && graphEdges.isEmpty())
+			return;
+
 		setGraph(GraphContentProvider.getGraph(FeaturedashboardConstants.FEATURETANGLING_VIEW_ID, edges, nodes,
 				springLayoutAlgorithm));
 
@@ -125,6 +135,13 @@ public class FeatureTanglingView extends ZestFxUiView implements IFeatureSelecti
 		// The current project has been changed. Reset structure
 		fileToFeatures = null;
 		allNodes = null;
+	}
+
+	@Override
+	public void dispose() {
+		super.dispose();
+		viewController.removeFeatureSelectionListener(this);
+		viewController.removeProjectSelectionListener(this);
 	}
 
 }

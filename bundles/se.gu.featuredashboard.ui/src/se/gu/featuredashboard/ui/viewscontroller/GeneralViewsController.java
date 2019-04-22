@@ -6,12 +6,12 @@ import java.util.List;
 import se.gu.featuredashboard.model.location.FeatureLocation;
 import se.gu.featuredashboard.ui.listeners.IFeatureSelectionListener;
 import se.gu.featuredashboard.ui.listeners.IProjectSelectionListener;
-import se.gu.featuredashboard.ui.listeners.ISelectionListener;
 
 public class GeneralViewsController {
 
 	private List<FeatureLocation> locations = new ArrayList<FeatureLocation>();
-	private List<ISelectionListener> listeners = new ArrayList<ISelectionListener>();
+	private List<IFeatureSelectionListener> featureSelectionListeners = new ArrayList<>();
+	private List<IProjectSelectionListener> projectSelectionListeners = new ArrayList<>();
 
 	private static GeneralViewsController INSTANCE;
 
@@ -32,26 +32,31 @@ public class GeneralViewsController {
 
 	public void updateLocation(List<FeatureLocation> locations) {
 		this.locations = locations;
+		featureSelectionListeners.forEach(listener -> {
+			listener.updateFeatureSelection(locations);
+		});
+	}
 
-		listeners.forEach(listener -> {
-			// A listner can implement both listeners
-			if (listener instanceof IFeatureSelectionListener) {
-				((IFeatureSelectionListener) listener).updateFeatureSelection(locations);
-			}
-
-			if (listener instanceof IProjectSelectionListener) {
-				((IProjectSelectionListener) listener).updateProjectSelected();
-			}
-
+	public void projectUpdated() {
+		projectSelectionListeners.forEach(listener -> {
+			listener.updateProjectSelected();
 		});
 	}
 
 	public void registerFeatureSelectionListener(IFeatureSelectionListener listener) {
-		listeners.add(listener);
+		featureSelectionListeners.add(listener);
 	}
 
 	public void removeFeatureSelectionListener(IFeatureSelectionListener listener) {
-		listeners.remove(listener);
+		featureSelectionListeners.remove(listener);
+	}
+
+	public void registerProjectSelectionListener(IProjectSelectionListener listener) {
+		projectSelectionListeners.add(listener);
+	}
+
+	public void removeProjectSelectionListener(IProjectSelectionListener listener) {
+		projectSelectionListeners.remove(listener);
 	}
 
 	public List<FeatureLocation> getLocations() {

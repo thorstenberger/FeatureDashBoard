@@ -16,7 +16,6 @@ import java.text.Collator;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
@@ -34,9 +33,6 @@ import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.action.Action;
-import org.eclipse.jface.action.IMenuListener;
-import org.eclipse.jface.action.IMenuManager;
-import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.resource.JFaceResources;
@@ -53,16 +49,11 @@ import org.eclipse.jface.viewers.DelegatingStyledCellLabelProvider.IStyledLabelP
 import org.eclipse.jface.viewers.ICheckStateListener;
 import org.eclipse.jface.viewers.IColorProvider;
 import org.eclipse.jface.viewers.ILabelProviderListener;
-import org.eclipse.jface.viewers.ISelection;
-import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.LabelProvider;
-import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.StyledString;
 import org.eclipse.jface.viewers.TableViewer;
-import org.eclipse.jface.viewers.TreeSelection;
-import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.TreeViewerColumn;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerFilter;
@@ -97,7 +88,6 @@ import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.ISelectionService;
 import org.eclipse.ui.ISharedImages;
-import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.ide.IDE;
@@ -106,14 +96,7 @@ import org.eclipse.ui.texteditor.ITextEditor;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.FrameworkUtil;
 
-import Listeners.IUpdateInformationListener;
-
-import org.eclipse.ui.dialogs.FilteredTree;
-import org.eclipse.ui.dialogs.PatternFilter;
-
 import se.gu.featuredashboard.model.featuremodel.Feature;
-import se.gu.featuredashboard.model.featuremodel.Project;
-import se.gu.featuredashboard.model.featuremodel.ProjectStore;
 import se.gu.featuredashboard.model.location.FeatureLocation;
 import se.gu.featuredashboard.ui.listeners.TableSelectionListener;
 import se.gu.featuredashboard.ui.providers.MetricsTableLabelProvider;
@@ -508,6 +491,7 @@ public class FeatureDashboardView extends ViewPart {
 			));
 		}
 		tvFeatureModel.setInput("root"); // passing a non-null value that will be ignored later
+		GeneralViewsController.getInstance().projectUpdated();
 	}
 
 	private void setResourcesTab() {
