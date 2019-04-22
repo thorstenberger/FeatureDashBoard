@@ -28,11 +28,14 @@ public class FeaturedashboardConstants {
 
 	public static final String FEATUREDASHBOARD_PREFERENCES = "se.gu.featuredashboard.ui.mainPreferences.page";
 
-	public static final Dimension NODE_SIZE = new Dimension(75, 25);
-	public static final Dimension NODE_SPACING = new Dimension(NODE_SIZE.width + 100, NODE_SIZE.height + 30);
+	public static final Dimension NESTED_NODE_SIZE = new Dimension(100, 25);
+	public static final Dimension FEATURE_NODE_SIZE = new Dimension(90, 40);
+	public static final Dimension FILE_NODE_SIZE = new Dimension(80, 30);
+	public static final Dimension NODE_SIZE = new Dimension(95, 45);
+	public static final Dimension FOLDER_NODE_SPACING = new Dimension(NODE_SIZE.width + 100, NODE_SIZE.height + 30);
 
 	public static final String GRAPH_ID_KEY = "GRAPH_ID";
-	public static final String NESTEDGRAPH_ID = "GRAPH_ID";
+	public static final String NESTEDGRAPH_ID = "NESTED_GRAPH_ID";
 
 	// File name associated strings
 	public static final String FEATUREFILE_FILE = "feature-file";

@@ -1,37 +1,32 @@
 package se.gu.featuredashboard.ui.providers;
 
 import java.util.Collection;
-import java.util.List;
 
 import org.eclipse.core.resources.IFile;
-import org.eclipse.gef.geometry.planar.Dimension;
-import org.eclipse.gef.geometry.planar.Point;
 import org.eclipse.gef.graph.Edge;
 import org.eclipse.gef.graph.Graph;
 import org.eclipse.gef.graph.Node;
 import org.eclipse.gef.layout.ILayoutAlgorithm;
 import org.eclipse.gef.zest.fx.ZestProperties;
 
-import se.gu.featuredashboard.model.location.BlockLine;
+import se.gu.featuredashboard.model.featuremodel.Feature;
 import se.gu.featuredashboard.utils.FeaturedashboardConstants;
 import se.gu.featuredashboard.utils.gef.FeatureNode;
 import se.gu.featuredashboard.utils.gef.FileNode;
 
 public class GraphContentProvider {
 
-	public static Node getNestedGraphNode(String nodeLabel) {
-		FeatureNode featureNode = (FeatureNode) getFeatureNode(nodeLabel);
-
-		ZestProperties.setTooltip(featureNode, "Double-click to node to see files");
-		ZestProperties.setSize(featureNode, new Dimension(200, 100));
-
-		return featureNode;
+	public static Node getNestedGraphNode() {
+		return new Node.Builder()
+				.attr(ZestProperties.SIZE__N, FeaturedashboardConstants.NESTED_NODE_SIZE)
+				.attr(ZestProperties.LABEL__NE, "Double-Click to see files")
+				.buildNode();
 	}
 
-	public static FeatureNode getFeatureNode(String nodeLabel) {
-		FeatureNode featureNode = new FeatureNode(nodeLabel);
+	public static FeatureNode getFeatureNode(Feature feature) {
+		FeatureNode featureNode = new FeatureNode(feature);
 
-		ZestProperties.setLabel(featureNode, nodeLabel);
+		ZestProperties.setLabel(featureNode, feature.getFeatureID());
 		ZestProperties.setShapeCssStyle(featureNode, "-fx-fill:green;");
 
 		return featureNode;
@@ -43,19 +38,17 @@ public class GraphContentProvider {
 		ZestProperties.setLabelCssStyle(node, "-fx-font-size:12;-fx-fill:white;");
 		ZestProperties.setLabel(node, nodeLabel);
 		ZestProperties.setSize(node, FeaturedashboardConstants.NODE_SIZE);
-		ZestProperties.setPosition(node, new Point(100, 100));
 
 		return node;
 	}
 
-	public static Node getFileNode(String nodeLabel, String tooltip, IFile file, List<BlockLine> annotatedLines) {
-		FileNode fileNode = new FileNode(file, annotatedLines);
+	public static FileNode getFileNode(IFile file) {
+		FileNode fileNode = new FileNode(file);
 
-		ZestProperties.setLabel(fileNode, nodeLabel);
+		ZestProperties.setLabel(fileNode, file.getName().toString());
+		ZestProperties.setTooltip(fileNode, file.getFullPath().toString());
 		ZestProperties.setLabelCssStyle(fileNode, "-fx-font-size:12;-fx-fill:white;");
-		ZestProperties.setTooltip(fileNode, tooltip);
-		ZestProperties.setSize(fileNode, new Dimension(100, 50));
-		ZestProperties.setPosition(fileNode, new Point(100, 100));
+		ZestProperties.setSize(fileNode, FeaturedashboardConstants.FILE_NODE_SIZE);
 
 		return fileNode;
 	}

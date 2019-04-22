@@ -37,7 +37,7 @@ public class FeatureFolderView extends ZestFxUiView implements IFeatureSelection
 	private Set<Node> graphNodes;
 	private Map<IContainer, Node> lookup;
 	private TreeLayoutAlgorithm layoutAlgorithm = new TreeLayoutAlgorithm(TreeLayoutAlgorithm.TOP_DOWN,
-			FeaturedashboardConstants.NODE_SPACING);
+			FeaturedashboardConstants.FOLDER_NODE_SPACING);
 
 	public FeatureFolderView() {
 		super(Guice.createInjector(Modules.override(new MvcFxUiModule()).with(new CustomZestFxModule())));
@@ -62,7 +62,7 @@ public class FeatureFolderView extends ZestFxUiView implements IFeatureSelection
 		graphEdges = new HashSet<>();
 
 		for (FeatureLocation featureLocation : featureLocations) {
-			Node featureNode = GraphContentProvider.getFeatureNode(featureLocation.getFeature().getFeatureID());
+			Node featureNode = GraphContentProvider.getFeatureNode(featureLocation.getFeature());
 
 			if (!(featureLocation.getResource() instanceof IFile))
 				continue;
@@ -86,9 +86,6 @@ public class FeatureFolderView extends ZestFxUiView implements IFeatureSelection
 			graphNodes.add(featureNode);
 
 		}
-
-		if (graphNodes.isEmpty() && graphEdges.isEmpty())
-			return;
 
 		setGraph(GraphContentProvider.getGraph(FeaturedashboardConstants.FEATUREFOLDER_VIEW_ID,
 				graphEdges.stream().map(edges -> (Edge) edges).collect(Collectors.toList()),

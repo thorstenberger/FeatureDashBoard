@@ -2,12 +2,18 @@ package se.gu.featuredashboard.ui.views;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IFolder;
+import org.eclipse.gef.graph.Edge;
 import org.eclipse.gef.graph.Node;
 import org.eclipse.gef.mvc.fx.ui.MvcFxUiModule;
+import org.eclipse.gef.zest.fx.ZestProperties;
 import org.eclipse.gef.zest.fx.ui.parts.ZestFxUiView;
 import org.eclipse.swt.widgets.Composite;
 
@@ -16,13 +22,18 @@ import com.google.inject.Injector;
 import com.google.inject.util.Modules;
 
 import se.gu.featuredashboard.model.featuremodel.Feature;
+import se.gu.featuredashboard.model.featuremodel.Tuple;
 import se.gu.featuredashboard.model.location.FeatureLocation;
 import se.gu.featuredashboard.ui.listeners.IFeatureSelectionListener;
 import se.gu.featuredashboard.ui.providers.GraphContentProvider;
 import se.gu.featuredashboard.ui.viewscontroller.GeneralViewsController;
 import se.gu.featuredashboard.utils.FeaturedashboardConstants;
-import se.gu.featuredashboard.utils.gef.CustomGridLayoutAlgorithm;
+import se.gu.featuredashboard.utils.gef.CustomEdge;
 import se.gu.featuredashboard.utils.gef.CustomZestFxModule;
+import se.gu.featuredashboard.utils.gef.FeatureFileLayoutAlgorithm;
+import se.gu.featuredashboard.utils.gef.FeatureNode;
+import se.gu.featuredashboard.utils.gef.FileGridLayoutAlgorithm;
+import se.gu.featuredashboard.utils.gef.FileNode;
 
 public class FeatureFileView extends ZestFxUiView implements IFeatureSelectionListener {
 
@@ -50,47 +61,104 @@ public class FeatureFileView extends ZestFxUiView implements IFeatureSelectionLi
 
 	@Override
 	public void updateFeatureSelection(List<FeatureLocation> featureLocations) {
-		List<Node> graphNodes = new ArrayList<>();
-		Map<Feature, Node> map = new HashMap<>();
-		Map<Node, List<Node>> nestedMap = new HashMap<>();
+		// We need to know for each file which features are implemented in it. For
+		// convenience, save the graphNode here as well.
+		Map<IFile, Tuple<Set<Feature>, FileNode>> fileToTuple = new HashMap<>();
+		// Mapping between a feature and its node in the graph
+		Map<Feature, FeatureNode> featureToNode = new HashMap<>();
+		// We need to know which nodes belongs to which feature
+		Map<Feature, List<FileNode>> featureToNestedNodes = new HashMap<>();
 
-		for (FeatureLocation featureLocation : featureLocations) {
-			Node featureNode = map.get(featureLocation.getFeature());
+		// All graph edges
+		Set<CustomEdge> graphEdges = new HashSet<>();
+		// All graph nodes
+		Set<Node> graphNodes = new HashSet<>();
 
-			if (featureNode == null) {
-				featureNode = GraphContentProvider.getFeatureNode(featureLocation.getFeature().getFeatureID());
-				map.put(featureLocation.getFeature(), featureNode);
-				graphNodes.add(featureNode);
+		// First we need to know which features are located in a file
+		featureLocations.forEach(location -> {
+			if (location.getResource() instanceof IFolder)
+				return;
+
+			Feature feature = location.getFeature();
+
+			if (!featureToNode.containsKey(feature))
+				featureToNode.put(feature, GraphContentProvider.getFeatureNode(feature));
+
+			IFile file = (IFile) location.getResource();
+			
+			if (equalsMappingFile(file))
+				return;
+
+			Tuple<Set<Feature>, FileNode> fileTuple = fileToTuple.get(file);
+			if (fileTuple == null) {
+				Set<Feature> featuresInFile = new HashSet<>();
+				featuresInFile.add(feature);
+
+				FileNode fileNode = GraphContentProvider.getFileNode(file);
+				fileNode.addAnnotatedLines(location.getBlocklines());
+
+				fileTuple = new Tuple<>(featuresInFile, fileNode);
+				fileToTuple.put(file, fileTuple);
+			} else {
+				Set<Feature> featuresInFile = fileTuple.getLeft();
+				featuresInFile.add(feature);
+
+				FileNode fileNode = fileTuple.getRight();
+				fileNode.addAnnotatedLines(location.getBlocklines());
 			}
-
-			List<Node> nestedNodes = nestedMap.get(featureNode);
-
-			if (nestedNodes == null) {
-				nestedNodes = new ArrayList<>();
-				nestedMap.put(featureNode, nestedNodes);
-			}
-
-			if (featureLocation.getResource() instanceof IFile) {
-				IFile file = (IFile) featureLocation.getResource();
-
-				if (!equalsMappingFile(file))
-					nestedNodes.add(GraphContentProvider.getFileNode(featureLocation.getResource().getName(),
-							featureLocation.getResource().getFullPath().toString(),
-							(IFile) featureLocation.getResource(), featureLocation.getBlocklines()));
-			}
-
-		}
-
-		map.values().forEach(value -> {
-			value.setNestedGraph(GraphContentProvider.getGraph(FeaturedashboardConstants.FEATUREFILE_VIEW_ID,
-					nestedMap.get(value), new CustomGridLayoutAlgorithm(50, 50)));
 		});
 
-		if (graphNodes.isEmpty())
-			return;
+		// If there is only one of the selected features in a file, then that file
+		// be place in a nested graph for that feature. Otherwise, the filenode should
+		// be placed outside any nested graphs and be connected to the feature nodes directly
+		fileToTuple.values().forEach(fileTuple -> {
+			FileNode fileNode = fileTuple.getRight();
+			List<Feature> features = fileTuple.getLeft().stream().collect(Collectors.toList());
 
-		setGraph(GraphContentProvider.getGraph(FeaturedashboardConstants.FEATUREFILE_VIEW_ID, graphNodes,
-				new CustomGridLayoutAlgorithm(50, 50)));
+			// If file only has one feature then it should be placed in the nested graph
+			if (features.size() == 1) {
+				List<FileNode> nestedNodes = featureToNestedNodes.get(features.get(0));
+				if (nestedNodes == null) {
+					nestedNodes = new ArrayList<>();
+					featureToNestedNodes.put(features.get(0), nestedNodes);
+				}
+				nestedNodes.add(fileNode);
+				graphNodes.add(featureToNode.get(features.get(0)));
+			} else {
+				features.forEach(feature -> {
+					graphNodes.add(featureToNode.get(feature));
+					CustomEdge edge = new CustomEdge(featureToNode.get(feature), fileNode);
+					// Same problem here as in FeatureTanglingView, i.e., if I don't set any property here, it doesn't
+					// seem like I can set It in the click handler. Therefore, add empty css here and add focused in
+					// click handler
+					ZestProperties.setCurveCssStyle(edge, "");
+					graphEdges.add(edge);
+				});
+				graphNodes.add(fileNode);
+			}
+		});
+
+		// All the file nodes that only belong to one feature should be placed in a nested graph. Loop
+		// throught the featureToNestedNodes which contains these file nodes for each feature.
+		featureToNestedNodes.entrySet().forEach(entry -> {
+			Node nestedNode = GraphContentProvider.getNestedGraphNode();
+			nestedNode.setNestedGraph(GraphContentProvider.getGraph(FeaturedashboardConstants.FEATUREFILE_VIEW_ID,
+					entry.getValue().stream().map(fileNode -> (Node) fileNode).collect(Collectors.toList()),
+					new FileGridLayoutAlgorithm(40, 40)));
+		
+			graphNodes.add(nestedNode);
+			graphEdges.add(new CustomEdge(featureToNode.get(entry.getKey()), nestedNode));
+		});
+
+		// Since GEF only allows Edge and Node specifically and not <? extends Edge> or <? extends Node>. We
+		// need to cast all custom nodes/edges back to Edge and Node
+		List<Edge> edges = graphEdges.stream().map(edge -> (Edge) edge).collect(Collectors.toList());
+		List<Node> nodes = graphNodes.stream().map(node -> (Node) node).collect(Collectors.toList());
+
+		// Set graph
+		setGraph(GraphContentProvider.getGraph(FeaturedashboardConstants.FEATUREFILE_VIEW_ID, edges, nodes,
+				new FeatureFileLayoutAlgorithm()));
+
 	}
 
 	@Override

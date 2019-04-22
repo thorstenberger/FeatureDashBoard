@@ -7,24 +7,31 @@ import org.eclipse.gef.layout.ILayoutAlgorithm;
 import org.eclipse.gef.layout.LayoutContext;
 import org.eclipse.gef.layout.LayoutProperties;
 
-public class CustomGridLayoutAlgorithm implements ILayoutAlgorithm {
+public class FileGridLayoutAlgorithm implements ILayoutAlgorithm {
 
 	private int xSpacing;
 	private int ySpacing;
 
-	public CustomGridLayoutAlgorithm(int xSpacing, int ySpacing) {
+	public FileGridLayoutAlgorithm(int xSpacing, int ySpacing) {
 		this.xSpacing = xSpacing;
 		this.ySpacing = ySpacing;
 	}
 
 	@Override
 	public void applyLayout(LayoutContext layoutContext, boolean clean) {
+		if (!clean)
+			return;
 		setPositions(layoutContext.getNodes(), LayoutProperties.getBounds(layoutContext.getGraph()));
 	}
 
 	private void setPositions(Node[] nodes, Rectangle bounds) {
-		int x = 100;
-		int y = 100;
+		double x = 0;
+		double y = 0;
+
+		if (nodes.length > 0) {
+			x = LayoutProperties.getSize(nodes[0]).getWidth() + 20;
+			y = LayoutProperties.getSize(nodes[0]).getHeight() + 20;
+		}
 
 		for (int i = 0; i < nodes.length; i++) {
 			if (x + (int) LayoutProperties.getSize(nodes[i]).getWidth() > bounds.getWidth()) {

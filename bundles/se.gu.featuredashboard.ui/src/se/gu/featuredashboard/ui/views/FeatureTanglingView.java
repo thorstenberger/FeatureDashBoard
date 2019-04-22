@@ -66,8 +66,7 @@ public class FeatureTanglingView extends ZestFxUiView implements IFeatureSelecti
 	}
 
 	/**
-	 * Called first time view is showed. Afterwards just want to listen to selection
-	 * changes. This should be calculated after/during parsing the project
+	 * Called fist time view is opened and when the selected project is changed
 	 */
 	private void initilizeStructure() {
 		List<FeatureLocation> allLocations = FeatureDashboardViewController.getInstance().getAllLocations();
@@ -85,7 +84,7 @@ public class FeatureTanglingView extends ZestFxUiView implements IFeatureSelecti
 
 			FeatureNode featureNode = allNodes.get(feature);
 			if (featureNode == null) {
-				featureNode = GraphContentProvider.getFeatureNode(feature.getFeatureID());
+				featureNode = GraphContentProvider.getFeatureNode(feature);
 				allNodes.put(feature, featureNode);
 			}
 
@@ -146,9 +145,6 @@ public class FeatureTanglingView extends ZestFxUiView implements IFeatureSelecti
 		List<Edge> edges = graphEdges.values().stream().map(customEdge -> (Edge) customEdge)
 				.collect(Collectors.toList());
 		List<Node> nodes = graphNodes.stream().map(featureNode -> (Node) featureNode).collect(Collectors.toList());
-
-		if (graphNodes.isEmpty() && graphEdges.isEmpty())
-			return;
 
 		setGraph(GraphContentProvider.getGraph(FeaturedashboardConstants.FEATURETANGLING_VIEW_ID, edges, nodes,
 				springLayoutAlgorithm));

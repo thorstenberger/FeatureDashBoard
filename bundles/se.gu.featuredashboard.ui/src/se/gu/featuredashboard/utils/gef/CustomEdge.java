@@ -15,6 +15,7 @@ public class CustomEdge extends Edge {
 	private Node source;
 	private Node target;
 	private boolean labelVisibility = false;
+	private boolean visible = false;
 
 	public CustomEdge(Node source, Node target) {
 		super(source, target);
@@ -45,6 +46,14 @@ public class CustomEdge extends Edge {
 
 	public void setLabelIsVisible(boolean visible) {
 		labelVisibility = visible;
+	}
+
+	public void setVisible(boolean visible) {
+		this.visible = visible;
+	}
+
+	public boolean isVisible() {
+		return visible;
 	}
 
 	public boolean isLabelVisible() {

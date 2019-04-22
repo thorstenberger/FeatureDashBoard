@@ -16,6 +16,7 @@ import org.eclipse.gef.mvc.fx.operations.ITransactionalOperation;
 import org.eclipse.gef.mvc.fx.parts.IContentPart;
 import org.eclipse.gef.mvc.fx.parts.IVisualPart;
 import org.eclipse.gef.mvc.fx.policies.AbstractPolicy;
+import org.eclipse.gef.zest.fx.ZestProperties;
 import org.eclipse.gef.zest.fx.parts.NodePart;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.text.BadLocationException;
@@ -40,15 +41,15 @@ public class NodeOnClickPolicy extends AbstractPolicy implements IOnClickHandler
 	public static final String ERRORDIALOG_HEADER = "Error!";
 	public static final String ERRORDIALOG_MESSAGE = "Couldn't add highlights to code. Add new line at the end of the file and try again.";
 	
-	public class OnClickOperation extends AbstractOperation implements ITransactionalOperation {
+	public class OnDoubleClickOperation extends AbstractOperation implements ITransactionalOperation {
 
 		private IVisualPart<? extends Node> clickedPart;
 		
-		public OnClickOperation(String label) {
+		public OnDoubleClickOperation(String label) {
 			super(label);
 		}
 		
-		public OnClickOperation(String label, IContentPart<? extends Node> part) {
+		public OnDoubleClickOperation(String label, IContentPart<? extends Node> part) {
 			super(label);
 			clickedPart = part;
 		}
@@ -122,12 +123,72 @@ public class NodeOnClickPolicy extends AbstractPolicy implements IOnClickHandler
 		
 	}
 	
+	public class OnClickOperation extends AbstractOperation implements ITransactionalOperation {
+
+		private IVisualPart<? extends Node> clickedPart;
+
+		public OnClickOperation(String label) {
+			super(label);
+		}
+
+		public OnClickOperation(String label, IContentPart<? extends Node> part) {
+			super(label);
+			clickedPart = part;
+		}
+
+		@Override
+		public boolean isContentRelevant() {
+			return false;
+		}
+
+		@Override
+		public boolean isNoOp() {
+			return false;
+		}
+
+		@Override
+		public IStatus execute(IProgressMonitor monitor, IAdaptable info) throws ExecutionException {
+			if (clickedPart instanceof NodePart) {
+				org.eclipse.gef.graph.Node node = ((NodePart) clickedPart).getContent();
+
+				if (node instanceof FileNode) {
+					FileNode fileNode = (FileNode) node;
+
+					fileNode.getAllIncomingEdges().stream().map(edge -> (CustomEdge) edge).forEach(customEdge -> {
+						if (customEdge.isVisible()) {
+							ZestProperties.setCurveCssStyle(customEdge, "");
+							customEdge.setVisible(false);
+						} else {
+							ZestProperties.setCurveCssStyle(customEdge,
+											"-fx-effect: dropshadow(gaussian, green, 2, 0.1, 1, 1);");
+							customEdge.setVisible(true);
+						}
+					});
+				}
+			}
+			return Status.OK_STATUS;
+		}
+
+		@Override
+		public IStatus redo(IProgressMonitor monitor, IAdaptable info) throws ExecutionException {
+			return execute(monitor, info);
+		}
+
+		@Override
+		public IStatus undo(IProgressMonitor monitor, IAdaptable info) throws ExecutionException {
+			return Status.OK_STATUS;
+		}
+
+	}
+
 	@Override
 	public void click(MouseEvent e) {
 		// Handle double-clicks
 		try {
 			if(e.getClickCount() > 2)
 				return;
+			
+			getHost().getRoot().getViewer().getDomain().execute(createSingleClickOperation(), null);
 			
 			if(firstClick != null) {
 				long diff = System.currentTimeMillis() - firstClick;
@@ -152,6 +213,10 @@ public class NodeOnClickPolicy extends AbstractPolicy implements IOnClickHandler
 
 	@Override
 	protected ITransactionalOperation createOperation() {
+		return new OnDoubleClickOperation(FeaturedashboardConstants.NODE_ONCLICK_OPERATION_ID, getHost());
+	}
+	
+	protected ITransactionalOperation createSingleClickOperation() {
 		return new OnClickOperation(FeaturedashboardConstants.NODE_ONCLICK_OPERATION_ID, getHost());
 	}
 

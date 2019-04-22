@@ -4,12 +4,19 @@ import java.util.Objects;
 
 import org.eclipse.gef.graph.Node;
 
+import se.gu.featuredashboard.model.featuremodel.Feature;
+
 public class FeatureNode extends Node {
 
-	private String featureID;
+	private Feature feature;
 
-	public FeatureNode(String featureID) {
-		this.featureID = featureID;
+	public FeatureNode(Feature feature) {
+		this.feature = feature;
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(feature.getFeatureID());
 	}
 
 	@Override
@@ -25,12 +32,7 @@ public class FeatureNode extends Node {
 		if (this == o)
 			return true;
 
-		return this.featureID.equals(fn.featureID);
-	}
-
-	@Override
-	public int hashCode() {
-		return Objects.hash(featureID);
+		return this.feature.equals(fn.feature);
 	}
 
 }

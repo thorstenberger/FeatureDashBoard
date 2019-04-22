@@ -27,15 +27,15 @@ public class EdgeOnClickPolicy extends AbstractPolicy implements IOnClickHandler
 	private Long firstClick;
 	private Logger logger = PlatformUI.getWorkbench().getService(org.eclipse.e4.core.services.log.Logger.class);
 
-	public class OnClickOperation extends AbstractOperation implements ITransactionalOperation {
+	public class OnDoubleClickOperation extends AbstractOperation implements ITransactionalOperation {
 
 		private IVisualPart<? extends Node> clickedPart;
 
-		public OnClickOperation(String label) {
+		public OnDoubleClickOperation(String label) {
 			super(label);
 		}
 
-		public OnClickOperation(String label, IContentPart<? extends Node> part) {
+		public OnDoubleClickOperation(String label, IContentPart<? extends Node> part) {
 			super(label);
 			clickedPart = part;
 		}
@@ -57,7 +57,7 @@ public class EdgeOnClickPolicy extends AbstractPolicy implements IOnClickHandler
 
 				if (edge instanceof CustomEdge) {
 					CustomEdge customEdge = (CustomEdge) edge;
-					
+
 					if (customEdge.isLabelVisible()) {
 						ZestProperties.setLabel(customEdge, "");
 						customEdge.setLabelIsVisible(false);
@@ -118,7 +118,7 @@ public class EdgeOnClickPolicy extends AbstractPolicy implements IOnClickHandler
 
 	@Override
 	protected ITransactionalOperation createOperation() {
-		return new OnClickOperation(FeaturedashboardConstants.EDGE_ONCLICK_OPERATION_ID, getHost());
+		return new OnDoubleClickOperation(FeaturedashboardConstants.EDGE_ONCLICK_OPERATION_ID, getHost());
 	}
 
 	@Override
