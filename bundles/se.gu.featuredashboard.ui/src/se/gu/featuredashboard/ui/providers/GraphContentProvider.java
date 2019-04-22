@@ -16,10 +16,11 @@ import se.gu.featuredashboard.utils.gef.FileNode;
 
 public class GraphContentProvider {
 
-	public static Node getNestedGraphNode() {
+	public static Node getNestedGraphNode(Feature feature) {
 		return new Node.Builder()
-				.attr(ZestProperties.SIZE__N, FeaturedashboardConstants.NESTED_NODE_SIZE)
-				.attr(ZestProperties.LABEL__NE, "Double-Click to see files")
+				.attr(ZestProperties.LABEL__NE, "Double-Click")
+						.attr(ZestProperties.TOOLTIP__N,
+										"Double-click this node to see files belonging to: " + feature.getFeatureID())
 				.buildNode();
 	}
 
@@ -37,7 +38,6 @@ public class GraphContentProvider {
 
 		ZestProperties.setLabelCssStyle(node, "-fx-font-size:12;-fx-fill:white;");
 		ZestProperties.setLabel(node, nodeLabel);
-		ZestProperties.setSize(node, FeaturedashboardConstants.NODE_SIZE);
 
 		return node;
 	}
@@ -48,7 +48,6 @@ public class GraphContentProvider {
 		ZestProperties.setLabel(fileNode, file.getName().toString());
 		ZestProperties.setTooltip(fileNode, file.getFullPath().toString());
 		ZestProperties.setLabelCssStyle(fileNode, "-fx-font-size:12;-fx-fill:white;");
-		ZestProperties.setSize(fileNode, FeaturedashboardConstants.FILE_NODE_SIZE);
 
 		return fileNode;
 	}

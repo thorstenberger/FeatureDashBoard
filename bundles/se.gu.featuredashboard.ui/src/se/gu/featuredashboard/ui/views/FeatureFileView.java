@@ -141,7 +141,7 @@ public class FeatureFileView extends ZestFxUiView implements IFeatureSelectionLi
 		// All the file nodes that only belong to one feature should be placed in a nested graph. Loop
 		// throught the featureToNestedNodes which contains these file nodes for each feature.
 		featureToNestedNodes.entrySet().forEach(entry -> {
-			Node nestedNode = GraphContentProvider.getNestedGraphNode();
+			Node nestedNode = GraphContentProvider.getNestedGraphNode(entry.getKey());
 			nestedNode.setNestedGraph(GraphContentProvider.getGraph(FeaturedashboardConstants.FEATUREFILE_VIEW_ID,
 					entry.getValue().stream().map(fileNode -> (Node) fileNode).collect(Collectors.toList()),
 					new FileGridLayoutAlgorithm(40, 40)));
