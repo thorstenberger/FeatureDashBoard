@@ -1,5 +1,6 @@
 package se.gu.featuredashboard.ui.providers;
 
+import java.util.Collection;
 import java.util.List;
 
 import org.eclipse.core.resources.IFile;
@@ -21,16 +22,16 @@ public class GraphContentProvider {
 	public static Node getNestedGraphNode(String nodeLabel) {
 		FeatureNode featureNode = (FeatureNode) getFeatureNode(nodeLabel);
 
+		ZestProperties.setTooltip(featureNode, "Double-click to node to see files");
 		ZestProperties.setSize(featureNode, new Dimension(200, 100));
 
 		return featureNode;
 	}
 
-	public static Node getFeatureNode(String nodeLabel) {
+	public static FeatureNode getFeatureNode(String nodeLabel) {
 		FeatureNode featureNode = new FeatureNode(nodeLabel);
 
 		ZestProperties.setLabel(featureNode, nodeLabel);
-		ZestProperties.setTooltip(featureNode, "Double-click to node to see files");
 		ZestProperties.setShapeCssStyle(featureNode, "-fx-fill:green;");
 
 		return featureNode;
@@ -59,14 +60,15 @@ public class GraphContentProvider {
 		return fileNode;
 	}
 
-	public static Graph getGraph(String id, List<Edge> edges, List<Node> nodes, ILayoutAlgorithm layoutAlgorithm) {
+	public static Graph getGraph(String id, Collection<Edge> edges, Collection<Node> nodes,
+			ILayoutAlgorithm layoutAlgorithm) {
 		Graph graph = new Graph.Builder().nodes(nodes).edges(edges).attr(FeaturedashboardConstants.GRAPH_ID_KEY, id)
 				.attr(ZestProperties.LAYOUT_ALGORITHM__G, layoutAlgorithm).build();
 
 		return graph;
 	}
 
-	public static Graph getGraph(String id, List<Node> nodes, ILayoutAlgorithm layoutAlgorithm) {
+	public static Graph getGraph(String id, Collection<Node> nodes, ILayoutAlgorithm layoutAlgorithm) {
 		Graph graph = new Graph.Builder().nodes(nodes).attr(FeaturedashboardConstants.GRAPH_ID_KEY, id)
 				.attr(ZestProperties.LAYOUT_ALGORITHM__G, layoutAlgorithm).build();
 

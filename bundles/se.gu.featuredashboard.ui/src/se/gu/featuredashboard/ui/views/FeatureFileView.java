@@ -17,14 +17,14 @@ import com.google.inject.util.Modules;
 
 import se.gu.featuredashboard.model.featuremodel.Feature;
 import se.gu.featuredashboard.model.location.FeatureLocation;
-import se.gu.featuredashboard.ui.listeners.FeatureSelectionListener;
+import se.gu.featuredashboard.ui.listeners.IFeatureSelectionListener;
 import se.gu.featuredashboard.ui.providers.GraphContentProvider;
 import se.gu.featuredashboard.ui.viewscontroller.GeneralViewsController;
 import se.gu.featuredashboard.utils.FeaturedashboardConstants;
 import se.gu.featuredashboard.utils.gef.CustomGridLayoutAlgorithm;
 import se.gu.featuredashboard.utils.gef.CustomZestFxModule;
 
-public class FeatureFileView extends ZestFxUiView implements FeatureSelectionListener {
+public class FeatureFileView extends ZestFxUiView implements IFeatureSelectionListener {
 
 	private GeneralViewsController viewController = GeneralViewsController.getInstance();
 
@@ -41,7 +41,7 @@ public class FeatureFileView extends ZestFxUiView implements FeatureSelectionLis
 		super.createPartControl(parent);
 
 		viewController.registerFeatureSelectionListener(this);
-		dataUpdated(viewController.getLocations());
+		updateFeatureSelection(viewController.getLocations());
 	}
 
 	@Override
@@ -49,7 +49,7 @@ public class FeatureFileView extends ZestFxUiView implements FeatureSelectionLis
 	}
 
 	@Override
-	public void dataUpdated(List<FeatureLocation> featureLocations) {
+	public void updateFeatureSelection(List<FeatureLocation> featureLocations) {
 		List<Node> graphNodes = new ArrayList<>();
 		Map<Feature, Node> map = new HashMap<>();
 		Map<Node, List<Node>> nestedMap = new HashMap<>();

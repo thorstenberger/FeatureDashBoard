@@ -27,11 +27,11 @@ import org.eclipse.ui.part.ViewPart;
 
 import se.gu.featuredashboard.model.featuremodel.Feature;
 import se.gu.featuredashboard.model.location.FeatureLocation;
-import se.gu.featuredashboard.ui.listeners.FeatureSelectionListener;
+import se.gu.featuredashboard.ui.listeners.IFeatureSelectionListener;
 import se.gu.featuredashboard.ui.viewscontroller.GeneralViewsController;
 import se.gu.featuredashboard.utils.FeaturedashboardConstants;
 
-public class FeatureListView extends ViewPart implements FeatureSelectionListener {
+public class FeatureListView extends ViewPart implements IFeatureSelectionListener {
 
 	private TreeViewer fileViewer;
 	private GeneralViewsController viewController = GeneralViewsController.getInstance();
@@ -155,7 +155,7 @@ public class FeatureListView extends ViewPart implements FeatureSelectionListene
 		});
 		fileViewer.setFilters(viewerFilter);
 
-		dataUpdated(viewController.getLocations());
+		updateFeatureSelection(viewController.getLocations());
 	}
 
 	@Override
@@ -198,7 +198,7 @@ public class FeatureListView extends ViewPart implements FeatureSelectionListene
 	}
 
 	@Override
-	public void dataUpdated(List<FeatureLocation> featureLocations) {
+	public void updateFeatureSelection(List<FeatureLocation> featureLocations) {
 		map = new HashMap<>();
 
 		featureLocations.forEach(featureLocation -> {

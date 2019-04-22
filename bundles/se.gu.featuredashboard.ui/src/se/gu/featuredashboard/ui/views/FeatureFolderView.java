@@ -22,14 +22,14 @@ import com.google.inject.Injector;
 import com.google.inject.util.Modules;
 
 import se.gu.featuredashboard.model.location.FeatureLocation;
-import se.gu.featuredashboard.ui.listeners.FeatureSelectionListener;
+import se.gu.featuredashboard.ui.listeners.IFeatureSelectionListener;
 import se.gu.featuredashboard.ui.providers.GraphContentProvider;
 import se.gu.featuredashboard.ui.viewscontroller.GeneralViewsController;
 import se.gu.featuredashboard.utils.CustomEdge;
 import se.gu.featuredashboard.utils.FeaturedashboardConstants;
 import se.gu.featuredashboard.utils.gef.CustomZestFxModule;
 
-public class FeatureFolderView extends ZestFxUiView implements FeatureSelectionListener {
+public class FeatureFolderView extends ZestFxUiView implements IFeatureSelectionListener {
 
 	private GeneralViewsController viewController = GeneralViewsController.getInstance();
 
@@ -51,11 +51,11 @@ public class FeatureFolderView extends ZestFxUiView implements FeatureSelectionL
 	public void createPartControl(Composite parent) {
 		super.createPartControl(parent);
 		viewController.registerFeatureSelectionListener(this);
-		dataUpdated(viewController.getLocations());
+		updateFeatureSelection(viewController.getLocations());
 	}
 
 	@Override
-	public void dataUpdated(List<FeatureLocation> featureLocations) {
+	public void updateFeatureSelection(List<FeatureLocation> featureLocations) {
 
 		lookup = new HashMap<>();
 		graphNodes = new HashSet<>();
@@ -86,6 +86,18 @@ public class FeatureFolderView extends ZestFxUiView implements FeatureSelectionL
 			graphNodes.add(featureNode);
 
 		}
+
+		graphEdges.forEach(edge -> {
+			System.out.println("Source: " + edge.getSource().getAttributes().get("element-label") + ". Dest: "
+					+ edge.getTarget().getAttributes().get("element-label"));
+		});
+
+		System.out.println("Edges: " + graphEdges.size());
+
+		System.out.println("Nodes: " + graphNodes.size());
+		graphNodes.forEach(node -> {
+
+		});
 
 		setGraph(GraphContentProvider.getGraph(FeaturedashboardConstants.FEATUREFOLDER_VIEW_ID,
 				graphEdges.stream().map(edges -> (Edge) edges).collect(Collectors.toList()),

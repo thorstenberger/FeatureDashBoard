@@ -118,6 +118,21 @@
             id="se.gu.featuredashboard.ui.views.ProjectMetricsView">
 		</view>
 	</extension>
+    
+    <extension
+		point="org.eclipse.ui.views">
+		<category
+			name="FeatureDashboard"
+            id="se.gu.featuredashboard.ui.views">
+		</category>
+		<view
+			name="Feature Tangling View"
+            icon="icons/featureDashboard_icon.png"
+            category="se.gu.featuredashboard.ui.views"
+            class="se.gu.featuredashboard.ui.views.FeatureTanglingView"
+            id="se.gu.featuredashboard.ui.views.FeatureTanglingView">
+		</view>
+	</extension>
       
 	<extension
 		id="se.gu.featuredashboard.ui.AnnotationMarker"

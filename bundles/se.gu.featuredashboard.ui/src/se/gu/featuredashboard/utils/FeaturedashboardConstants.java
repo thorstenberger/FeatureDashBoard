@@ -11,6 +11,7 @@ public class FeaturedashboardConstants {
 	// ID's
 	public static final String HISTORY_VIEW_ID = "se.gu.featuredashboard.ui.views.HistoryView";
 	public static final String FEATUREFOLDER_VIEW_ID = "se.gu.featuredashboard.ui.views.FeatureFolderView";
+	public static final String FEATURETANGLING_VIEW_ID = "se.gu.featuredashboard.ui.views.FeatureTanglingView";
 	public static final String FEATUREFILE_VIEW_ID = "se.gu.featuredashboard.ui.views.FeatureFileView";
 	public static final String FEATURELIST_VIEW_ID = "se.gu.featuredashboard.ui.views.FeatureListView";
 	public static final String FEATUREMETRICS_VIEW_ID = "se.gu.featuredashboard.ui.views.FeatureMetricsView";
