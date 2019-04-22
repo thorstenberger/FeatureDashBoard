@@ -155,13 +155,13 @@ public class NodeOnClickPolicy extends AbstractPolicy implements IOnClickHandler
 					FileNode fileNode = (FileNode) node;
 
 					fileNode.getAllIncomingEdges().stream().map(edge -> (CustomEdge) edge).forEach(customEdge -> {
-						if (customEdge.isVisible()) {
+						if (customEdge.isHighlighted()) {
 							ZestProperties.setCurveCssStyle(customEdge, "");
-							customEdge.setVisible(false);
+							customEdge.setHighlighted(false);
 						} else {
 							ZestProperties.setCurveCssStyle(customEdge,
 											"-fx-effect: dropshadow(gaussian, green, 2, 0.1, 1, 1);");
-							customEdge.setVisible(true);
+							customEdge.setHighlighted(true);
 						}
 					});
 				}
