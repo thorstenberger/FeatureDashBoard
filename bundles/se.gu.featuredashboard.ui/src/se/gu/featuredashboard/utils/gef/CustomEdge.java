@@ -1,19 +1,26 @@
-package se.gu.featuredashboard.utils;
+package se.gu.featuredashboard.utils.gef;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
+import org.eclipse.core.resources.IFile;
 import org.eclipse.gef.graph.Edge;
 import org.eclipse.gef.graph.Node;
 
 public class CustomEdge extends Edge {
 
+	private List<IFile> files;
+
 	private Node source;
 	private Node target;
+	private boolean labelVisibility = false;
 
 	public CustomEdge(Node source, Node target) {
 		super(source, target);
 		this.source = source;
 		this.target = target;
+		files = new ArrayList<>();
 	}
 
 	public Node getSource() {
@@ -22,6 +29,26 @@ public class CustomEdge extends Edge {
 
 	public Node getTarget() {
 		return target;
+	}
+
+	public List<IFile> getFiles() {
+		return files;
+	}
+
+	public void addFiles(List<IFile> files) {
+		this.files.addAll(files);
+	}
+
+	public void addFile(IFile file) {
+		files.add(file);
+	}
+
+	public void setLabelIsVisible(boolean visible) {
+		labelVisibility = visible;
+	}
+
+	public boolean isLabelVisible() {
+		return labelVisibility;
 	}
 
 	@Override

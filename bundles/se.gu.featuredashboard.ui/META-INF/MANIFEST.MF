@@ -3,11 +3,23 @@ Bundle-ManifestVersion: 2
 Bundle-Name: Basics
 Bundle-SymbolicName: se.gu.featuredashboard.ui;singleton:=true
 Bundle-Version: 0.1.0.qualifier
-Require-Bundle: org.eclipse.ui,
- org.eclipse.capra.core,
+Require-Bundle: 
+ org.eclipse.ui,
+ org.eclipse.ui.ide,
+ org.eclipse.ui.editors,
+ org.eclipse.ui.workbench,
  org.eclipse.core.runtime,
  org.eclipse.core.resources,
+ org.eclipse.core.filesystem,
  org.eclipse.jface,
+ org.eclipse.jface.text,
+ org.eclipse.e4.core.services,
+ org.eclipse.jdt.core,
+ org.eclipse.cdt.core,
+ org.eclipse.draw2d,
+ org.eclipse.nebula.visualization.xygraph,
+ org.eclipse.gef.fx,
+ org.eclipse.gef.common,
  org.eclipse.gef.zest.fx,
  org.eclipse.gef.zest.fx.ui,
  org.eclipse.gef.mvc.fx,
@@ -17,21 +29,11 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.gef.layout,
  com.google.guava,
  com.google.inject,
- org.eclipse.gef.common,
- se.gu.featuredashboard.model,
- se.gu.featuredashboard.parsing,
- org.eclipse.core.filesystem,
- org.eclipse.ui.ide,
- org.eclipse.ui.editors,
- org.eclipse.e4.core.services,
- org.eclipse.ui.workbench,
- org.eclipse.jface.text,
- org.eclipse.jdt.core,
- org.eclipse.cdt.core,
- se.gu.featuredashboard.core,
+ org.eclipse.capra.core,
  org.eclipse.capra.ui,
- org.eclipse.draw2d,
- org.eclipse.nebula.visualization.xygraph
+ se.gu.featuredashboard.core,
+ se.gu.featuredashboard.model,
+ se.gu.featuredashboard.parsing
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Export-Package: se.gu.featuredashboard.utils
 Import-Package: se.gu.featuredashboard.core

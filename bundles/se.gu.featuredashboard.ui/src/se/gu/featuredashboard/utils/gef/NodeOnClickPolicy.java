@@ -17,14 +17,14 @@ import org.eclipse.gef.mvc.fx.parts.IContentPart;
 import org.eclipse.gef.mvc.fx.parts.IVisualPart;
 import org.eclipse.gef.mvc.fx.policies.AbstractPolicy;
 import org.eclipse.gef.zest.fx.parts.NodePart;
-import org.eclipse.ui.IWorkbenchPage;
-import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.ide.IDE;
-import org.eclipse.ui.texteditor.ITextEditor;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.ide.IDE;
+import org.eclipse.ui.texteditor.ITextEditor;
 
 import javafx.scene.Node;
 import javafx.scene.input.MouseEvent;
@@ -65,43 +65,46 @@ public class NodeOnClickPolicy extends AbstractPolicy implements IOnClickHandler
 
 		@Override
 		public IStatus execute(IProgressMonitor monitor, IAdaptable info) throws ExecutionException {
-			NodePart nodePart = (NodePart) clickedPart;
-			org.eclipse.gef.graph.Node node = nodePart.getContent();
-			
-			if(node instanceof FileNode) {
-				FileNode n = (FileNode) node;
+			if (clickedPart instanceof NodePart) {
+				org.eclipse.gef.graph.Node node = ((NodePart) clickedPart).getContent();
 				
-				IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
-				IFile file = n.getFile();
-				try {
-					ITextEditor part = (ITextEditor) IDE.openEditor(page, file);				
-					IDocument document = (IDocument) part.getDocumentProvider().getDocument(part.getEditorInput());
+				if (node instanceof FileNode) {
+					FileNode n = (FileNode) node;
 					
-					file.deleteMarkers(FeaturedashboardConstants.FEATURE_MARKER_ID, true, IResource.DEPTH_INFINITE);
-					
-					for(BlockLine block : n.getAnnotatedLines()) {
-						int lineStartOffset;
-						int lineEndOffset;
+					IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
+					IFile file = n.getFile();
+					try {
+						ITextEditor part = (ITextEditor) IDE.openEditor(page, file);
+						IDocument document = (IDocument) part.getDocumentProvider().getDocument(part.getEditorInput());
+
+						file.deleteMarkers(FeaturedashboardConstants.FEATURE_MARKER_ID, true, IResource.DEPTH_INFINITE);
 						
-						try {
-							lineStartOffset = document.getLineOffset(block.getStartLine());
+						for (BlockLine block : n.getAnnotatedLines()) {
+							int lineStartOffset;
+							int lineEndOffset;
 							
-							if((block.getStartLine()-block.getEndLine()) == 0)
-								lineEndOffset = document.getLineOffset(block.getEndLine()+1);
-							else
-								lineEndOffset = document.getLineOffset(block.getEndLine()-1);
-							
-							IMarker marker = file.createMarker(FeaturedashboardConstants.FEATURE_MARKER_ID);
-							marker.setAttribute(IMarker.CHAR_START, lineStartOffset);
-							marker.setAttribute(IMarker.CHAR_END, lineEndOffset);
-							
-						} catch(BadLocationException e) {
-							// Only a problem If the entire file should be highligted and there is no new-line at the end of the file
-							MessageDialog.openError(Display.getDefault().getActiveShell(), ERRORDIALOG_HEADER, ERRORDIALOG_MESSAGE);
+							try {
+								lineStartOffset = document.getLineOffset(block.getStartLine());
+
+								if ((block.getStartLine() - block.getEndLine()) == 0)
+									lineEndOffset = document.getLineOffset(block.getEndLine() + 1);
+								else
+									lineEndOffset = document.getLineOffset(block.getEndLine() - 1);
+
+								IMarker marker = file.createMarker(FeaturedashboardConstants.FEATURE_MARKER_ID);
+								marker.setAttribute(IMarker.CHAR_START, lineStartOffset);
+								marker.setAttribute(IMarker.CHAR_END, lineEndOffset);
+
+							} catch (BadLocationException e) {
+								// Only a problem If the entire file should be highligted and there is no
+								// new-line at the end of the file
+								MessageDialog.openError(Display.getDefault().getActiveShell(), ERRORDIALOG_HEADER,
+										ERRORDIALOG_MESSAGE);
+							}
 						}
+					} catch (CoreException e) {
+						logger.warn("Error while trying to display the specific file in the editor. " + e.getMessage());
 					}
-				} catch (CoreException e) {
-					logger.warn("Error while trying to display the specific file in the editor. " + e.getMessage());
 				}
 			}
 			return Status.OK_STATUS;
@@ -109,7 +112,6 @@ public class NodeOnClickPolicy extends AbstractPolicy implements IOnClickHandler
 
 		@Override
 		public IStatus redo(IProgressMonitor monitor, IAdaptable info) throws ExecutionException {
-			// TODO Auto-generated method stub
 			return execute(monitor, info);
 		}
 

@@ -13,9 +13,14 @@ import org.eclipse.core.resources.IFolder;
 import org.eclipse.gef.graph.Edge;
 import org.eclipse.gef.graph.Node;
 import org.eclipse.gef.layout.algorithms.SpringLayoutAlgorithm;
+import org.eclipse.gef.mvc.fx.ui.MvcFxUiModule;
 import org.eclipse.gef.zest.fx.ZestProperties;
 import org.eclipse.gef.zest.fx.ui.parts.ZestFxUiView;
 import org.eclipse.swt.widgets.Composite;
+
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+import com.google.inject.util.Modules;
 
 import se.gu.featuredashboard.model.featuremodel.Feature;
 import se.gu.featuredashboard.model.location.FeatureLocation;
@@ -24,8 +29,9 @@ import se.gu.featuredashboard.ui.listeners.IProjectSelectionListener;
 import se.gu.featuredashboard.ui.providers.GraphContentProvider;
 import se.gu.featuredashboard.ui.viewscontroller.FeatureDashboardViewController;
 import se.gu.featuredashboard.ui.viewscontroller.GeneralViewsController;
-import se.gu.featuredashboard.utils.CustomEdge;
 import se.gu.featuredashboard.utils.FeaturedashboardConstants;
+import se.gu.featuredashboard.utils.gef.CustomEdge;
+import se.gu.featuredashboard.utils.gef.CustomZestFxModule;
 import se.gu.featuredashboard.utils.gef.FeatureNode;
 
 public class FeatureTanglingView extends ZestFxUiView implements IFeatureSelectionListener, IProjectSelectionListener {
@@ -36,6 +42,14 @@ public class FeatureTanglingView extends ZestFxUiView implements IFeatureSelecti
 
 	private Map<IFile, Set<Feature>> fileToFeatures;
 	private Map<Feature, FeatureNode> allNodes;
+
+	public FeatureTanglingView() {
+		super(Guice.createInjector(Modules.override(new MvcFxUiModule()).with(new CustomZestFxModule())));
+	}
+
+	public FeatureTanglingView(Injector injector) {
+		super(injector);
+	}
 
 	@Override
 	public void createPartControl(Composite parent) {
@@ -89,8 +103,8 @@ public class FeatureTanglingView extends ZestFxUiView implements IFeatureSelecti
 	public void updateFeatureSelection(List<FeatureLocation> featureLocations) {
 		if (fileToFeatures == null || allNodes == null)
 			initilizeStructure();
-
-		Set<CustomEdge> graphEdges = new HashSet<>();
+		
+		Map<String, CustomEdge> graphEdges = new HashMap<>();
 		Set<FeatureNode> graphNodes = new HashSet<>();
 
 		featureLocations.forEach(location -> {
@@ -113,13 +127,24 @@ public class FeatureTanglingView extends ZestFxUiView implements IFeatureSelecti
 				// Make the rest of the nodes green
 				ZestProperties.setShapeCssStyle(allNodes.get(featureInFile), "-fx-fill:green;");
 
-				CustomEdge e = new CustomEdge(allNodes.get(currentFeature), allNodes.get(featureInFile));
+				String key = currentFeature.getFeatureID() + "->" + featureInFile.getFeatureID();
 
-				graphEdges.add(e);
+				CustomEdge edge = graphEdges.get(key);
+				if (edge == null) {
+					edge = new CustomEdge(allNodes.get(currentFeature), allNodes.get(featureInFile));
+					// In EdgeOnClickPolicy when we have the node that we clicked on, for some
+					// reason using setLabel won't work if a label isn't already set before the edge
+					// is attached to the graph. Therefore, set an empty label here.
+					ZestProperties.setLabel(edge, "");
+					graphEdges.put(key, edge);
+				}
+				edge.addFile(file);
+
 			});
 		});
 
-		List<Edge> edges = graphEdges.stream().map(customEdge -> (Edge) customEdge).collect(Collectors.toList());
+		List<Edge> edges = graphEdges.values().stream().map(customEdge -> (Edge) customEdge)
+				.collect(Collectors.toList());
 		List<Node> nodes = graphNodes.stream().map(featureNode -> (Node) featureNode).collect(Collectors.toList());
 
 		if (graphNodes.isEmpty() && graphEdges.isEmpty())

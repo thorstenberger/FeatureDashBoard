@@ -25,8 +25,8 @@ import se.gu.featuredashboard.model.location.FeatureLocation;
 import se.gu.featuredashboard.ui.listeners.IFeatureSelectionListener;
 import se.gu.featuredashboard.ui.providers.GraphContentProvider;
 import se.gu.featuredashboard.ui.viewscontroller.GeneralViewsController;
-import se.gu.featuredashboard.utils.CustomEdge;
 import se.gu.featuredashboard.utils.FeaturedashboardConstants;
+import se.gu.featuredashboard.utils.gef.CustomEdge;
 import se.gu.featuredashboard.utils.gef.CustomZestFxModule;
 
 public class FeatureFolderView extends ZestFxUiView implements IFeatureSelectionListener {

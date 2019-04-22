@@ -104,6 +104,7 @@ public class FeaturedashboardConstants {
 	public static final String WRONG_SELECTION_MESSAGE = "Current selection is not a project";
 
 	// Used to determine which operation is responsible for graph node clicks
-	public static final String NODE_ONCLICK_OPERATION_ID = "OnClickOperation";
+	public static final String NODE_ONCLICK_OPERATION_ID = "NodeOnClickOperation";
+	public static final String EDGE_ONCLICK_OPERATION_ID = "EdgeOnClickOperation";
 
 }
