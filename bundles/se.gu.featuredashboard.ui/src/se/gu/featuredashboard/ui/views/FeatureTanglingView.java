@@ -114,6 +114,7 @@ public class FeatureTanglingView extends ZestFxUiView implements IFeatureSelecti
 
 			Set<Feature> featuresInFile = fileToFeatures.get(file);
 			Feature currentFeature = location.getFeature();
+
 			// Make the feature(s) selected blue so that they are easy to distinguish
 			ZestProperties.setShapeCssStyle(allNodes.get(currentFeature), "-fx-fill:blue;");
 
@@ -122,9 +123,6 @@ public class FeatureTanglingView extends ZestFxUiView implements IFeatureSelecti
 
 				if (currentFeature.equals(featureInFile))
 					return;
-
-				// Make the rest of the nodes green
-				ZestProperties.setShapeCssStyle(allNodes.get(featureInFile), "-fx-fill:green;");
 
 				String key = currentFeature.getFeatureID() + "->" + featureInFile.getFeatureID();
 
@@ -161,6 +159,9 @@ public class FeatureTanglingView extends ZestFxUiView implements IFeatureSelecti
 	@Override
 	public void dispose() {
 		super.dispose();
+
+		updateProjectSelected();
+
 		viewController.removeFeatureSelectionListener(this);
 		viewController.removeProjectSelectionListener(this);
 	}

@@ -1,13 +1,11 @@
 package se.gu.featuredashboard.utils.gef;
 
-import org.eclipse.e4.core.services.log.Logger;
 import org.eclipse.gef.graph.Edge;
 import org.eclipse.gef.mvc.fx.handlers.AbstractHandler;
 import org.eclipse.gef.mvc.fx.handlers.IOnClickHandler;
 import org.eclipse.gef.mvc.fx.parts.IVisualPart;
 import org.eclipse.gef.zest.fx.ZestProperties;
 import org.eclipse.gef.zest.fx.parts.EdgePart;
-import org.eclipse.ui.PlatformUI;
 
 import javafx.scene.input.MouseEvent;
 import se.gu.featuredashboard.utils.FeaturedashboardConstants;
@@ -16,7 +14,6 @@ public class EdgeOnClickHandler extends AbstractHandler implements IOnClickHandl
 
 	private boolean isRunning = false;
 	private Long firstClick;
-	private Logger logger = PlatformUI.getWorkbench().getService(org.eclipse.e4.core.services.log.Logger.class);
 
 	@Override
 	public void click(MouseEvent e) {

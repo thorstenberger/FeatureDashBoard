@@ -12,8 +12,16 @@ public class CustomGraphLayoutContextBehavior extends GraphLayoutBehavior {
 	protected Rectangle computeLayoutBounds() {
 		Graph graph = getHost().getContent();
 		
-		if(graph.getAttributes().get(FeaturedashboardConstants.GRAPH_ID_KEY).equals(FeaturedashboardConstants.FEATUREFOLDER_VIEW_ID))
-			return new Rectangle(-100, -100, 1000, 6000);
+		String graphID = (String) graph.getAttributes().get(FeaturedashboardConstants.GRAPH_ID_KEY);
+		
+		if (graphID == null)
+			return super.computeLayoutBounds();
+
+		// Determine the graph bounds depending on what we want to visualize
+		if (graphID.equals(FeaturedashboardConstants.FEATUREFOLDER_VIEW_ID))
+			return new Rectangle(0, 0, 1000, 6000);
+		else if (graphID.equals(FeaturedashboardConstants.FEATURETANGLING_VIEW_ID))
+			return new Rectangle(0, 0, 1000, 1000);
 		else
 			return super.computeLayoutBounds();
 	}

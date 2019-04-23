@@ -27,29 +27,42 @@ public class FeatureFileLayoutAlgorithm implements ILayoutAlgorithm {
 	}
 
 	private void performLayout(Node[] nodes, Edge[] edges, Rectangle graphBounds) {
-
 		if (nodes.length == 0)
 			return;
 
-		double featureNodeX = 20;
-		double featureNodeY = 20;
+		double featureNodeX = 0;
+		double featureNodeY = graphBounds.getHeight() / 2;
 
-		double nestedNodeX = 20;
-		double nestedNodeY = graphBounds.getHeight() - 100;
+		double nestedNodeY = 50;
 
-		double commonNodeX = 20;
-		double commonNodeY = graphBounds.getHeight() / 2;
+		double commonNodeX = 0;
+		double commonNodeY = graphBounds.getHeight() - 50;
 
 		for (Node node : nodes) {
 			if (node instanceof FeatureNode) {
 				featureNodeX += LayoutProperties.getSize(node).width + NODE_X_SPACING;
 
-				if (exeedsGraphXBounds(featureNodeX)) {
+				boolean exeededBounds = exeedsGraphXBounds(featureNodeX);
+
+				if (exeededBounds) {
 					featureNodeX = LayoutProperties.getSize(node).width + NODE_X_SPACING;
 					featureNodeY += LayoutProperties.getSize(node).height + NODE_Y_SPACING;
 				}
-
 				LayoutProperties.setLocation(node, new Point(featureNodeX, featureNodeY));
+
+				// Place the nested node which contains the rest of the files that contain this feature but not the
+				// other selected features directly above this feature node
+				for (Edge outgoingEdge : node.getAllOutgoingEdges()) {
+					Node targetNode = outgoingEdge.getTarget();
+
+					if (!(targetNode instanceof FileNode)) {
+						if (exeededBounds) {
+							nestedNodeY += LayoutProperties.getSize(targetNode).height + NODE_Y_SPACING;
+						}
+						LayoutProperties.setLocation(targetNode, new Point(featureNodeX, nestedNodeY));
+						break;
+					}
+				}
 			} else {
 				Graph nestedGraph = node.getNestedGraph();
 
@@ -62,15 +75,6 @@ public class FeatureFileLayoutAlgorithm implements ILayoutAlgorithm {
 					}
 					
 					LayoutProperties.setLocation(node, new Point(commonNodeX, commonNodeY));
-				} else {
-					nestedNodeX += LayoutProperties.getSize(node).width + NODE_X_SPACING;
-					
-					if (exeedsGraphXBounds(nestedNodeX)) {
-						nestedNodeX = LayoutProperties.getSize(node).width + NODE_X_SPACING;
-						nestedNodeY += LayoutProperties.getSize(node).height + NODE_Y_SPACING;
-					}
-
-					LayoutProperties.setLocation(node, new Point(nestedNodeX, nestedNodeY));
 				}
 			}
 		}

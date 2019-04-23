@@ -12,6 +12,7 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.gef.graph.Edge;
 import org.eclipse.gef.graph.Node;
+import org.eclipse.gef.layout.algorithms.GridLayoutAlgorithm;
 import org.eclipse.gef.mvc.fx.ui.MvcFxUiModule;
 import org.eclipse.gef.zest.fx.ZestProperties;
 import org.eclipse.gef.zest.fx.ui.parts.ZestFxUiView;
@@ -32,7 +33,6 @@ import se.gu.featuredashboard.utils.gef.CustomEdge;
 import se.gu.featuredashboard.utils.gef.CustomZestFxModule;
 import se.gu.featuredashboard.utils.gef.FeatureFileLayoutAlgorithm;
 import se.gu.featuredashboard.utils.gef.FeatureNode;
-import se.gu.featuredashboard.utils.gef.FileGridLayoutAlgorithm;
 import se.gu.featuredashboard.utils.gef.FileNode;
 
 public class FeatureFileView extends ZestFxUiView implements IFeatureSelectionListener {
@@ -40,6 +40,7 @@ public class FeatureFileView extends ZestFxUiView implements IFeatureSelectionLi
 	private GeneralViewsController viewController = GeneralViewsController.getInstance();
 
 	public FeatureFileView() {
+		// Use CustomZestFxModule which contains custom bindings instead of the default one
 		super(Guice.createInjector(Modules.override(new MvcFxUiModule()).with(new CustomZestFxModule())));
 	}
 
@@ -53,10 +54,6 @@ public class FeatureFileView extends ZestFxUiView implements IFeatureSelectionLi
 
 		viewController.registerFeatureSelectionListener(this);
 		updateFeatureSelection(viewController.getLocations());
-	}
-
-	@Override
-	public void setFocus() {
 	}
 
 	@Override
@@ -108,7 +105,7 @@ public class FeatureFileView extends ZestFxUiView implements IFeatureSelectionLi
 			}
 		});
 
-		// If there is only one of the selected features in a file, then that file
+		// If there is only one of the selected features in a file, then that file should
 		// be place in a nested graph for that feature. Otherwise, the filenode should
 		// be placed outside any nested graphs and be connected to the feature nodes directly
 		fileToTuple.values().forEach(fileTuple -> {
@@ -131,7 +128,7 @@ public class FeatureFileView extends ZestFxUiView implements IFeatureSelectionLi
 					// Same problem here as in FeatureTanglingView, i.e., if I don't set any property here, it doesn't
 					// seem like I can set It in the click handler. Therefore, add empty css here and add focused in
 					// click handler
-					ZestProperties.setCurveCssStyle(edge, "-fx-opacity:0.5;");
+					ZestProperties.setCurveCssStyle(edge, FeaturedashboardConstants.EDGE_NORMAL_CSS);
 					graphEdges.add(edge);
 				});
 				graphNodes.add(fileNode);
@@ -139,12 +136,17 @@ public class FeatureFileView extends ZestFxUiView implements IFeatureSelectionLi
 		});
 
 		// All the file nodes that only belong to one feature should be placed in a nested graph. Loop
-		// throught the featureToNestedNodes which contains these file nodes for each feature.
+		// through the featureToNestedNodes which contains these file nodes for each feature.
 		featureToNestedNodes.entrySet().forEach(entry -> {
 			Node nestedNode = GraphContentProvider.getNestedGraphNode(entry.getKey());
+			
+			GridLayoutAlgorithm layoutAlgorithm = new GridLayoutAlgorithm();
+			layoutAlgorithm.setResizing(false);
+			layoutAlgorithm.setRowPadding(80);
+
 			nestedNode.setNestedGraph(GraphContentProvider.getGraph(FeaturedashboardConstants.FEATUREFILE_VIEW_ID,
-					entry.getValue().stream().map(fileNode -> (Node) fileNode).collect(Collectors.toList()),
-					new FileGridLayoutAlgorithm(40, 40)));
+							entry.getValue().stream().map(fileNode -> (Node) fileNode).collect(Collectors.toList()),
+							layoutAlgorithm));
 		
 			graphNodes.add(nestedNode);
 			graphEdges.add(new CustomEdge(featureToNode.get(entry.getKey()), nestedNode));

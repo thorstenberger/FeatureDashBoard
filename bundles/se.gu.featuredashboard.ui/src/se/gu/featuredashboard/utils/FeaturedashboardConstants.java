@@ -32,7 +32,6 @@ public class FeaturedashboardConstants {
 	public static final Dimension FOLDER_NODE_SPACING = new Dimension(NODE_SIZE.width + 100, NODE_SIZE.height + 30);
 
 	public static final String GRAPH_ID_KEY = "GRAPH_ID";
-	public static final String NESTEDGRAPH_ID = "NESTED_GRAPH_ID";
 
 	// File name associated strings
 	public static final String FEATUREFILE_FILE = "feature-file";
@@ -103,7 +102,7 @@ public class FeaturedashboardConstants {
 	// When selecting something that isn't a project in package/project explorer
 	public static final String WRONG_SELECTION_MESSAGE = "Current selection is not a project";
 
-	public static final String EDGE_NORMAL_CSS = "-fx-opacity:0.5;";
+	public static final String EDGE_NORMAL_CSS = "-fx-opacity:0.4;";
 	public static final String EDGE_HIGHLIGHTED_CSS = "-fx-opacity:1;";
 
 	// Used to determine which operation is responsible for graph node clicks
