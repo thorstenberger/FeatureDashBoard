@@ -14,6 +14,10 @@ public class FeatureNode extends Node {
 		this.feature = feature;
 	}
 
+	public Feature getFeature() {
+		return feature;
+	}
+
 	@Override
 	public int hashCode() {
 		return Objects.hash(feature.getFeatureID());
