@@ -12,14 +12,14 @@ public class CustomZestFxModule extends ZestFxModule {
 	protected void bindEdgePartAdapters(MapBinder<AdapterKey<?>, Object> adapterMapBinder) {
 		super.bindEdgePartAdapters(adapterMapBinder);
 
-		adapterMapBinder.addBinding(AdapterKey.defaultRole()).to(EdgeOnClickPolicy.class);
+		adapterMapBinder.addBinding(AdapterKey.defaultRole()).to(EdgeOnClickHandler.class);
 	}
 
 	@Override
 	protected void bindNodePartAdapters(MapBinder<AdapterKey<?>, Object> adapterMapBinder) {
 		super.bindNodePartAdapters(adapterMapBinder);
 		
-		adapterMapBinder.addBinding(AdapterKey.defaultRole()).to(NodeOnClickPolicy.class);
+		adapterMapBinder.addBinding(AdapterKey.defaultRole()).to(NodeOnClickHandler.class);
 	}
 	
 	@Override

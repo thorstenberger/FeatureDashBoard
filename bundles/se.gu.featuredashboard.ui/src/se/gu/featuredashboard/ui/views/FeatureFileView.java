@@ -131,7 +131,7 @@ public class FeatureFileView extends ZestFxUiView implements IFeatureSelectionLi
 					// Same problem here as in FeatureTanglingView, i.e., if I don't set any property here, it doesn't
 					// seem like I can set It in the click handler. Therefore, add empty css here and add focused in
 					// click handler
-					ZestProperties.setCurveCssStyle(edge, "");
+					ZestProperties.setCurveCssStyle(edge, "-fx-opacity:0.5;");
 					graphEdges.add(edge);
 				});
 				graphNodes.add(fileNode);

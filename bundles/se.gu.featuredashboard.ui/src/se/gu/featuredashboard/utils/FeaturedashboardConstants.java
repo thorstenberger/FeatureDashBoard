@@ -103,6 +103,9 @@ public class FeaturedashboardConstants {
 	// When selecting something that isn't a project in package/project explorer
 	public static final String WRONG_SELECTION_MESSAGE = "Current selection is not a project";
 
+	public static final String EDGE_NORMAL_CSS = "-fx-opacity:0.5;";
+	public static final String EDGE_HIGHLIGHTED_CSS = "-fx-opacity:1;";
+
 	// Used to determine which operation is responsible for graph node clicks
 	public static final String NODE_ONCLICK_OPERATION_ID = "NodeOnClickOperation";
 	public static final String EDGE_ONCLICK_OPERATION_ID = "EdgeOnClickOperation";

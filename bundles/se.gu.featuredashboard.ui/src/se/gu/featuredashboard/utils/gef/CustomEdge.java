@@ -14,8 +14,6 @@ public class CustomEdge extends Edge {
 
 	private Node source;
 	private Node target;
-	private boolean labelVisibility = false;
-	private boolean highlighted = false;
 
 	public CustomEdge(Node source, Node target) {
 		super(source, target);
@@ -42,22 +40,6 @@ public class CustomEdge extends Edge {
 
 	public void addFile(IFile file) {
 		files.add(file);
-	}
-
-	public void setLabelIsVisible(boolean visible) {
-		labelVisibility = visible;
-	}
-
-	public void setHighlighted(boolean highlighted) {
-		this.highlighted = highlighted;
-	}
-
-	public boolean isHighlighted() {
-		return highlighted;
-	}
-
-	public boolean isLabelVisible() {
-		return labelVisibility;
 	}
 
 	@Override
