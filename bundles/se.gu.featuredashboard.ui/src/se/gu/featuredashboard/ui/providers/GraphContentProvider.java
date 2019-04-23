@@ -18,7 +18,7 @@ public class GraphContentProvider {
 
 	public static Node getNestedGraphNode(Feature feature) {
 		return new Node.Builder()
-				.attr(ZestProperties.LABEL__NE, "Double-Click")
+						.attr(ZestProperties.LABEL__NE, "Double-Click")
 						.attr(ZestProperties.TOOLTIP__N,
 										"Double-click this node to see files belonging to: " + feature.getFeatureID())
 				.buildNode();
@@ -34,12 +34,7 @@ public class GraphContentProvider {
 	}
 
 	public static Node getNode(String nodeLabel) {
-		Node node = new Node();
-
-		ZestProperties.setLabelCssStyle(node, "-fx-font-size:12;-fx-fill:white;");
-		ZestProperties.setLabel(node, nodeLabel);
-
-		return node;
+		return new Node.Builder().attr(ZestProperties.LABEL__NE, nodeLabel).buildNode();
 	}
 
 	public static FileNode getFileNode(IFile file) {

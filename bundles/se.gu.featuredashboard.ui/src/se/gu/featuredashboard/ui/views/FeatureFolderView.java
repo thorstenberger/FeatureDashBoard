@@ -1,11 +1,11 @@
 package se.gu.featuredashboard.ui.views;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
@@ -21,6 +21,7 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.util.Modules;
 
+import se.gu.featuredashboard.model.featuremodel.Feature;
 import se.gu.featuredashboard.model.location.FeatureLocation;
 import se.gu.featuredashboard.ui.listeners.IFeatureSelectionListener;
 import se.gu.featuredashboard.ui.providers.GraphContentProvider;
@@ -28,14 +29,15 @@ import se.gu.featuredashboard.ui.viewscontroller.GeneralViewsController;
 import se.gu.featuredashboard.utils.FeaturedashboardConstants;
 import se.gu.featuredashboard.utils.gef.CustomEdge;
 import se.gu.featuredashboard.utils.gef.CustomZestFxModule;
+import se.gu.featuredashboard.utils.gef.FeatureNode;
 
 public class FeatureFolderView extends ZestFxUiView implements IFeatureSelectionListener {
 
 	private GeneralViewsController viewController = GeneralViewsController.getInstance();
 
-	private Set<CustomEdge> graphEdges;
-	private Set<Node> graphNodes;
-	private Map<IContainer, Node> lookup;
+	private Set<Edge> graphEdges;
+	private Map<Feature, FeatureNode> featureToNode;
+	private Map<IContainer, Node> resourceToNode;
 	private TreeLayoutAlgorithm layoutAlgorithm = new TreeLayoutAlgorithm(TreeLayoutAlgorithm.TOP_DOWN,
 			FeaturedashboardConstants.FOLDER_NODE_SPACING);
 
@@ -56,52 +58,57 @@ public class FeatureFolderView extends ZestFxUiView implements IFeatureSelection
 
 	@Override
 	public void updateFeatureSelection(List<FeatureLocation> featureLocations) {
-
-		lookup = new HashMap<>();
-		graphNodes = new HashSet<>();
+		resourceToNode = new HashMap<>();
+		featureToNode = new HashMap<>();
 		graphEdges = new HashSet<>();
 
 		for (FeatureLocation featureLocation : featureLocations) {
-			Node featureNode = GraphContentProvider.getFeatureNode(featureLocation.getFeature());
+			Feature feature = featureLocation.getFeature();
+			
+			FeatureNode featureNode = featureToNode.get(feature);
+			if(featureNode == null) {
+				featureNode = GraphContentProvider.getFeatureNode(feature);
+				featureToNode.put(feature, featureNode);
+			}
 
 			if (!(featureLocation.getResource() instanceof IFile))
 				continue;
 
 			IContainer folder = featureLocation.getResource().getParent();
 
-			if (!lookup.containsKey(folder)) {
+			if (!resourceToNode.containsKey(folder)) {
 				Node folderNode = GraphContentProvider.getNode(folder.getName());
-				lookup.put(folder, folderNode);
-				graphNodes.add(folderNode);
+				resourceToNode.put(folder, folderNode);
 				graphEdges.add(new CustomEdge(folderNode, featureNode));
 				if (!(folder instanceof IProject)) {
 					getParentStructure(folder.getParent(), folder);
 				}
 			} else {
-				CustomEdge e = new CustomEdge(lookup.get(folder), featureNode);
+				CustomEdge e = new CustomEdge(resourceToNode.get(folder), featureNode);
 				if (!graphEdges.contains(e)) {
 					graphEdges.add(e);
 				}
 			}
-			graphNodes.add(featureNode);
-
 		}
 
-		setGraph(GraphContentProvider.getGraph(FeaturedashboardConstants.FEATUREFOLDER_VIEW_ID,
-				graphEdges.stream().map(edges -> (Edge) edges).collect(Collectors.toList()),
-				graphNodes.stream().map(nodes -> (Node) nodes).collect(Collectors.toList()), layoutAlgorithm));
+		List<Node> nodes = new ArrayList<>();
+
+		nodes.addAll(resourceToNode.values());
+		nodes.addAll(featureToNode.values());
+
+		setGraph(GraphContentProvider.getGraph(FeaturedashboardConstants.FEATUREFOLDER_VIEW_ID, graphEdges, nodes,
+						layoutAlgorithm));
 
 	}
 
 	private void getParentStructure(IContainer parent, IContainer child) {
 		if (parent != null) {
-			if (lookup.containsKey(parent)) {
-				graphEdges.add(new CustomEdge(lookup.get(parent), lookup.get(child)));
+			if (resourceToNode.containsKey(parent)) {
+				graphEdges.add(new CustomEdge(resourceToNode.get(parent), resourceToNode.get(child)));
 			} else {
 				Node folderNode = GraphContentProvider.getNode(parent.getName());
-				lookup.put(parent, folderNode);
-				graphNodes.add(folderNode);
-				graphEdges.add(new CustomEdge(folderNode, lookup.get(child)));
+				resourceToNode.put(parent, folderNode);
+				graphEdges.add(new CustomEdge(folderNode, resourceToNode.get(child)));
 
 				if (parent instanceof IProject)
 					return;
@@ -109,6 +116,11 @@ public class FeatureFolderView extends ZestFxUiView implements IFeatureSelection
 				getParentStructure(parent.getParent(), parent);
 			}
 		}
+	}
+
+	@Override
+	public void setFocus() {
+
 	}
 
 	@Override

@@ -5,7 +5,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
@@ -62,7 +61,7 @@ public class FeatureTanglingView extends ZestFxUiView implements IFeatureSelecti
 		updateFeatureSelection(viewController.getLocations());
 
 		springLayoutAlgorithm.setResizing(false);
-		springLayoutAlgorithm.setSpringLength(50);
+		springLayoutAlgorithm.setSpringLength(100);
 	}
 
 	/**
@@ -103,8 +102,9 @@ public class FeatureTanglingView extends ZestFxUiView implements IFeatureSelecti
 		if (fileToFeatures == null || allNodes == null)
 			initilizeStructure();
 		
-		Map<String, CustomEdge> graphEdges = new HashMap<>();
-		Set<FeatureNode> graphNodes = new HashSet<>();
+		Map<String, Edge> graphEdges = new HashMap<>();
+		Set<Node> graphNodes = new HashSet<>();
+		Set<Feature> selectedFeatures = new HashSet<>();
 
 		featureLocations.forEach(location -> {
 			if (location.getResource() instanceof IFolder || location.getResource() instanceof IContainer)
@@ -115,18 +115,19 @@ public class FeatureTanglingView extends ZestFxUiView implements IFeatureSelecti
 			Set<Feature> featuresInFile = fileToFeatures.get(file);
 			Feature currentFeature = location.getFeature();
 
-			// Make the feature(s) selected blue so that they are easy to distinguish
-			ZestProperties.setShapeCssStyle(allNodes.get(currentFeature), "-fx-fill:blue;");
+			selectedFeatures.add(currentFeature);
 
 			featuresInFile.forEach(featureInFile -> {
 				graphNodes.add(allNodes.get(featureInFile));
+
+				ZestProperties.setShapeCssStyle(allNodes.get(featureInFile), "-fx-fill:green;");
 
 				if (currentFeature.equals(featureInFile))
 					return;
 
 				String key = currentFeature.getFeatureID() + "->" + featureInFile.getFeatureID();
 
-				CustomEdge edge = graphEdges.get(key);
+				CustomEdge edge = (CustomEdge) graphEdges.get(key);
 				if (edge == null) {
 					edge = new CustomEdge(allNodes.get(currentFeature), allNodes.get(featureInFile));
 					// In EdgeOnClickPolicy when we have the node that we clicked on, for some
@@ -139,13 +140,14 @@ public class FeatureTanglingView extends ZestFxUiView implements IFeatureSelecti
 
 			});
 		});
+		
+		selectedFeatures.forEach(feature -> {
+			// Make the feature(s) selected blue so that they are easy to distinguish
+			ZestProperties.setShapeCssStyle(allNodes.get(feature), "-fx-fill:blue;");
+		});
 
-		List<Edge> edges = graphEdges.values().stream().map(customEdge -> (Edge) customEdge)
-				.collect(Collectors.toList());
-		List<Node> nodes = graphNodes.stream().map(featureNode -> (Node) featureNode).collect(Collectors.toList());
-
-		setGraph(GraphContentProvider.getGraph(FeaturedashboardConstants.FEATURETANGLING_VIEW_ID, edges, nodes,
-				springLayoutAlgorithm));
+		setGraph(GraphContentProvider.getGraph(FeaturedashboardConstants.FEATURETANGLING_VIEW_ID, graphEdges.values(),
+						graphNodes, springLayoutAlgorithm));
 
 	}
 

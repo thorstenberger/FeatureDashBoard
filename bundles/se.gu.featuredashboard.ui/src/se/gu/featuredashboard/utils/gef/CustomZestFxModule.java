@@ -27,5 +27,5 @@ public class CustomZestFxModule extends ZestFxModule {
 		adapterMapBinder.addBinding(AdapterKey.defaultRole()).to(LayoutContext.class);
 		adapterMapBinder.addBinding(AdapterKey.defaultRole()).to(CustomGraphLayoutContextBehavior.class);
 	}
-	
+
 }

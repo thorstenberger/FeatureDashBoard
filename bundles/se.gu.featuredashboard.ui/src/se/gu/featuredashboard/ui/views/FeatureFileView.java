@@ -9,7 +9,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IFolder;
 import org.eclipse.gef.graph.Edge;
 import org.eclipse.gef.graph.Node;
 import org.eclipse.gef.layout.algorithms.GridLayoutAlgorithm;
@@ -67,13 +66,13 @@ public class FeatureFileView extends ZestFxUiView implements IFeatureSelectionLi
 		Map<Feature, List<FileNode>> featureToNestedNodes = new HashMap<>();
 
 		// All graph edges
-		Set<CustomEdge> graphEdges = new HashSet<>();
+		Set<Edge> graphEdges = new HashSet<>();
 		// All graph nodes
 		Set<Node> graphNodes = new HashSet<>();
 
 		// First we need to know which features are located in a file
 		featureLocations.forEach(location -> {
-			if (location.getResource() instanceof IFolder)
+			if (!(location.getResource() instanceof IFile))
 				return;
 
 			Feature feature = location.getFeature();
@@ -139,26 +138,17 @@ public class FeatureFileView extends ZestFxUiView implements IFeatureSelectionLi
 		// through the featureToNestedNodes which contains these file nodes for each feature.
 		featureToNestedNodes.entrySet().forEach(entry -> {
 			Node nestedNode = GraphContentProvider.getNestedGraphNode(entry.getKey());
-			
-			GridLayoutAlgorithm layoutAlgorithm = new GridLayoutAlgorithm();
-			layoutAlgorithm.setResizing(false);
-			layoutAlgorithm.setRowPadding(80);
 
 			nestedNode.setNestedGraph(GraphContentProvider.getGraph(FeaturedashboardConstants.FEATUREFILE_VIEW_ID,
 							entry.getValue().stream().map(fileNode -> (Node) fileNode).collect(Collectors.toList()),
-							layoutAlgorithm));
+							new GridLayoutAlgorithm()));
 		
 			graphNodes.add(nestedNode);
 			graphEdges.add(new CustomEdge(featureToNode.get(entry.getKey()), nestedNode));
 		});
 
-		// Since GEF only allows Edge and Node specifically and not <? extends Edge> or <? extends Node>. We
-		// need to cast all custom nodes/edges back to Edge and Node
-		List<Edge> edges = graphEdges.stream().map(edge -> (Edge) edge).collect(Collectors.toList());
-		List<Node> nodes = graphNodes.stream().map(node -> (Node) node).collect(Collectors.toList());
-
 		// Set graph
-		setGraph(GraphContentProvider.getGraph(FeaturedashboardConstants.FEATUREFILE_VIEW_ID, edges, nodes,
+		setGraph(GraphContentProvider.getGraph(FeaturedashboardConstants.FEATUREFILE_VIEW_ID, graphEdges, graphNodes,
 				new FeatureFileLayoutAlgorithm()));
 
 	}
