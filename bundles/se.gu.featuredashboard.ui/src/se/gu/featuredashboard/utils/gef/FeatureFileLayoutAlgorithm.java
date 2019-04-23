@@ -14,6 +14,7 @@ public class FeatureFileLayoutAlgorithm implements ILayoutAlgorithm {
 	private Rectangle bounds;
 	private final double NODE_X_SPACING = 40;
 	private final double NODE_Y_SPACING = 40;
+	private final double NESTEDNODE_Y_SPACING = 40;
 
 	@Override
 	public void applyLayout(LayoutContext layoutContext, boolean clean) {
@@ -30,24 +31,26 @@ public class FeatureFileLayoutAlgorithm implements ILayoutAlgorithm {
 		if (nodes.length == 0)
 			return;
 
-		double featureNodeX = 0;
+		double startX = 70;
+
+		double featureNodeX = startX;
 		double featureNodeY = graphBounds.getHeight() / 2;
 
 		double nestedNodeY = 50;
 
-		double commonNodeX = 0;
+		double commonNodeX = startX;
 		double commonNodeY = graphBounds.getHeight() - 50;
 
 		for (Node node : nodes) {
 			if (node instanceof FeatureNode) {
-				featureNodeX += LayoutProperties.getSize(node).width + NODE_X_SPACING;
+				boolean exeedsBounds = featureNodeX + LayoutProperties.getSize(node).width + NODE_X_SPACING > bounds
+								.getWidth();
 
-				boolean exeededBounds = exeedsGraphXBounds(featureNodeX);
-
-				if (exeededBounds) {
-					featureNodeX = LayoutProperties.getSize(node).width + NODE_X_SPACING;
-					featureNodeY += LayoutProperties.getSize(node).height + NODE_Y_SPACING;
+				if (exeedsBounds) {
+					featureNodeX = startX;
+					featureNodeY += NODE_Y_SPACING;
 				}
+
 				LayoutProperties.setLocation(node, new Point(featureNodeX, featureNodeY));
 
 				// Place the nested node which contains the rest of the files that contain this feature but not the
@@ -56,32 +59,28 @@ public class FeatureFileLayoutAlgorithm implements ILayoutAlgorithm {
 					Node targetNode = outgoingEdge.getTarget();
 
 					if (!(targetNode instanceof FileNode)) {
-						if (exeededBounds) {
-							nestedNodeY += LayoutProperties.getSize(targetNode).height + NODE_Y_SPACING;
+						if (exeedsBounds) {
+							nestedNodeY += NESTEDNODE_Y_SPACING;
 						}
 						LayoutProperties.setLocation(targetNode, new Point(featureNodeX, nestedNodeY));
 						break;
 					}
 				}
+
+				featureNodeX += LayoutProperties.getSize(node).width + NODE_X_SPACING;
 			} else {
 				Graph nestedGraph = node.getNestedGraph();
 
 				if (nestedGraph == null) {
-					commonNodeX += LayoutProperties.getSize(node).width + NODE_X_SPACING;
-
-					if (exeedsGraphXBounds(commonNodeX)) {
-						commonNodeX = LayoutProperties.getSize(node).width + NODE_X_SPACING;
-						commonNodeY += LayoutProperties.getSize(node).height + NODE_Y_SPACING;
+					if (commonNodeX + LayoutProperties.getSize(node).width + NODE_X_SPACING > bounds.getWidth()) {
+						commonNodeX = startX;
+						commonNodeY += NODE_Y_SPACING;
 					}
-					
 					LayoutProperties.setLocation(node, new Point(commonNodeX, commonNodeY));
+
+					commonNodeX += LayoutProperties.getSize(node).width + NODE_X_SPACING;
 				}
 			}
 		}
 	}
-
-	private boolean exeedsGraphXBounds(double xValue) {
-		return xValue > bounds.getWidth();
-	}
-
 }

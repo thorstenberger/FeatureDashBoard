@@ -11,7 +11,6 @@ import java.util.stream.Collectors;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.gef.graph.Edge;
 import org.eclipse.gef.graph.Node;
-import org.eclipse.gef.layout.algorithms.GridLayoutAlgorithm;
 import org.eclipse.gef.mvc.fx.ui.MvcFxUiModule;
 import org.eclipse.gef.zest.fx.ZestProperties;
 import org.eclipse.gef.zest.fx.ui.parts.ZestFxUiView;
@@ -33,6 +32,7 @@ import se.gu.featuredashboard.utils.gef.CustomZestFxModule;
 import se.gu.featuredashboard.utils.gef.FeatureFileLayoutAlgorithm;
 import se.gu.featuredashboard.utils.gef.FeatureNode;
 import se.gu.featuredashboard.utils.gef.FileNode;
+import se.gu.featuredashboard.utils.gef.NestedGraphLayoutAlgorithm;
 
 public class FeatureFileView extends ZestFxUiView implements IFeatureSelectionListener {
 
@@ -141,7 +141,7 @@ public class FeatureFileView extends ZestFxUiView implements IFeatureSelectionLi
 
 			nestedNode.setNestedGraph(GraphContentProvider.getGraph(FeaturedashboardConstants.FEATUREFILE_VIEW_ID,
 							entry.getValue().stream().map(fileNode -> (Node) fileNode).collect(Collectors.toList()),
-							new GridLayoutAlgorithm()));
+							new NestedGraphLayoutAlgorithm()));
 		
 			graphNodes.add(nestedNode);
 			graphEdges.add(new CustomEdge(featureToNode.get(entry.getKey()), nestedNode));
