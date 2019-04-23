@@ -89,7 +89,6 @@ public class NodeOnClickHandler extends AbstractHandler implements IOnClickHandl
 				IMarker marker = file.createMarker(FeaturedashboardConstants.FEATURE_MARKER_ID);
 				marker.setAttribute(IMarker.CHAR_START, lineStartOffset);
 				marker.setAttribute(IMarker.CHAR_END, lineEndOffset);
-
 			}
 		} catch (CoreException e) {
 			logger.warn("Error while trying to display the specific file in the editor. " + e.getMessage());
@@ -104,6 +103,15 @@ public class NodeOnClickHandler extends AbstractHandler implements IOnClickHandl
 		FileNode fileNode = isFileNode(part);
 
 		if (fileNode == null)
+			return;
+
+		// Currently I just want this behaviour in the FeatureFileView
+		String graphID = (String) fileNode.getGraph().getAttributes().get(FeaturedashboardConstants.GRAPH_ID_KEY);
+
+		if (graphID == null)
+			return;
+
+		if (!graphID.equals(FeaturedashboardConstants.FEATUREFILE_VIEW_ID))
 			return;
 
 		fileNode.getAllIncomingEdges().stream().map(edge -> (CustomEdge) edge).forEach(customEdge -> {
