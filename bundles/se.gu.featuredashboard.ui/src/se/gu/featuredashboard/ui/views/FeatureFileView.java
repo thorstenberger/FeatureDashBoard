@@ -59,11 +59,11 @@ public class FeatureFileView extends ZestFxUiView implements IFeatureSelectionLi
 	public void updateFeatureSelection(List<FeatureLocation> featureLocations) {
 		// We need to know for each file which features are implemented in it. For
 		// convenience, save the graphNode here as well.
-		Map<IFile, Tuple<Set<Feature>, FileNode>> fileToTuple = new HashMap<>();
+		Map<IFile, Tuple<Set<Feature>, Node>> fileToTuple = new HashMap<>();
 		// Mapping between a feature and its node in the graph
 		Map<Feature, FeatureNode> featureToNode = new HashMap<>();
 		// We need to know which nodes belongs to which feature
-		Map<Feature, List<FileNode>> featureToNestedNodes = new HashMap<>();
+		Map<Feature, List<Node>> featureToNestedNodes = new HashMap<>();
 
 		// All graph edges
 		Set<Edge> graphEdges = new HashSet<>();
@@ -85,7 +85,7 @@ public class FeatureFileView extends ZestFxUiView implements IFeatureSelectionLi
 			if (equalsMappingFile(file))
 				return;
 
-			Tuple<Set<Feature>, FileNode> fileTuple = fileToTuple.get(file);
+			Tuple<Set<Feature>, Node> fileTuple = fileToTuple.get(file);
 			if (fileTuple == null) {
 				Set<Feature> featuresInFile = new HashSet<>();
 				featuresInFile.add(feature);
@@ -99,7 +99,7 @@ public class FeatureFileView extends ZestFxUiView implements IFeatureSelectionLi
 				Set<Feature> featuresInFile = fileTuple.getLeft();
 				featuresInFile.add(feature);
 
-				FileNode fileNode = fileTuple.getRight();
+				FileNode fileNode = (FileNode) fileTuple.getRight();
 				fileNode.addAnnotatedLines(location.getBlocklines());
 			}
 		});
@@ -108,12 +108,12 @@ public class FeatureFileView extends ZestFxUiView implements IFeatureSelectionLi
 		// be place in a nested graph for that feature. Otherwise, the filenode should
 		// be placed outside any nested graphs and be connected to the feature nodes directly
 		fileToTuple.values().forEach(fileTuple -> {
-			FileNode fileNode = fileTuple.getRight();
+			FileNode fileNode = (FileNode) fileTuple.getRight();
 			List<Feature> features = fileTuple.getLeft().stream().collect(Collectors.toList());
 
 			// If file only has one feature then it should be placed in the nested graph
 			if (features.size() == 1) {
-				List<FileNode> nestedNodes = featureToNestedNodes.get(features.get(0));
+				List<Node> nestedNodes = featureToNestedNodes.get(features.get(0));
 				if (nestedNodes == null) {
 					nestedNodes = new ArrayList<>();
 					featureToNestedNodes.put(features.get(0), nestedNodes);
@@ -136,20 +136,30 @@ public class FeatureFileView extends ZestFxUiView implements IFeatureSelectionLi
 
 		// All the file nodes that only belong to one feature should be placed in a nested graph. Loop
 		// through the featureToNestedNodes which contains these file nodes for each feature.
-		featureToNestedNodes.entrySet().forEach(entry -> {
-			Node nestedNode = GraphContentProvider.getNestedGraphNode(entry.getKey());
+		for (Feature feature : featureToNestedNodes.keySet()) {
+			Node nestedNode = GraphContentProvider.getNestedGraphNode(feature);
 
 			nestedNode.setNestedGraph(GraphContentProvider.getGraph(FeaturedashboardConstants.FEATUREFILE_VIEW_ID,
-							entry.getValue().stream().map(fileNode -> (Node) fileNode).collect(Collectors.toList()),
-							new NestedGraphLayoutAlgorithm()));
+							featureToNestedNodes.get(feature), new NestedGraphLayoutAlgorithm()));
+
+			graphNodes.add(nestedNode);
+			graphEdges.add(new CustomEdge(nestedNode, featureToNode.get(feature)));
+
+		}
+
+		/*featureToNestedNodes.entrySet().forEach(entry -> {
+			Node nestedNode = GraphContentProvider.getNestedGraphNode(entry.getKey());
+		
+			nestedNode.setNestedGraph(GraphContentProvider.getGraph(FeaturedashboardConstants.FEATUREFILE_VIEW_ID,
+							entry.getValue(), new NestedGraphLayoutAlgorithm()));
 		
 			graphNodes.add(nestedNode);
 			graphEdges.add(new CustomEdge(featureToNode.get(entry.getKey()), nestedNode));
-		});
+		});*/
 
 		// Set graph
 		setGraph(GraphContentProvider.getGraph(FeaturedashboardConstants.FEATUREFILE_VIEW_ID, graphEdges, graphNodes,
-				new FeatureFileLayoutAlgorithm()));
+						new FeatureFileLayoutAlgorithm()));
 
 	}
 

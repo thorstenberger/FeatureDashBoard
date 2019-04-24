@@ -17,11 +17,13 @@ import se.gu.featuredashboard.utils.gef.FileNode;
 public class GraphContentProvider {
 
 	public static Node getNestedGraphNode(Feature feature) {
-		return new Node.Builder()
-						.attr(ZestProperties.LABEL__NE, "Double-Click")
-						.attr(ZestProperties.TOOLTIP__N,
-										"Double-click this node to see files belonging to: " + feature.getFeatureID())
-				.buildNode();
+		Node nestedNode = new Node();
+
+		ZestProperties.setLabel(nestedNode, "Additional files");
+		ZestProperties.setTooltip(nestedNode,
+						"Double-Click this node to see files belonging to: " + feature.getFeatureID());
+
+		return nestedNode;
 	}
 
 	public static FeatureNode getFeatureNode(Feature feature) {

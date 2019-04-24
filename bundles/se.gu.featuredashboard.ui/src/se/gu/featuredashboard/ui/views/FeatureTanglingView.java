@@ -40,7 +40,7 @@ public class FeatureTanglingView extends ZestFxUiView implements IFeatureSelecti
 	private SpringLayoutAlgorithm springLayoutAlgorithm = new SpringLayoutAlgorithm();
 
 	private Map<IFile, Set<Feature>> fileToFeatures;
-	private Map<Feature, FeatureNode> allNodes;
+	private Map<Feature, Node> allNodes;
 
 	public FeatureTanglingView() {
 		super(Guice.createInjector(Modules.override(new MvcFxUiModule()).with(new CustomZestFxModule())));
@@ -81,7 +81,7 @@ public class FeatureTanglingView extends ZestFxUiView implements IFeatureSelecti
 			Feature feature = location.getFeature();
 			IFile file = (IFile) location.getResource();
 
-			FeatureNode featureNode = allNodes.get(feature);
+			FeatureNode featureNode = (FeatureNode) allNodes.get(feature);
 			if (featureNode == null) {
 				featureNode = GraphContentProvider.getFeatureNode(feature);
 				allNodes.put(feature, featureNode);

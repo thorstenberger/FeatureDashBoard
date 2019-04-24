@@ -24,17 +24,17 @@ public class NestedGraphLayoutAlgorithm implements ILayoutAlgorithm {
 		
 		Node[] nodes = layoutContext.getNodes();
 
-		for (int i = 0; i < nodes.length; i++) {
+		for (Node node : nodes) {
 			// Set node at current X, Y, also check if node bounds exeed graph bounds
-			if (x + LayoutProperties.getSize(nodes[i]).width + xSpacing > bounds.getWidth()) {
+			if (x + LayoutProperties.getSize(node).width + xSpacing > bounds.getWidth()) {
 				// Reset X and increase Y for next iteration
 				x = startX;
 				y += ySpacing;
 			}
-			LayoutProperties.setLocation(nodes[i], new Point(x, y));
+			LayoutProperties.setLocation(node, new Point(x, y));
 			
 			// Determine location for next node
-			x += LayoutProperties.getSize(nodes[i]).width + xSpacing;
+			x += LayoutProperties.getSize(node).width + xSpacing;
 		}
 	}
 }

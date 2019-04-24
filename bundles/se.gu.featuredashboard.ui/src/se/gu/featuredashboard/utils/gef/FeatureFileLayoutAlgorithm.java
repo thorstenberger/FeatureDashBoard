@@ -55,16 +55,13 @@ public class FeatureFileLayoutAlgorithm implements ILayoutAlgorithm {
 
 				// Place the nested node which contains the rest of the files that contain this feature but not the
 				// other selected features directly above this feature node
-				for (Edge outgoingEdge : node.getAllOutgoingEdges()) {
-					Node targetNode = outgoingEdge.getTarget();
+				for (Edge incommingEdge : node.getAllIncomingEdges()) {
+					Node sourceNode = incommingEdge.getSource();
 
-					if (!(targetNode instanceof FileNode)) {
-						if (exeedsBounds) {
-							nestedNodeY += NESTEDNODE_Y_SPACING;
-						}
-						LayoutProperties.setLocation(targetNode, new Point(featureNodeX, nestedNodeY));
-						break;
+					if (exeedsBounds) {
+						nestedNodeY += NESTEDNODE_Y_SPACING;
 					}
+					LayoutProperties.setLocation(sourceNode, new Point(featureNodeX, nestedNodeY));
 				}
 
 				featureNodeX += LayoutProperties.getSize(node).width + NODE_X_SPACING;
