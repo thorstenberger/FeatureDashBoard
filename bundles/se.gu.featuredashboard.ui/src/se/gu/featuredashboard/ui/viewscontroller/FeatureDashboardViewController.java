@@ -53,6 +53,11 @@ public class FeatureDashboardViewController implements IUpdateInformationListene
 	private ProjectData_FeatureLocationDashboard selectedProjectData = new ProjectData_FeatureLocationDashboard();
 	private MainParser mainParser = new MainParser();
 	
+	private FeatureDashboardViewController() {
+		mainParser.setUser(true);
+		mainParser.addJobChangeListener(new ParseChangeListener(Arrays.asList(this)));
+	}
+
 	/*
 	private ProjectParser projectParser;
 	private InFileAnnotationParser annotationParser;
@@ -210,8 +215,6 @@ public class FeatureDashboardViewController implements IUpdateInformationListene
 		*/
 		
 		mainParser.updateProject(project);
-		mainParser.setUser(true);
-		mainParser.addJobChangeListener(new ParseChangeListener(Arrays.asList(this)));
 		mainParser.schedule();
 		
 		//updateSelectedProjectData();
@@ -219,8 +222,13 @@ public class FeatureDashboardViewController implements IUpdateInformationListene
 
 	
 	private void updateWorkspaceData() {
-		if(selectedProjectData.getProject()!=null)
+		if (selectedProjectData.getProject() != null) {
 			WorkspaceData_FeatureLocationDashboard.getInstance().setProjectData(selectedProjectData);
+		}
+	}
+
+	public List<ProjectData_FeatureLocationDashboard> getWorkspaceData() {
+		return WorkspaceData_FeatureLocationDashboard.getInstance().getWorkspaceData();
 	}
 
 	public IProject getProject() {
@@ -274,6 +282,7 @@ public class FeatureDashboardViewController implements IUpdateInformationListene
 			selectedProjectData = mainParser.getProjectData();
 			updateWorkspaceData();
 			FeatureDashboardView view = (FeatureDashboardView)PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().findView("se.gu.featuredashboard.ui.views.FeatureDashboardView");
+			GeneralViewsController.getInstance().projectUpdated();
 			if(view!=null) {
 				view.updateFeatureModelTab();
 				view.updateResourcesTab();

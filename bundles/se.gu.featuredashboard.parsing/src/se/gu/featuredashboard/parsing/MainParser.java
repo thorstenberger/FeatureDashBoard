@@ -1,24 +1,16 @@
 package se.gu.featuredashboard.parsing;
 
-import java.io.BufferedInputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.eclipse.core.internal.resources.Marker;
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -28,20 +20,7 @@ import org.eclipse.e4.core.services.log.Logger;
 import org.eclipse.ui.PlatformUI;
 import org.osgi.service.prefs.Preferences;
 
-import metrics.Feature_ProjectMetrics;
 import se.gu.featuredashboard.core.ProjectData_FeatureLocationDashboard;
-import se.gu.featuredashboard.model.featuremodel.Feature;
-import se.gu.featuredashboard.model.featuremodel.FeatureContainer;
-import se.gu.featuredashboard.model.featuremodel.FeatureModelHierarchy;
-import se.gu.featuredashboard.model.featuremodel.Project;
-import se.gu.featuredashboard.model.featuremodel.ProjectStore;
-import se.gu.featuredashboard.model.featuremodel.Tuple;
-import se.gu.featuredashboard.model.location.BlockLine;
-import se.gu.featuredashboard.model.location.FeatureLocation;
-import se.gu.featuredashboard.parsing.ClaferFileParser;
-import se.gu.featuredashboard.parsing.InFileAnnotationParser;
-import se.gu.featuredashboard.parsing.ParseMappingFile;
-import se.gu.featuredashboard.parsing.SyntaxException;
 
 /*
  * This class is for parsing whole project, finding feature model file (.cfr), all annotated files,
@@ -88,7 +67,7 @@ public class MainParser extends Job {
 	@Override
 	protected IStatus run(IProgressMonitor monitor) {
 		logger.info("Start parsing " + project.getName() + " for annotations");
-		projectData.clearAll();
+		projectData = new ProjectData_FeatureLocationDashboard();
 		projectData.setProject(project);
 
 		if (project == null) {

@@ -46,20 +46,22 @@ public class WorkspaceData_FeatureLocationDashboard {
 	}
 	
 	/**
-	 * Sets the given project's feature location dashboard data.
-	 * If the project data is already exists, it will be replaces with the new value.
+	 * Returns workspace data
+	 */
+	public List<ProjectData_FeatureLocationDashboard> getWorkspaceData() {
+		return workspaceData;
+	}
+
+	/**
+	 * Sets the given project's feature location dashboard data. If the project data is already exists,
+	 * it will be replaces with the new value.
 	 */
 	public void setProjectData(ProjectData_FeatureLocationDashboard NewProjectData) {
-		
 		if(NewProjectData.getProject()==null)
 			return;
-	
-		for(ProjectData_FeatureLocationDashboard projectData:workspaceData) {
-			if(projectData.getProject().equals(NewProjectData.getProject())) {
-				workspaceData.remove(projectData);
-				break;
-			}
-		}
+
+		workspaceData.removeIf(projectData -> projectData.getProject().equals(NewProjectData.getProject()));
+
 		workspaceData.add(NewProjectData);
 	}
 	

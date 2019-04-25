@@ -491,7 +491,6 @@ public class FeatureDashboardView extends ViewPart {
 			));
 		}
 		tvFeatureModel.setInput("root"); // passing a non-null value that will be ignored later
-		GeneralViewsController.getInstance().projectUpdated();
 	}
 
 	private void setResourcesTab() {
