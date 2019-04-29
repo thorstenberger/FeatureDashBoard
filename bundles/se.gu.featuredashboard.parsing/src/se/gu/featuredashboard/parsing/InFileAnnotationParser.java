@@ -18,6 +18,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Stack;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -169,6 +170,7 @@ public class InFileAnnotationParser {
 		}
 		//*********************************************************************************************
 
+		setBlocksDepth(parsedLocations);
 		return parsedLocations;
 	}
 
@@ -221,4 +223,28 @@ public class InFileAnnotationParser {
 		return answer;
 	}
 
+	private void setBlocksDepth(List<FeatureLocation> parsedLocations) {
+		List<BlockLine> allBlocks = new ArrayList<BlockLine>();
+		for(FeatureLocation location:parsedLocations) {
+			for(BlockLine blockLine: location.getBlocklines())
+				allBlocks.add(blockLine);
+		}
+		if(allBlocks.size()==0)
+			return;
+		allBlocks.sort((BlockLine e1, BlockLine e2)->(e1.getStartLine() - e2.getStartLine()));
+		
+		List<BlockLine> parentBlocks = new ArrayList<BlockLine>();
+		for(int i=0;i<allBlocks.size();i++) {
+			BlockLine newBlock = allBlocks.get(i);
+			while(parentBlocks.size()!=0 && newBlock.getStartLine()>=parentBlocks.get(parentBlocks.size()-1).getEndLine())
+				parentBlocks.remove(parentBlocks.size()-1);
+			
+			if(parentBlocks.size()==0) 
+				newBlock.setInFileNestinDepth(1);
+			else 
+				newBlock.setInFileNestinDepth( parentBlocks.get(parentBlocks.size()-1).getInFileNestingDepth()+1 );
+				
+			parentBlocks.add(newBlock);		
+		}
+	}
 }

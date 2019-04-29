@@ -43,7 +43,7 @@
        </page>
 	</extension>
 	
-	    <extension
+	<extension
          point="org.eclipse.ui.views">
       <category
             name="FeatureDashboard"
@@ -55,8 +55,37 @@
             category="se.gu.featuredashboard.ui.views"
             class="se.gu.featuredashboard.ui.views.FeatureDashboardView"
             id="se.gu.featuredashboard.ui.views.FeatureDashboardView">
-      </view>
-            
+      </view>        
+      </extension>
+      
+      <extension
+         point="org.eclipse.ui.views">
+      <category
+            name="FeatureDashboard"
+            id="se.gu.featuredashboard.ui.views">
+      </category>
+      <view
+            name="Metrics View"
+            icon="icons/featureDashboard_icon.png"
+            category="se.gu.featuredashboard.ui.views"
+            class="se.gu.featuredashboard.ui.views.MetricsView"
+            id="se.gu.featuredashboard.ui.views.MetricsView">
+      </view>        
+      </extension>
+      
+      <extension
+         point="org.eclipse.ui.views">
+      <category
+            name="FeatureDashboard"
+            id="se.gu.featuredashboard.ui.views">
+      </category>
+      <view
+            name="Metrics View"
+            icon="icons/featureDashboard_icon.png"
+            category="se.gu.featuredashboard.ui.views"
+            class="se.gu.featuredashboard.ui.views.FileBrowserView"
+            id="se.gu.featuredashboard.ui.views.FileBrowserView">
+      </view>        
       </extension>
       
 	<extension

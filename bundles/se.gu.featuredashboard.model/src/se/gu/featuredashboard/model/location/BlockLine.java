@@ -18,6 +18,7 @@ public class BlockLine {
 
 	private final int startLine;
 	private final int endLine;
+	private int inFileNestingDepth; // the file relative depth, starting from 1
 
 	/**
 	 * Constructing a block of code with the same start and end of the given block
@@ -85,6 +86,21 @@ public class BlockLine {
 		return "("+startLine+","+endLine+")";
 	}
 
+	public int getLinesSize() {
+		return endLine-startLine+1;
+	}
+	
+	public void setInFileNestinDepth(int depth) {
+		inFileNestingDepth = depth;
+	}
+	/**
+	 * 
+	 * @return the file relative depth, starting from 1
+	 */
+	public int getInFileNestingDepth() {
+		return inFileNestingDepth;
+	}
+	
 	@Override
 	public boolean equals(Object aBlockLine) {
 		if (!(aBlockLine instanceof BlockLine))

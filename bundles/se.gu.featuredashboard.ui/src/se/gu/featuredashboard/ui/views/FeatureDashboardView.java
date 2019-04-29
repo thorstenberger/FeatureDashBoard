@@ -182,14 +182,14 @@ public class FeatureDashboardView extends ViewPart {
 	    ctiTraces.setText("Traces");
 	    ctiTraces.setShowClose(false);
 	    
-	    ctiMetrics = new CTabItem(ctfMain, SWT.CLOSE);
-	    ctiMetrics.setText("Feature Metrics");
-	    ctiMetrics.setShowClose(false);
+	    //ctiMetrics = new CTabItem(ctfMain, SWT.CLOSE);
+	    //ctiMetrics.setText("Feature Metrics");
+	    //ctiMetrics.setShowClose(false);
 	    
 	    setFeatureModelTab();
 	    setResourcesTab();
 	    setTracesTab();
-	    setFeatureMetricsTab();
+	    //etFeatureMetricsTab();
 	    
 	    ctfMain.addSelectionListener(new SelectionAdapter() {		
 	        public void widgetSelected(org.eclipse.swt.events.SelectionEvent event) {    
@@ -452,7 +452,7 @@ public class FeatureDashboardView extends ViewPart {
 		
 	}
 	
-	public void updateFeatureModelTab() {	
+	public void updateFeatureModelTab() {
 		final String message1 = "No project is selected.";
 		final String message2 = "No feature model (.cfr) exists in the project.";
 		final String message3 = "Syntax error in defining the feature model.";
@@ -552,6 +552,7 @@ public class FeatureDashboardView extends ViewPart {
         mainColumn.setLabelProvider(
                 new DelegatingStyledCellLabelProvider(
                         new ResourceLabelProvider(
+                        		createImageDescriptor("icons/project_icon.png"),
                         		createImageDescriptor("icons/folder_icon.png"),
                         		createImageDescriptor("icons/file_icon.png"),
     							createImageDescriptor("icons/folderquestion_icon.png")
@@ -937,8 +938,9 @@ public class FeatureDashboardView extends ViewPart {
 	private void updateFeatureMetricsTab() {
 		Display.getDefault().asyncExec(() -> {
 			IProject activeProject = getCurrentProject();
-			if(activeProject != null)
-				featureViewer.setInput(controller.getProjectMetrics());
+			if(activeProject != null) {
+				//featureViewer.setInput(controller.getProjectMetrics());
+			}
 		});
 	}
 	
@@ -1140,14 +1142,16 @@ public class FeatureDashboardView extends ViewPart {
 		
 	public class ResourceLabelProvider extends LabelProvider implements IStyledLabelProvider, IColorProvider{
 		
-		private ImageDescriptor directoryImage;
+		private ImageDescriptor projectImage;
+		private ImageDescriptor folderImage;
 		private ImageDescriptor fileImage;
 		private ImageDescriptor invalidResourcesImage;
 		
 		private ResourceManager resourceManager;
 		
-		public ResourceLabelProvider(ImageDescriptor directoryImage, ImageDescriptor fileImage, ImageDescriptor invalidResourceImage ) {
-			this.directoryImage = directoryImage;
+		public ResourceLabelProvider(ImageDescriptor projectImage, ImageDescriptor folderImage, ImageDescriptor fileImage, ImageDescriptor invalidResourceImage ) {
+			this.projectImage = projectImage;
+			this.folderImage = folderImage;
 			this.fileImage = fileImage;
 			this.invalidResourcesImage = invalidResourceImage;
 		}
@@ -1180,9 +1184,13 @@ public class FeatureDashboardView extends ViewPart {
 		public Image getImage(Object element) {
 			if(notExistentResources.contains(element))
 				return getResourceManager().createImage(invalidResourcesImage);
+			if (element instanceof IProject)
+				return getResourceManager().createImage(projectImage);
+			if (element instanceof IFolder)
+				return getResourceManager().createImage(folderImage);
 			if (element instanceof IFile)
 				return getResourceManager().createImage(fileImage);
-			return getResourceManager().createImage(directoryImage);
+			return null;
 		}
 		
 		protected ResourceManager getResourceManager() {
@@ -1257,14 +1265,14 @@ public class FeatureDashboardView extends ViewPart {
 	}
 
 	private void addBuilder(IProject project) throws CoreException {
-	IProjectDescription projectDescription = project.getDescription();
-	ICommand[] buildSpec = projectDescription.getBuildSpec();
-	ICommand command = projectDescription.newCommand();
-	command.setBuilderName(FeaturedashboardConstants.BUILDER_ID);
-	Collection<ICommand> list = new ArrayList<>(Arrays.asList(buildSpec));
-	list.add(command);
-	projectDescription.setBuildSpec(list.toArray(new ICommand[list.size()]));
-	project.setDescription(projectDescription, new NullProgressMonitor());
+		IProjectDescription projectDescription = project.getDescription();
+		ICommand[] buildSpec = projectDescription.getBuildSpec();
+		ICommand command = projectDescription.newCommand();
+		command.setBuilderName(FeaturedashboardConstants.BUILDER_ID);
+		Collection<ICommand> list = new ArrayList<>(Arrays.asList(buildSpec));
+		list.add(command);
+		projectDescription.setBuildSpec(list.toArray(new ICommand[list.size()]));
+		project.setDescription(projectDescription, new NullProgressMonitor());
 }
 
 	private boolean hasBuilder(IProject project) throws CoreException {

@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
@@ -164,16 +165,30 @@ public class FeatureFileFolderParser {
 		String[] parts = featureLocationsString.split(";");// removing ';' from the end
 		String featureID = parts[0].split(":")[0];
 		String[] resourcesNames = parts[0].split(":")[1].split(",");
-		/*
+		
+		IContainer parent = parsingFile.getParent();
+		
 		for(int i=0;i<resourcesNames.length;i++) {
 			if( hasValidFeatureFile() ) {
-				results.add(new FeatureLocation(new Feature(featureID), getFile(resourcesNames[i]) , null));
+				IFile theFile;
+				if(parent instanceof IProject)
+					theFile = ((IProject) parent).getFile(resourcesNames[i]);
+				else
+					theFile = ((IFolder) parent).getFile(resourcesNames[i]);
+				
+				results.add(new FeatureLocation(new Feature(featureID), theFile , null));
 			}
 			else { 
-				results.add(new FeatureLocation(new Feature(featureID), getFolder(resourcesNames[i]), null));
+				IFolder theFolder;
+				if(parent instanceof IProject)
+					theFolder = ((IProject) parent).getFolder(resourcesNames[i]);
+				else
+					theFolder = ((IFolder) parent).getFolder(resourcesNames[i]);
+				
+				results.add(new FeatureLocation(new Feature(featureID), theFolder, null));
 			}	
 		}
-		*/		
+				
 		return results;		
 	}
 	

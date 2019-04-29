@@ -37,10 +37,10 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.part.ViewPart;
 
-import se.gu.featuredashboard.core.ProjectData_FeatureLocationDashboard;
 import se.gu.featuredashboard.model.featuremodel.Feature;
 import se.gu.featuredashboard.model.featuremodel.Tuple;
 import se.gu.featuredashboard.model.location.FeatureLocation;
+import se.gu.featuredashboard.model.location.ProjectData;
 import se.gu.featuredashboard.ui.listeners.IFeatureSelectionListener;
 import se.gu.featuredashboard.ui.listeners.IProjectSelectionListener;
 import se.gu.featuredashboard.ui.viewscontroller.FeatureDashboardViewController;
@@ -119,7 +119,7 @@ public class FeatureListView extends ViewPart implements IFeatureSelectionListen
 		// Unique features across all projects
 		Set<Feature> workspaceFeaturesSet = new HashSet<>();
 
-		List<ProjectData_FeatureLocationDashboard> workspaceData = controller.getWorkspaceData();
+		List<ProjectData> workspaceData = controller.getWorkspaceData();
 		
 		if (workspaceData.size() == 1)
 			return;

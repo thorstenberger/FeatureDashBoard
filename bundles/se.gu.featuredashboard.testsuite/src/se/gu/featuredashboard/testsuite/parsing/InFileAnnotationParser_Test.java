@@ -31,7 +31,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import se.gu.featuredashboard.core.ProjectData_FeatureLocationDashboard;
+import se.gu.featuredashboard.model.location.ProjectData;
 import se.gu.featuredashboard.model.featuremodel.Feature;
 import se.gu.featuredashboard.model.location.BlockLine;
 import se.gu.featuredashboard.model.location.FeatureLocation;
@@ -134,7 +134,7 @@ public class InFileAnnotationParser_Test {
 		ArrayList<FeatureLocation> locations = parser.readParseAnnotations(new ArrayList<IFile>(Arrays.asList(TESTFILE_NOANNOTATION)));
 		assertEquals("File with no annotation inside", 0, locations.size());
 
-		ProjectData_FeatureLocationDashboard fd = new ProjectData_FeatureLocationDashboard();
+		ProjectData fd = new ProjectData();
 		fd.clearAll();
 		fd.addTraces( parser.readParseAnnotations( new ArrayList<IFile>(Arrays.asList(TESTFILE_C_CODE))  ));
 		
@@ -177,7 +177,7 @@ public class InFileAnnotationParser_Test {
 		ArrayList<IFile> addresses = new ArrayList<>();
 		addresses.add(TESTFILE_C_CODE);
 		addresses.add(TESTFILE_JS_CODE);
-		ProjectData_FeatureLocationDashboard fd = new ProjectData_FeatureLocationDashboard();
+		ProjectData fd = new ProjectData();
 		fd.clearAll();
 		fd.addTraces( parser.readParseAnnotations(addresses) );
 

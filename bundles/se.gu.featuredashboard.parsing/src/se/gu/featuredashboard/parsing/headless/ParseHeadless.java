@@ -23,8 +23,8 @@ import org.eclipse.core.runtime.jobs.IJobChangeListener;
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
 
-import se.gu.featuredashboard.core.ProjectData_FeatureLocationDashboard;
 import se.gu.featuredashboard.model.location.FeatureLocation;
+import se.gu.featuredashboard.model.location.ProjectData;
 import se.gu.featuredashboard.parsing.InFileAnnotationParser;
 import se.gu.featuredashboard.parsing.MainParser;
 
@@ -44,7 +44,7 @@ import se.gu.featuredashboard.parsing.MainParser;
 
 public class ParseHeadless implements IApplication, IJobChangeListener {
 
-	private ProjectData_FeatureLocationDashboard projectData;
+	private ProjectData projectData;
 	private InFileAnnotationParser parser = new InFileAnnotationParser();
 	private String[] appArgs;
 	private static String OUTPUT_FILE = "metrics.csv";

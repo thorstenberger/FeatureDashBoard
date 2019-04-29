@@ -6,40 +6,48 @@
  *      Chalmers | University of Gothenburg
  *******************************************************************************/
 
-package se.gu.featuredashboard.core;
+package se.gu.featuredashboard.model.location;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
+import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 
-import metrics.Feature_ProjectMetrics;
 import se.gu.featuredashboard.model.featuremodel.Feature;
 import se.gu.featuredashboard.model.featuremodel.FeatureModelHierarchy;
-import se.gu.featuredashboard.model.location.BlockLine;
 import se.gu.featuredashboard.model.location.FeatureLocation;
+import se.gu.featuredashboard.model.metrics.FeatureResourceMetrics;
+import se.gu.featuredashboard.model.metrics.MetricsCalculator;
+import se.gu.featuredashboard.model.metrics.ResourceMetrics;
 
 /**
  * This class includes the feature location dashboard data of a project and
  * also some methods to access and manipulate it
  */
-public class ProjectData_FeatureLocationDashboard {
+public class ProjectData {
 
 	private IProject project;
 	private List<FeatureLocation> traces = new ArrayList<>();
 	private FeatureModelHierarchy featureModelHierarchy = new FeatureModelHierarchy();
-	
-	private Map<Feature, Feature_ProjectMetrics> featureProjectMetrics = new HashMap<>();
-
 	private List<IResource> notExistentResources = new ArrayList<IResource>();
 	private List<Feature> featuresNotInFeatureModel = new ArrayList<Feature>();
 	private List<Feature> featuresOfFeatureModel = new ArrayList<Feature>();
+	
+	MetricsCalculator metricsCalculator;
+	
+	public ProjectData(){
+		metricsCalculator = new MetricsCalculator(this);
+	}
 
 	/**
 	 * Sets the project that all the data belong to that.
@@ -118,33 +126,54 @@ public class ProjectData_FeatureLocationDashboard {
 	public List<FeatureLocation> getTraces(List<Object> features, List<Object> resources) {
 		List<FeatureLocation> answer = new ArrayList<FeatureLocation>();
 		for (FeatureLocation featureLocation : traces) {
-
-			if (features.contains(featureLocation.getFeature()))
+			
+			if (features.contains(featureLocation.getFeature())) {
 				answer.add(featureLocation);
-			else {
-				if (notExistentResources.contains(featureLocation.getResource())) {
-					for (Object resource : resources) {
-						if (((IResource) resource).getProjectRelativePath()
-								.equals(featureLocation.getResource().getProjectRelativePath())) {
-							answer.add(featureLocation);
-							break;
-						}
-					}
-				} else {
-					for (Object resource : resources) {
-						if (((IResource) resource).getProjectRelativePath()
-								.isPrefixOf(featureLocation.getResource().getProjectRelativePath())) {
-							answer.add(featureLocation);
-							break;
-						}
+				continue;
+			}
+			
+			if( !featureLocation.getBlocklines().isEmpty() || 
+				(featureLocation.getResource() instanceof IFile) ||
+				!featureLocation.getResource().exists()) {
+				for (Object resource : resources) {
+					if (((IResource) resource).getProjectRelativePath()
+							.equals(featureLocation.getResource().getProjectRelativePath())) {
+						answer.add(featureLocation);
+						break;
 					}
 				}
 			}
+			else { // the trace is to a folder or project
+				for (Object resource : resources) {
+					if(featureLocation.getResource().getProjectRelativePath()
+							.isPrefixOf(((IResource) resource).getProjectRelativePath())) {
+						FeatureLocation newLocation = new FeatureLocation(featureLocation.getFeature(),(IResource)resource,null);
+						if(!answer.contains(newLocation))
+							answer.add(newLocation);
+					}
+				}
+			}		
 		}
 
 		return answer;
 	}
 
+	public List<FeatureLocation> getDirectFileTraces(IContainer container){
+		return traces.stream()
+				.filter(trace->(trace.getResource().getParent().equals(container) 
+					&& trace.getBlocklines().size()==0))
+				.collect(Collectors.toList());
+
+	}
+	
+	public List<FeatureLocation> getDirectFolderTraces(IContainer container){
+		return traces.stream()
+				.filter(trace->(trace.getResource().equals(container) 
+					&& trace.getBlocklines().size()==0))
+				.collect(Collectors.toList());
+
+	}
+	
 	/**
 	 * Returns <code>true</code>
 	 * 		if there is a trace between the input feature and resource
@@ -179,6 +208,34 @@ public class ProjectData_FeatureLocationDashboard {
 		return notExistentResources;
 	}
 
+	public List<FeatureLocation> getRelatedLocations(Feature feature){
+		
+		List<FeatureLocation> ans = new ArrayList<FeatureLocation>();
+		traces.forEach(location->{
+			if(location.getFeature().equals(feature))
+				ans.add(location);
+		});
+		
+		return ans;
+	}
+	
+	public List<FeatureLocation>  getRelatedLocations(IResource resource){
+		List<FeatureLocation> ans = new ArrayList<FeatureLocation>();
+		traces.forEach(location->{
+			if(location.getResource().equals(resource))
+				ans.add(location);
+		});
+		
+		return ans;
+	}
+	
+	/**
+	 * Returns all feature locations
+	 */
+	public List<FeatureLocation> getAllLocations() {
+		return traces;
+	}
+	
 	// ***********************Feature Model*****************************
 
 	/**
@@ -221,13 +278,6 @@ public class ProjectData_FeatureLocationDashboard {
 	}
 
 	/**
-	 * Returns all feature locations
-	 */
-	public List<FeatureLocation> getAllLocations() {
-		return traces;
-	}
-
-	/**
 	 * Returns the list of features which they are mentioned in the feature model.
 	 * If there is no feature model, an empty list will be returned.
 	 */
@@ -248,108 +298,36 @@ public class ProjectData_FeatureLocationDashboard {
 
 	//***************************Metrics************************************
 	
-	public void calculateMetrics() {
-		traces.forEach(featureTrace->{		
-			Feature feature = featureTrace.getFeature();
-			Feature_ProjectMetrics metrics = featureProjectMetrics.get(feature);
-			
-			updateByAdd_maxNestingDepth(metrics,featureTrace);
-			updateByAdd_minNestingDepth(metrics,featureTrace);
-			updateByAdd_avgNestingDepth(metrics,featureTrace);
-			updateByAdd_totalNestingDepth(metrics,featureTrace);
-			updateByAdd_LOFC(metrics,featureTrace);
-			updateByAdd_tanglingDegree(metrics,featureTrace);
-			updateByAdd_folderAnnotations(metrics,featureTrace);
-			updateByAdd_fileAnnotations(metrics,featureTrace);	
-		});
+	public List<Feature> getAllFeatures(){
+		List<Feature> features = new ArrayList<Feature>();
+		features.addAll(featuresOfFeatureModel);
+		features.addAll(featuresNotInFeatureModel);
+		return features;
 	}
 	
-	public List<Feature_ProjectMetrics> getProjectMetrics(){
-		return featureProjectMetrics.values().stream().collect(Collectors.toList());
+	public void updateMetrics() { 
+		metricsCalculator.updateMetrics();
 	}
 	
-	public void appendMetrics(Feature_ProjectMetrics metrics, FeatureLocation featureTrace) {
-		Feature feature = featureTrace.getFeature();
-		IResource resource = featureTrace.getResource();
-		List<BlockLine> blockLines = featureTrace.getBlocklines();
+	public List<ResourceMetrics> getAllResourceMetrics(){
+		// updateMetrics() must be called before calling this method to update the values
+		return metricsCalculator.getAllResourceMetrics();
+	}
+	
+	public List<FeatureResourceMetrics> getAllFeatureResourceMetrics(){
+		// updateMetrics() must be called before calling this method to update the values
+		return metricsCalculator.getAllFeatureResourceMetrics();
+	}
 		
-		if(metrics == null) {
-			metrics = new Feature_ProjectMetrics(feature);
-		}
-		//metrics.setMaxNestingDepth(returnNestingDepth(resource));
+	public List<FeatureResourceMetrics> getFeatureResourceMetrics(Feature feature){
+		return metricsCalculator.getFeature_Resource_Metrics(feature);
 	}
 	
-	private int returnNestingDepth(IResource resource) {
-		if (resource instanceof IProject) {
-			return 0;
-		} else {
-			return 1 + returnNestingDepth(resource.getParent());
-		}
+	public FeatureResourceMetrics getFeatureResourceMetrics(Feature feature,IResource resource){
+		return metricsCalculator.getFeature_Resource_Metrics(feature, resource);
 	}
 	
-	private void updateByAdd_maxNestingDepth(Feature_ProjectMetrics projectMetrics, FeatureLocation featureTrace) {
-		
+	public ResourceMetrics getResourceMetrics(IResource resource) {
+		return metricsCalculator.getResource_Metrics(resource);
 	}
-	
-	private void updateByRemove_maxNestingDepth(Feature_ProjectMetrics projectMetrics, FeatureLocation featureTrace) {
-		
-	}
-	
-	private void updateByAdd_minNestingDepth(Feature_ProjectMetrics projectMetrics, FeatureLocation featureTrace) {
-		
-	}
-	
-	private void updateByRemove_minNestingDepth(Feature_ProjectMetrics projectMetrics, FeatureLocation featureTrace) {
-		
-	}
-	
-	private void updateByAdd_avgNestingDepth(Feature_ProjectMetrics projectMetrics, FeatureLocation featureTrace) {
-		
-	}
-	
-	private void updateByRemove_avgNestingDepth(Feature_ProjectMetrics projectMetrics, FeatureLocation featureTrace) {
-		
-	}
-	
-	private void updateByAdd_totalNestingDepth(Feature_ProjectMetrics projectMetrics, FeatureLocation featureTrace) {
-		
-	}
-	
-	private void updateByRemove_totalNestingDepth(Feature_ProjectMetrics projectMetrics, FeatureLocation featureTrace) {
-		
-	}
-	
-	private void updateByAdd_LOFC(Feature_ProjectMetrics projectMetrics, FeatureLocation featureTrace) {
-		
-	}
-	
-	private void updateByRemvoe_LOFC(Feature_ProjectMetrics projectMetrics, FeatureLocation featureTrace) {
-		
-	}
-	
-	private void updateByAdd_tanglingDegree(Feature_ProjectMetrics projectMetrics, FeatureLocation featureTrace) {
-		
-	}
-	
-	private void updateByRemove_tanglingDegree(Feature_ProjectMetrics projectMetrics, FeatureLocation featureTrace) {
-		
-	}
-	
-	private void updateByAdd_folderAnnotations(Feature_ProjectMetrics projectMetrics, FeatureLocation featureTrace) {
-		
-	}
-	
-	private void updateByRemove_folderAnnotations(Feature_ProjectMetrics projectMetrics, FeatureLocation featureTrace) {
-		
-	}
-	
-	private void updateByAdd_fileAnnotations(Feature_ProjectMetrics projectMetrics, FeatureLocation featureTrace) {
-		
-	}
-	
-	private void updateByRemove_fileAnnotations(Feature_ProjectMetrics projectMetrics, FeatureLocation featureTrace) {
-		
-	}
-	
-	
 }

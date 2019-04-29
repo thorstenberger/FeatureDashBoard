@@ -29,6 +29,7 @@ public class FeatureLocation {
 	private final Feature feature;
 	private final IResource resource;
 	private final List<BlockLine> blockLines;
+	private List<String> authors;		// this would be filled later by completing the in-file annotation parser
 	
 	/**
 	 * Constructs a feature trace from the information of 

@@ -20,7 +20,19 @@ import org.eclipse.e4.core.services.log.Logger;
 import org.eclipse.ui.PlatformUI;
 import org.osgi.service.prefs.Preferences;
 
-import se.gu.featuredashboard.core.ProjectData_FeatureLocationDashboard;
+import se.gu.featuredashboard.model.location.ProjectData;
+import se.gu.featuredashboard.model.featuremodel.Feature;
+import se.gu.featuredashboard.model.featuremodel.FeatureContainer;
+import se.gu.featuredashboard.model.featuremodel.FeatureModelHierarchy;
+import se.gu.featuredashboard.model.featuremodel.Project;
+import se.gu.featuredashboard.model.featuremodel.ProjectStore;
+import se.gu.featuredashboard.model.featuremodel.Tuple;
+import se.gu.featuredashboard.model.location.BlockLine;
+import se.gu.featuredashboard.model.location.FeatureLocation;
+import se.gu.featuredashboard.parsing.ClaferFileParser;
+import se.gu.featuredashboard.parsing.InFileAnnotationParser;
+import se.gu.featuredashboard.parsing.ParseMappingFile;
+import se.gu.featuredashboard.parsing.SyntaxException;
 
 /*
  * This class is for parsing whole project, finding feature model file (.cfr), all annotated files,
@@ -45,7 +57,7 @@ public class MainParser extends Job {
 	List<String> excludedFolders;
 	List<String> excludedFileExtensions;
 	
-	private ProjectData_FeatureLocationDashboard projectData = new ProjectData_FeatureLocationDashboard();
+	private ProjectData projectData = new ProjectData();
 	private IFile claferFile;
 	
 	private InFileAnnotationParser annotationParser = new InFileAnnotationParser();
@@ -60,14 +72,14 @@ public class MainParser extends Job {
 		super("FeatureLocationDashboard is parsing.");
 	}
 
-	public ProjectData_FeatureLocationDashboard getProjectData() {
+	public ProjectData getProjectData() {
 		return this.projectData;
 	}
 	
 	@Override
 	protected IStatus run(IProgressMonitor monitor) {
 		logger.info("Start parsing " + project.getName() + " for annotations");
-		projectData = new ProjectData_FeatureLocationDashboard();
+		projectData = new ProjectData();
 		projectData.setProject(project);
 
 		if (project == null) {
@@ -315,7 +327,7 @@ public class MainParser extends Job {
 		}
 	}
 	
-	public void updateProject(IProject project) {
+	public void setProject(IProject project) {
 		this.project = project;		
 	}
 

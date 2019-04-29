@@ -16,14 +16,14 @@ import org.eclipse.core.runtime.CoreException;
 import org.junit.Before;
 import org.junit.Test;
 
-import se.gu.featuredashboard.core.ProjectData_FeatureLocationDashboard;
+import se.gu.featuredashboard.model.location.ProjectData;
 import se.gu.featuredashboard.model.featuremodel.Feature;
 import se.gu.featuredashboard.model.location.BlockLine;
 import se.gu.featuredashboard.model.location.FeatureLocation;
 
 public class FeaturesLocationDashboard_Test {
 
-	ProjectData_FeatureLocationDashboard locations;
+	ProjectData locations;
 	
 	Feature feature1;
 	Feature feature2;
@@ -44,7 +44,7 @@ public class FeaturesLocationDashboard_Test {
 	@Before
 	public void initialize() throws CoreException {
 
-		locations = new ProjectData_FeatureLocationDashboard();
+		locations = new ProjectData();
 		locations.clearAll();
 		
 		feature1 = new Feature("feature1");

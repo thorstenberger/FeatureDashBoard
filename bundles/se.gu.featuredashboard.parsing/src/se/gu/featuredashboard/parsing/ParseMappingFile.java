@@ -65,9 +65,10 @@ public class ParseMappingFile {
 
 		while ((line = reader.readLine()) != null) {
 			Feature feature = new Feature(line.replaceAll(WHITESPACE_REGEX, ""));
-			Arrays.asList(featureFile.getParent().members()).forEach(resource->{
-				locations.add(new FeatureLocation(feature, resource, null));
-			});
+			locations.add(new FeatureLocation(feature, featureFile.getParent(), null));
+			//Arrays.asList(featureFile.getParent().members()).forEach(resource->{
+			//	locations.add(new FeatureLocation(feature, resource, null));
+			//});
 		}
 
 		return locations;
