@@ -55,11 +55,6 @@
 			<layout>p2</layout>
 		</repository>
 		<repository>
-			<id>eclipse-nebula</id>
-			<url>http://download.eclipse.org/nebula/releases/latest</url>
-			<layout>p2</layout>
-		</repository>
-		<repository>
 			<id>Capra</id>
 			<url>https://hudson.eclipse.org/capra/job/build-src-develop-nightly/lastSuccessfulBuild/artifact/org.eclipse.capra.releng.p2/target/repository/</url>
 			<layout>p2</layout>
