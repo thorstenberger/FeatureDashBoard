@@ -41,7 +41,6 @@ import org.eclipse.jface.resource.ResourceManager;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
-import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.CheckStateChangedEvent;
 import org.eclipse.jface.viewers.CheckboxTreeViewer;
 import org.eclipse.jface.viewers.DelegatingStyledCellLabelProvider;
@@ -53,7 +52,6 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.StyledString;
-import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TreeViewerColumn;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerFilter;
@@ -98,12 +96,9 @@ import org.osgi.framework.FrameworkUtil;
 
 import se.gu.featuredashboard.model.featuremodel.Feature;
 import se.gu.featuredashboard.model.location.FeatureLocation;
-import se.gu.featuredashboard.ui.listeners.TableSelectionListener;
-import se.gu.featuredashboard.ui.providers.MetricsTableLabelProvider;
 import se.gu.featuredashboard.ui.viewscontroller.FeatureDashboardViewController;
 import se.gu.featuredashboard.ui.viewscontroller.GeneralViewsController;
 import se.gu.featuredashboard.utils.FeaturedashboardConstants;
-import se.gu.featuredashboard.utils.MetricsComparator;
 
 /**
  * This class is a view including three tabs: feature model, resources and traces.
@@ -131,9 +126,6 @@ public class FeatureDashboardView extends ViewPart {
 	Label lblFeatureModelTabInfo;
 	Label lblResourcesTabInfo;
 	Label lblTracesTabInfo;
-	
-	private TableViewer featureViewer;
-	private Table featureTable;
 
 	private java.util.List<Feature> featuresNotInFeatureModel = new ArrayList<Feature>();
 	private java.util.List<Feature> allCheckedFeatures = new ArrayList<Feature>();
@@ -852,96 +844,6 @@ public class FeatureDashboardView extends ViewPart {
 		}
 
 		lblTracesTabInfo.setVisible(false);
-	}
-
-	private void setFeatureMetricsTab() {
-		CTabItem parentTab = ctiMetrics;
-		
-		Group grpFeatureMetrics = new Group(parentTab.getParent(), SWT.NONE);
-		parentTab.setControl(grpFeatureMetrics);
-		
-		GridData gridData = new GridData(GridData.FILL, GridData.FILL,true, true);
-		grpFeatureMetrics.setLayoutData(gridData);
-		GridLayout gridLayout = new GridLayout(1, false);
-		grpFeatureMetrics.setLayout(gridLayout);
-		
-		MetricsComparator comparator = new MetricsComparator();
-		
-		featureViewer = new TableViewer(grpFeatureMetrics, SWT.NONE);
-		featureViewer.setContentProvider(ArrayContentProvider.getInstance());
-		featureViewer.setLabelProvider(new MetricsTableLabelProvider());
-		featureViewer.setComparator(comparator);
-		
-		TableSelectionListener tableSelectionListener = new TableSelectionListener(featureViewer, comparator, FeaturedashboardConstants.FEATURETABLE_ID);
-		
-		featureTable = featureViewer.getTable();
-		featureTable.setLayoutData(new GridData(GridData.FILL_BOTH));
-		
-		TableColumn column = new TableColumn(featureTable, SWT.LEFT);
-		column.setText(FeaturedashboardConstants.FEATURETABLE_COLUMN_1_NAME);
-		column.setToolTipText(FeaturedashboardConstants.FEATURETABLE_COLUMN_1_TOOLTIP);
-		column.addSelectionListener(tableSelectionListener);
-		column.setWidth(FeaturedashboardConstants.FEATURETABLE_COLUMN_1_SIZE);
-		
-		column = new TableColumn(featureTable, SWT.RIGHT);
-		column.setText(FeaturedashboardConstants.FEATURETABLE_COLUMN_2_NAME);
-		column.setToolTipText(FeaturedashboardConstants.FEATURETABLE_COLUMN_2_TOOLTIP);
-		column.addSelectionListener(tableSelectionListener);
-		column.setWidth(75);
-		
-		column = new TableColumn(featureTable, SWT.LEFT);
-		column.setText(FeaturedashboardConstants.FEATURETABLE_COLUMN_3_NAME);
-		column.setToolTipText(FeaturedashboardConstants.FEATURETABLE_COLUMN_3_TOOLTIP);
-		column.addSelectionListener(tableSelectionListener);
-		
-		column = new TableColumn(featureTable, SWT.LEFT);
-		column.setText(FeaturedashboardConstants.FEATURETABLE_COLUMN_4_NAME);
-		column.setToolTipText(FeaturedashboardConstants.FEATURETABLE_COLUMN_4_TOOLTIP);
-		column.addSelectionListener(tableSelectionListener);
-		
-		column = new TableColumn(featureTable, SWT.LEFT);
-		column.setText(FeaturedashboardConstants.FEATURETABLE_COLUMN_5_NAME);
-		column.setToolTipText(FeaturedashboardConstants.FEATURETABLE_COLUMN_5_TOOLTIP);
-		column.addSelectionListener(tableSelectionListener);
-		
-		column = new TableColumn(featureTable, SWT.LEFT);
-		column.setText(FeaturedashboardConstants.FEATURETABLE_COLUMN_6_NAME);
-		column.setToolTipText(FeaturedashboardConstants.FEATURETABLE_COLUMN_6_TOOLTIP);
-		column.addSelectionListener(tableSelectionListener);
-		
-		column = new TableColumn(featureTable, SWT.LEFT);
-		column.setText(FeaturedashboardConstants.FEATURETABLE_COLUMN_7_NAME);
-		column.setToolTipText(FeaturedashboardConstants.FEATURETABLE_COLUMN_7_TOOLTIP);
-		column.addSelectionListener(tableSelectionListener);
-		
-		column = new TableColumn(featureTable, SWT.LEFT);
-		column.setText(FeaturedashboardConstants.FEATURETABLE_COLUMN_8_NAME);
-		column.setToolTipText(FeaturedashboardConstants.FEATURETABLE_COLUMN_8_TOOLTIP);
-		column.addSelectionListener(tableSelectionListener);
-		
-		column = new TableColumn(featureTable, SWT.LEFT);
-		column.setText(FeaturedashboardConstants.FEATURETABLE_COLUMN_9_NAME);
-		column.setToolTipText(FeaturedashboardConstants.FEATURETABLE_COLUMN_9_TOOLTIP);
-		column.addSelectionListener(tableSelectionListener);
-		
-		// Pack the columns
-	    for (int i = 2, n = featureTable.getColumnCount(); i < n; i++) {
-	      featureTable.getColumn(i).pack();
-	    }
-
-		featureTable.setHeaderVisible(true);
-		featureTable.setLinesVisible(true);
-		
-		updateFeatureMetricsTab();
-	}
-	
-	private void updateFeatureMetricsTab() {
-		Display.getDefault().asyncExec(() -> {
-			IProject activeProject = getCurrentProject();
-			if(activeProject != null) {
-				//featureViewer.setInput(controller.getProjectMetrics());
-			}
-		});
 	}
 	
 	private void showMessage(String message) {

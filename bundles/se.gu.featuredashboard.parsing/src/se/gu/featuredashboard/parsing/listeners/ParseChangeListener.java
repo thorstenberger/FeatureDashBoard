@@ -1,4 +1,4 @@
-package Listeners;
+package se.gu.featuredashboard.parsing.listeners;
 
 import java.util.List;
 

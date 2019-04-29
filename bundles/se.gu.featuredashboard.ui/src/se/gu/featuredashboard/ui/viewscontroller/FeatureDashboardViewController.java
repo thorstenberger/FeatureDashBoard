@@ -27,13 +27,13 @@ import org.eclipse.core.runtime.preferences.ConfigurationScope;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.PlatformUI;
 
-import Listeners.IUpdateInformationListener;
-import Listeners.ParseChangeListener;
 import se.gu.featuredashboard.model.location.ProjectData;
 import se.gu.featuredashboard.core.WorkspaceData;
 import se.gu.featuredashboard.model.featuremodel.Feature;
 import se.gu.featuredashboard.model.location.FeatureLocation;
 import se.gu.featuredashboard.parsing.MainParser;
+import se.gu.featuredashboard.parsing.listeners.IUpdateInformationListener;
+import se.gu.featuredashboard.parsing.listeners.ParseChangeListener;
 import se.gu.featuredashboard.ui.views.FeatureDashboardView;
 
 /**

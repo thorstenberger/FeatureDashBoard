@@ -21,18 +21,6 @@ import org.eclipse.ui.PlatformUI;
 import org.osgi.service.prefs.Preferences;
 
 import se.gu.featuredashboard.model.location.ProjectData;
-import se.gu.featuredashboard.model.featuremodel.Feature;
-import se.gu.featuredashboard.model.featuremodel.FeatureContainer;
-import se.gu.featuredashboard.model.featuremodel.FeatureModelHierarchy;
-import se.gu.featuredashboard.model.featuremodel.Project;
-import se.gu.featuredashboard.model.featuremodel.ProjectStore;
-import se.gu.featuredashboard.model.featuremodel.Tuple;
-import se.gu.featuredashboard.model.location.BlockLine;
-import se.gu.featuredashboard.model.location.FeatureLocation;
-import se.gu.featuredashboard.parsing.ClaferFileParser;
-import se.gu.featuredashboard.parsing.InFileAnnotationParser;
-import se.gu.featuredashboard.parsing.ParseMappingFile;
-import se.gu.featuredashboard.parsing.SyntaxException;
 
 /*
  * This class is for parsing whole project, finding feature model file (.cfr), all annotated files,

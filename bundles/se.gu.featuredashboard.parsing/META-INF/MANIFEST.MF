@@ -10,8 +10,8 @@ Require-Bundle: se.gu.featuredashboard.model,
  org.eclipse.e4.core.services,
  org.eclipse.core.resources,
  se.gu.featuredashboard.core
-Export-Package: Listeners,
- se.gu.featuredashboard.parsing
+Export-Package: se.gu.featuredashboard.parsing,
+ se.gu.featuredashboard.parsing.listeners
 Import-Package: org.eclipse.core.resources,
  org.eclipse.core.runtime,
  org.eclipse.core.runtime.jobs,
