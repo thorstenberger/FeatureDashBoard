@@ -1,13 +1,8 @@
 package se.gu.featuredashboard.ui.views;
 
-import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
@@ -24,21 +19,15 @@ import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.resource.LocalResourceManager;
 import org.eclipse.jface.resource.ResourceManager;
-import org.eclipse.jface.viewers.CheckStateChangedEvent;
-import org.eclipse.jface.viewers.CheckboxTreeViewer;
 import org.eclipse.jface.viewers.DelegatingStyledCellLabelProvider;
-import org.eclipse.jface.viewers.ICheckStateListener;
-import org.eclipse.jface.viewers.IColorProvider;
-import org.eclipse.jface.viewers.ILabelProviderListener;
+import org.eclipse.jface.viewers.DelegatingStyledCellLabelProvider.IStyledLabelProvider;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.StyledString;
-import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.TreeViewerColumn;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerFilter;
-import org.eclipse.jface.viewers.DelegatingStyledCellLabelProvider.IStyledLabelProvider;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
@@ -46,17 +35,13 @@ import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.KeyListener;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
-import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
-import org.eclipse.swt.widgets.Tree;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.PlatformUI;
@@ -66,14 +51,11 @@ import org.osgi.framework.FrameworkUtil;
 
 import se.gu.featuredashboard.core.WorkspaceData;
 import se.gu.featuredashboard.model.featuremodel.Feature;
-import se.gu.featuredashboard.model.location.FeatureLocation;
 import se.gu.featuredashboard.model.location.ProjectData;
-import se.gu.featuredashboard.ui.views.FeatureDashboardView.FeatureFilter;
-import se.gu.featuredashboard.ui.views.FeatureDashboardView.FeatureModelLabelProvider;
-import se.gu.featuredashboard.ui.viewscontroller.FeatureDashboardViewController;
-import se.gu.featuredashboard.ui.viewscontroller.MetricsViewController;
 import se.gu.featuredashboard.model.metrics.FeatureResourceMetrics;
-import se.gu.featuredashboard.model.metrics.ResourceMetrics;;
+import se.gu.featuredashboard.model.metrics.ResourceMetrics;
+import se.gu.featuredashboard.ui.views.FeatureDashboardView.FeatureModelLabelProvider;
+import se.gu.featuredashboard.ui.viewscontroller.MetricsViewController;;
 
 public class MetricsView extends ViewPart {
 
@@ -110,6 +92,7 @@ public class MetricsView extends ViewPart {
 	    setupFeatureMetricsTab();
 	    setupResourceMetricsTab();
 	       
+		ctfMain.setSelection(ctiFeatureMetrics);
 	    setupToolBar();
 		
 	}

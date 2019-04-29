@@ -196,6 +196,8 @@ public class FeatureDashboardView extends ViewPart {
 	        }
 	      });
 	    
+		ctfMain.setSelection(ctiFeatureModel);
+
 	    setupToolBar();
 	}
 	
