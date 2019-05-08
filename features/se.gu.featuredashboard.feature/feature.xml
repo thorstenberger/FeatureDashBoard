@@ -34,8 +34,6 @@
       <import plugin="org.eclipse.jdt.core"/>
       <import plugin="org.eclipse.cdt.core"/>
       <import plugin="org.eclipse.draw2d"/>
-      <import plugin="org.eclipse.nebula.visualization.xygraph"/>
-      <import plugin="org.eclipse.nebula.visualization.widgets"/>
       <import plugin="org.eclipse.e4.ui.workbench.swt"/>
       <import plugin="se.gu.featuredashboard.model"/>
    </requires>

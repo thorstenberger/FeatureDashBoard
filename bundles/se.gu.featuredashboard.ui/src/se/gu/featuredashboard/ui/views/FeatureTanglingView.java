@@ -70,7 +70,10 @@ public class FeatureTanglingView extends ZestFxUiView implements IFeatureSelecti
 		updateFeatureSelection(viewController.getLocations());
 
 		springLayoutAlgorithm.setResizing(false);
-		springLayoutAlgorithm.setSpringLength(100);
+		springLayoutAlgorithm.setSpringLength(30);
+		springLayoutAlgorithm.setRandom(true);
+		springLayoutAlgorithm.setSpringGravitation(10);
+		springLayoutAlgorithm.setSpringStrain(10);
 	}
 
 	/**
@@ -142,7 +145,7 @@ public class FeatureTanglingView extends ZestFxUiView implements IFeatureSelecti
 					// In EdgeOnClickPolicy when we have the node that we clicked on, for some
 					// reason using setLabel won't work if a label isn't already set before the edge
 					// is attached to the graph. Therefore, set an empty label here.
-					ZestProperties.setLabel(edge, "");
+					ZestProperties.setCurveCssStyle(edge, FeaturedashboardConstants.EDGE_NORMAL_CSS);
 					graphEdges.put(key, edge);
 				}
 				edge.addFile(file);

@@ -70,8 +70,6 @@ public class NodeOnClickHandler extends AbstractHandler implements IOnClickHandl
 	}
 
 	private void highlightFeatureCode(IVisualPart<?> part) {
-		System.out.println("Highlight feature code");
-
 		FileNode fileNode = isFileNode(part);
 
 		if (fileNode == null)
