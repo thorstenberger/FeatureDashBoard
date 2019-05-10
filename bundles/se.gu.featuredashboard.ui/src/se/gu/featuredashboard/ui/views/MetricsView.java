@@ -1,3 +1,12 @@
+/*******************************************************************************
+ * Copyright (c) 2019 Chalmers | University of Gothenburg
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v2.0.
+ * 
+ * Contributors:
+ *      Chalmers | University of Gothenburg
+ *******************************************************************************/
+
 package se.gu.featuredashboard.ui.views;
 
 import java.net.URL;
@@ -300,7 +309,7 @@ public class MetricsView extends ViewPart {
 		tvResourceMetrics.getTree().setLayoutData(new GridData(GridData.FILL_BOTH));
 		tvResourceMetrics.getTree().setHeaderVisible(true);
 
-		//tvResourceMetrics.addFilter(filter);
+		tvResourceMetrics.addFilter(filter);
 		
 		TreeViewerColumn resourceNameColumn = new TreeViewerColumn(tvResourceMetrics, SWT.H_SCROLL | SWT.V_SCROLL);
 		resourceNameColumn.getColumn().setText("Resource");
@@ -745,17 +754,43 @@ public class MetricsView extends ViewPart {
 		}
 
 		public boolean select(final Viewer viewer, final Object parentElement, final Object element) {
+			if( element instanceof ResourceMetrics)
+				return true;
 			if (element instanceof IResource) { 
 				IResource resource = (IResource) element;
 				if(resource.getName().matches(searchString))
 					return true;
+				ArrayList<IResource> subResources = getSubTreeElements(resource);
+				for(IResource subResource:subResources ) {
+					if(select(viewer,parentElement,subResource)) 
+						return true;		
+				}	
 				return false;
 			}
 			else
-				System.out.println("not recognized type for filtering "+element.getClass().getName());
-
+				System.out.println("not recognized type for filtering "+element.getClass().getName());	
 			return true;
 		}
+	}
+	
+	private ArrayList<IResource> getSubTreeElements(IResource resource){
+		ArrayList<IResource> subTreeElemets = new ArrayList<IResource>();
+		if(resource instanceof IFile || !resource.exists()) 
+			return subTreeElemets;
+		if(resource instanceof IContainer) {
+			try {
+				for(IResource subResource: ((IContainer)resource).members()) {
+					subTreeElemets.add(subResource);
+					if(subResource instanceof IContainer)
+						subTreeElemets.addAll(getSubTreeElements(subResource));			
+				}
+			} catch (CoreException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			return subTreeElemets;
+		}
+		return subTreeElemets;
 	}
 	
 	public class ResourceMetrics_ContentProvider implements ITreeContentProvider{

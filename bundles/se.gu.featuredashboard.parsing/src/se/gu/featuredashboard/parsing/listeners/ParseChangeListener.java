@@ -9,6 +9,15 @@ import org.eclipse.core.runtime.jobs.IJobChangeListener;
 import org.eclipse.e4.core.services.log.Logger;
 import org.eclipse.ui.PlatformUI;
 
+/*******************************************************************************
+ * Copyright (c) 2019 Chalmers | University of Gothenburg
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v2.0.
+ * 
+ * Contributors:
+ *      Chalmers | University of Gothenburg
+ *******************************************************************************/
+
 public class ParseChangeListener implements IJobChangeListener {
 
 	private List<IUpdateInformationListener> listeners;

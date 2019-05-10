@@ -1,6 +1,7 @@
 /*******************************************************************************
  * Copyright (c) 2019 Chalmers | University of Gothenburg
- * All rights reserved.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v2.0.
  * 
  * Contributors:
  *      Chalmers | University of Gothenburg
@@ -20,6 +21,7 @@ import java.util.List;
 import java.util.Locale;
 
 import org.eclipse.capra.ui.views.SelectionView;
+//import org.eclipse.capra.ui.views.SelectionView;
 import org.eclipse.core.resources.ICommand;
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
