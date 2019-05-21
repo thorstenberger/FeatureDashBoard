@@ -19,7 +19,6 @@ import org.eclipse.gef.graph.Edge;
 import org.eclipse.gef.mvc.fx.handlers.AbstractHandler;
 import org.eclipse.gef.mvc.fx.handlers.IOnClickHandler;
 import org.eclipse.gef.mvc.fx.parts.IVisualPart;
-import org.eclipse.gef.zest.fx.ZestProperties;
 import org.eclipse.gef.zest.fx.parts.EdgePart;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PlatformUI;
@@ -51,7 +50,7 @@ public class EdgeOnClickHandler extends AbstractHandler implements IOnClickHandl
 		if (isRunning) {
 			long diff = System.currentTimeMillis() - firstClick;
 			if (diff < FeaturedashboardConstants.DOUBLECLICK_DURATION)
-				showEdgeLabel(getHost());
+				showFeatureInfo(getHost());
 			firstClick = null;
 			isRunning = false;
 		} else {
@@ -60,7 +59,7 @@ public class EdgeOnClickHandler extends AbstractHandler implements IOnClickHandl
 		}
 	}
 
-	private void showEdgeLabel(IVisualPart<?> part) {
+	private void showFeatureInfo(IVisualPart<?> part) {
 		CustomEdge edge = isCustomEdge(part);
 
 		if (edge == null)
@@ -73,11 +72,6 @@ public class EdgeOnClickHandler extends AbstractHandler implements IOnClickHandl
 			return;
 		
 		if (!graphID.equals(FeaturedashboardConstants.FEATURETANGLING_VIEW_ID))
-			return;
-
-		String label = ZestProperties.getLabel(edge);
-		
-		if(label == null)
 			return;
 		
 		List<Object> features = Arrays.asList(((FeatureNode) edge.getSource()).getFeature(),
@@ -96,18 +90,9 @@ public class EdgeOnClickHandler extends AbstractHandler implements IOnClickHandl
 			featureFolderView.updateFeatureSelection(tracesToShow);
 
 		} catch (CoreException e) {
-			logger.warn("Couldn't show FeatureFileView");
+			logger.warn("Couldn't open Views");
 		}
 
-//		if(label.equals("")) {
-//			StringBuilder edgeLabel = new StringBuilder();
-//			edge.getFiles().forEach(file -> {
-//				edgeLabel.append(file.getProjectRelativePath().toString() + "\n");
-//			});
-//
-//			ZestProperties.setLabel(edge, edgeLabel.toString());
-//		} else
-//			ZestProperties.setLabel(edge, "");
 	}
 
 	private CustomEdge isCustomEdge(IVisualPart<?> part) {
