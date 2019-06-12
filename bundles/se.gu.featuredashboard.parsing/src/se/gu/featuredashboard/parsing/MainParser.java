@@ -41,8 +41,8 @@ import se.gu.featuredashboard.model.location.ProjectData;
 public class MainParser extends Job {
 	
 	private final String FEATUREDASHBOARD_PREFERENCES_MAIN = "se.gu.featuredashboard.ui.mainPreferences.page";
-	private final String VP_FOLDER_FILE = "vp-folder";
-	private final String VP_FILE_FILE = "vp-file";
+	//private final String VP_FOLDER_FILE = "vp-folder";
+	//private final String VP_FILE_FILE = "vp-file";
 	private final String FEATURE_FILE_FILE = "feature-file";
 	private final String FEATURE_FOLDER_FILE = "feature-folder";
 	private final String CLAFER_FILE = "cfr";
@@ -277,9 +277,7 @@ public class MainParser extends Job {
 			return false;
 
 		return resource.getFileExtension().equals(FEATURE_FILE_FILE) 
-			|| resource.getFileExtension().equals(FEATURE_FOLDER_FILE)
-			|| resource.getFileExtension().equals(VP_FILE_FILE)
-			|| resource.getFileExtension().equals(VP_FOLDER_FILE);
+			|| resource.getFileExtension().equals(FEATURE_FOLDER_FILE);
 	}
 
 	private void setRegex_ofPreferences() {

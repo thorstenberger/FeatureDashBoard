@@ -192,7 +192,7 @@ public class ProjectData {
 			}
 		} else if (resource instanceof IFolder) {
 			for (FeatureLocation location : traces) {
-				if (resource.getProjectRelativePath().isPrefixOf(location.getResource().getProjectRelativePath()))
+				if (location.getFeature().equals(feature) && resource.getProjectRelativePath().isPrefixOf(location.getResource().getProjectRelativePath()))
 					return true;
 			}
 		}

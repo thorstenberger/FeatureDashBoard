@@ -34,8 +34,8 @@ public class ParseMappingFile {
 
 	public static final String FEATUREFILE_FILE = "feature-file";
 	public static final String FEATUREFOLDER_FILE = "feature-folder";
-	public static final String VPFILE_FILE = "vp-files";
-	public static final String VPFOLDER_FILE = "vp-folder";
+	//public static final String VPFILE_FILE = "vp-files";
+	//public static final String VPFOLDER_FILE = "vp-folder";
 
 	public static final String ERRORMESSAGE_COLONS = "Wrong amount of colons";
 	public static final String ERRORMESSAGE_COMMAS = "To many commas";
@@ -55,9 +55,7 @@ public class ParseMappingFile {
 			return Collections.emptyList();
 
 		try (BufferedReader reader = new BufferedReader(new InputStreamReader(featureFile.getContents()))) {
-			if (featureFile.getFileExtension().equals(VPFILE_FILE))
-				return parseVPFileMappingFile(reader, featureFile, project);
-			else if (featureFile.getFileExtension().equals(VPFOLDER_FILE) || featureFile.getFileExtension().equals(FEATUREFOLDER_FILE))
+			if (featureFile.getFileExtension().equals(FEATUREFOLDER_FILE))
 				return parseFolderMappingFile(reader, featureFile);
 			return parseFeatureMappingFile(reader, featureFile, project);
 		} catch (IOException | CoreException e) {
@@ -180,8 +178,7 @@ public class ParseMappingFile {
 			String newResourceLocation = featureFilePath.substring(0,
 					(featureFilePath.length() - mappingFile.getName().length())) + lineElement;
 
-			if (mappingFile.getFileExtension().equals(FEATUREFILE_FILE)
-					|| mappingFile.getFileExtension().equals(VPFILE_FILE))
+			if (mappingFile.getFileExtension().equals(FEATUREFILE_FILE))
 				resources.add(project.getWorkspace().getRoot().getFile(new Path(newResourceLocation)));
 			else
 				resources.add(project.getWorkspace().getRoot().getFolder(new Path(newResourceLocation)));
