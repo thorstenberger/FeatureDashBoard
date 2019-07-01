@@ -42,9 +42,9 @@ import se.gu.featuredashboard.parsing.InFileAnnotationParser;
  */
 public class RegexPreferences extends PreferencePage implements IWorkbenchPreferencePage {
 
-	private static final String DEFAULT_LINE_ANNOTATION_REGEX = InFileAnnotationParser.DEFAULT_LINE_ANNOTATION_REGEX;
-	private static final String DEFAULT_BEGIN_ANNOTATION_REGEX = InFileAnnotationParser.DEFAULT_BEGIN_ANNOTATION_REGEX;
-	private static final String DEFAULT_END_ANNOTATION_REGEX = InFileAnnotationParser.DEFAULT_END_ANNOTATION_REGEX;
+	private static final String DEFAULT_LINE_ANNOTATION_REGEX = InFileAnnotationParser.DEFAULT_LINE_ANNOTATION_REGEX.toString();
+	private static final String DEFAULT_BEGIN_ANNOTATION_REGEX = InFileAnnotationParser.DEFAULT_BEGIN_ANNOTATION_REGEX.toString();
+	private static final String DEFAULT_END_ANNOTATION_REGEX = InFileAnnotationParser.DEFAULT_END_ANNOTATION_REGEX.toString();
 
 	GridLayout gridLayout;
 	Group grpSingleLineAnnotation;

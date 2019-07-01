@@ -316,9 +316,9 @@ public class MainParser extends Job {
 			annotationParser.setRegex_endAnnotation(endRegexList);	
 		}
 		else {
-			annotationParser.setRegex_LineAnnotation(Arrays.asList(InFileAnnotationParser.DEFAULT_LINE_ANNOTATION_REGEX));
-			annotationParser.setRegex_beginAnnotation(Arrays.asList(InFileAnnotationParser.DEFAULT_BEGIN_ANNOTATION_REGEX));
-			annotationParser.setRegex_endAnnotation(Arrays.asList(InFileAnnotationParser.DEFAULT_END_ANNOTATION_REGEX));
+			annotationParser.setRegex_LineAnnotation(Arrays.asList(InFileAnnotationParser.DEFAULT_LINE_ANNOTATION_REGEX.toString()));
+			annotationParser.setRegex_beginAnnotation(Arrays.asList(InFileAnnotationParser.DEFAULT_BEGIN_ANNOTATION_REGEX.toString()));
+			annotationParser.setRegex_endAnnotation(Arrays.asList(InFileAnnotationParser.DEFAULT_END_ANNOTATION_REGEX.toString()));
 		}
 	}
 	

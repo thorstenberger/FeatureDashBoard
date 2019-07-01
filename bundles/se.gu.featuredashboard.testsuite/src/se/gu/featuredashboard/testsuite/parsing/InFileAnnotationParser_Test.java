@@ -149,8 +149,8 @@ public class InFileAnnotationParser_Test {
 
 	@Test
 	public void appendAnnotationsTest() {
-		Map<String, ArrayList<Integer>> annotation1 = new HashMap<>();
-		Map<String, ArrayList<Integer>> annotation2 = new HashMap<>();
+		Map<String, List<Integer>> annotation1 = new HashMap<>();
+		Map<String, List<Integer>> annotation2 = new HashMap<>();
 
 		assertEquals("empty annotations", 0,
 				InFileAnnotationParser.appendAnnotations(annotation1, annotation2).size());
