@@ -4,14 +4,15 @@
 			<unit id="org.eclipse.gef.zest.sdk.feature.group" version="5.0.2.201711130301"/>
 			<repository location="http://download.eclipse.org/releases/oxygen"/>
 			<unit id="org.eclipse.sdk.feature.group" version="4.7.3.v20180330-0919"/>
+			<unit id="org.eclipse.cdt.feature.group" version="9.4.3.201802261533"/>
 		</location>
 		<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
 			<unit id="com.google.guava" version="21.0.0.v20170206-1425"/>
 			<repository location="https://download.eclipse.org/tools/orbit/downloads/drops/R20180330011457/repository"/>
 		</location>
 		<location includeAllPlatforms="false" includeConfigurePhase="true" includeMode="planner" includeSource="true" type="InstallableUnit">
-			<unit id="org.eclipse.capra.feature.feature.group"/>
-			<repository location="https://hudson.eclipse.org/capra/job/build-src-develop-nightly/lastSuccessfulBuild/artifact/org.eclipse.capra.releng.p2/target/repository/"/>
+			<unit id="org.eclipse.capra.feature.feature.group" version="0.7.0"/>
+			<repository location="https://download.eclipse.org/capra/releases/0.7.0/"/>
 		</location>
 	</locations>
 </target>
